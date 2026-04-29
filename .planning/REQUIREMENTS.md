@@ -1,0 +1,139 @@
+# Requirements: MathGaze
+
+**Defined:** 2026-04-29
+**Core Value:** A student can complete a GCSE geometry question — measuring angles, drawing lines, selecting answers — using only their eyes, without the app reducing the cognitive challenge of the maths itself.
+
+## v1 Requirements
+
+### Core
+
+- [ ] **CORE-01**: User can open a PDF file from local disk
+- [ ] **CORE-02**: User can navigate to any page in the loaded PDF
+- [ ] **CORE-03**: User can zoom in and out of the PDF view
+- [ ] **CORE-04**: App runs as a self-contained EXE with no admin install and no pre-installed runtime required
+
+### Geometry Tools
+
+- [ ] **GEOM-01**: User can place a Point with one click
+- [ ] **GEOM-02**: User can draw a Line (segment) with two clicks (click start → click end)
+- [ ] **GEOM-03**: User can draw a Circle with two clicks (click centre → click radius point)
+- [ ] **GEOM-04**: User can select any geometry object with one click
+- [ ] **GEOM-05**: User can nudge a selected object using step controls in the right rail (step sizes: 1 / 5 / 20 px)
+- [ ] **GEOM-06**: User can delete a selected object via a right-rail action
+- [ ] **GEOM-07**: User can snap new points to existing object endpoints, line-line intersections, and orientation guides (vertical / horizontal / 45°)
+
+### Protractor
+
+- [ ] **PROT-01**: User can activate Protractor mode, click two lines, and have the protractor auto-placed at their intersection with baseline aligned to the first line
+- [ ] **PROT-02**: User can rotate the placed protractor ±1° and ±5° via right-rail buttons
+- [ ] **PROT-03**: User can flip the protractor between inner scale (0°→180° left-to-right) and outer scale (180°→0°)
+- [ ] **PROT-04**: User can lock the protractor position to prevent accidental nudge
+- [ ] **PROT-05**: User can choose between 180° classic style and 360° full-circle style (required for bearings questions)
+- [ ] **PROT-06**: In Practice Mode, protractor shows a live angle readout; in Exam Mode, no numeric value is displayed
+
+### Text
+
+- [ ] **TEXT-01**: User can place a text box at a clicked location on the canvas; Grid 3 can type into it via standard Windows text input
+- [ ] **TEXT-02**: A selected text box responds to nudge controls for repositioning
+
+### Multiple Choice Answers
+
+- [ ] **ANS-01**: User can click an answer option region to select it (region highlighted with visual tick indicator)
+- [ ] **ANS-02**: User can toggle selection to change their answer
+- [ ] **ANS-03**: User can lock a selected answer to prevent accidental change
+
+### System
+
+- [ ] **SYS-01**: User can undo any action and redo previously undone actions
+- [ ] **SYS-02**: Work is auto-saved to a JSON sidecar file alongside the PDF after every change (no manual save required)
+- [ ] **SYS-03**: User can resume a previous session by opening the same PDF — all geometry objects restore
+- [ ] **SYS-04**: User can toggle between Practice Mode (live angle readout shown) and Exam Mode (angle readout hidden) via a chip in the top bar
+- [ ] **SYS-05**: The current mode indicator (Practice / Exam) is permanently visible in the top bar at all times
+
+## v2 Requirements
+
+### Geometry Tools
+
+- **GEOM-V2-01**: Mark / Highlight tool — draw a freehand highlight over text in the PDF to mark the question the student is working on
+- **GEOM-V2-02**: Geometry notation marks — right-angle square, angle arc marker, equal-length tick marks, parallel arrow markers
+
+### Transformations (Computational)
+
+- **TRANS-V2-01**: Computational reflection — student selects a drawn shape + a mirror line; app produces the reflected image as a new polygon
+- **TRANS-V2-02**: Rotation — select shape, select centre, rotate by angle
+- **TRANS-V2-03**: Translation — select shape, apply vector offset
+- **TRANS-V2-04**: Enlargement — select shape, select centre, apply scale factor
+
+### Advanced Constructions
+
+- **CONS-V2-01**: Midpoint tool — click a segment, place its midpoint
+- **CONS-V2-02**: Perpendicular line through a point
+- **CONS-V2-03**: Parallel line through a point
+- **CONS-V2-04**: Angle bisector — place bisector of angle formed by two lines
+
+### Exam Compliance
+
+- **EXAM-V2-01**: Full JCQ-compliant Exam Mode lockdown — verify against current AARA guidance before implementing
+- **EXAM-V2-02**: Export annotated PDF for submission
+
+### UX
+
+- **UX-V2-01**: Object locking — lock individual geometry objects to prevent accidental edits
+- **UX-V2-02**: Colour coding — assign colour to objects to organise working
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| In-app keyboard | Grid 3 handles all text input; no duplication needed |
+| Cross-platform (iPad, Mac) | Windows-only by design; native stack commitment |
+| Drag gestures | Gaze-incompatible; everything is click-to-commit |
+| Auto-solving / AI assistance | Exam integrity; app assists process, not answers |
+| Real-time collaboration | Single-user, offline tool |
+| Computational shape reflection in v1 | Student draws the reflected image manually using Line tool; the cognitive work is the student's |
+| PDF shape detection (computer vision) | High complexity, high risk, not required for GCSE tasks |
+| Draw tool (freehand) | Gaze-incompatible; accuracy too low for exam work |
+| In-app PDF annotation export (v1) | Deferred to v2; JSON sidecar is sufficient for v1 |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| CORE-01 | — | Pending |
+| CORE-02 | — | Pending |
+| CORE-03 | — | Pending |
+| CORE-04 | — | Pending |
+| GEOM-01 | — | Pending |
+| GEOM-02 | — | Pending |
+| GEOM-03 | — | Pending |
+| GEOM-04 | — | Pending |
+| GEOM-05 | — | Pending |
+| GEOM-06 | — | Pending |
+| GEOM-07 | — | Pending |
+| PROT-01 | — | Pending |
+| PROT-02 | — | Pending |
+| PROT-03 | — | Pending |
+| PROT-04 | — | Pending |
+| PROT-05 | — | Pending |
+| PROT-06 | — | Pending |
+| TEXT-01 | — | Pending |
+| TEXT-02 | — | Pending |
+| ANS-01 | — | Pending |
+| ANS-02 | — | Pending |
+| ANS-03 | — | Pending |
+| SYS-01 | — | Pending |
+| SYS-02 | — | Pending |
+| SYS-03 | — | Pending |
+| SYS-04 | — | Pending |
+| SYS-05 | — | Pending |
+
+**Coverage:**
+- v1 requirements: 27 total
+- Mapped to phases: 0 (roadmap pending)
+- Unmapped: 27 ⚠️
+
+---
+*Requirements defined: 2026-04-29*
+*Last updated: 2026-04-29 after initial definition*
