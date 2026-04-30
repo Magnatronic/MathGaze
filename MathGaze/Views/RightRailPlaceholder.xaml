@@ -1,0 +1,27 @@
+<UserControl x:Class="MathGaze.Views.RightRailPlaceholder"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Width="148"
+             Background="{StaticResource BrushSurface}">
+    <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1,0,0,0">
+        <StackPanel Margin="12,14">
+            <!-- Dashed "Nothing selected" box — WPF Border does not support dashes natively.
+                 Using a Rectangle with StrokeDashArray drawn via a custom Adorner-free approach:
+                 overlay a transparent Rectangle on top of content with a dashed stroke. -->
+            <Grid>
+                <Rectangle Margin="0" RadiusX="10" RadiusY="10"
+                           Stroke="{StaticResource BrushBorder}" StrokeThickness="1.5"
+                           StrokeDashArray="4,4" Fill="Transparent"/>
+                <StackPanel Margin="12,14">
+                    <TextBlock Text="NOTHING SELECTED"
+                               FontSize="9" FontWeight="Bold"
+                               Foreground="{StaticResource BrushInk3}"
+                               Margin="0,0,0,4"/>
+                    <TextBlock Text="Pick a tool on the left, or click an object on the page."
+                               FontSize="12" Foreground="{StaticResource BrushInk2}"
+                               TextWrapping="Wrap" LineHeight="17"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

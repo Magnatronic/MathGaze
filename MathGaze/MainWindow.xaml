@@ -1,9 +1,48 @@
 <Window x:Class="MathGaze.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MathGaze" Height="768" Width="1280"
-        WindowStartupLocation="CenterScreen">
+        xmlns:views="clr-namespace:MathGaze.Views"
+        xmlns:vm="clr-namespace:MathGaze.ViewModels"
+        Title="MathGaze" Height="800" Width="1280"
+        MinHeight="600" MinWidth="900"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BrushBg}">
     <Grid>
-        <TextBlock Text="MathGaze — scaffold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- TopBar — spans full width, row 0 -->
+        <views:TopBar Grid.Row="0"
+                      DataContext="{Binding}"
+                      Panel.ZIndex="3"/>
+
+        <!-- Content area — row 1 -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="104"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="148"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left tool rail -->
+            <views:ToolRail Grid.Column="0" Panel.ZIndex="2"/>
+
+            <!-- Centre: canvas -->
+            <views:PdfCanvas Grid.Column="1" x:Name="PdfCanvasView"
+                             DataContext="{Binding}"/>
+
+            <!-- ScrollRail overlaid on right edge of canvas, inside canvas column -->
+            <views:ScrollRail Grid.Column="1"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Stretch"
+                              DataContext="{Binding}"
+                              Margin="0,0,6,0"
+                              Panel.ZIndex="2"/>
+
+            <!-- Right rail -->
+            <views:RightRailPlaceholder Grid.Column="2" Panel.ZIndex="2"/>
+        </Grid>
     </Grid>
 </Window>
