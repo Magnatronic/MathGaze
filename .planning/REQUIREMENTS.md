@@ -9,7 +9,7 @@
 
 - [ ] **CORE-01**: User can open a PDF file from local disk
 - [ ] **CORE-02**: User can navigate to any page in the loaded PDF
-- [ ] **CORE-03**: User can zoom in and out of the PDF view
+- [x] **CORE-03**: User can zoom in and out of the PDF view
 - [x] **CORE-04**: App runs as a self-contained EXE with no admin install and no pre-installed runtime required
 
 ### Geometry Tools
@@ -103,7 +103,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | CORE-01 | Phase 1 | Pending |
 | CORE-02 | Phase 1 | Pending |
-| CORE-03 | Phase 1 | Pending |
+| CORE-03 | Phase 1 | Complete |
 | CORE-04 | Phase 1 | Complete |
 | GEOM-01 | Phase 2 | Pending |
 | GEOM-02 | Phase 2 | Pending |

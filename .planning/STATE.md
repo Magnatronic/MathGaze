@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-foundation/01-01-PLAN.md
-last_updated: "2026-04-30T16:21:26.502Z"
+stopped_at: "Checkpoint: 01-foundation/01-02 Task 3 human-verify"
+last_updated: "2026-04-30T16:31:25.682Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
-  percent: 20
+  completed_plans: 2
+  percent: 40
 ---
 
 # Project State
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Test project must target net9.0-windows (not net9.0) to reference a WPF project
 - [Phase 01-foundation]: SkiaSharp.Views.WPF 3.119.2 NU1701 warnings are expected on net9.0-windows and do not block compilation or runtime
 - [Phase 01-foundation]: .NET 9 SDK installed to C:\dotnet9 via dotnet-install.ps1 (machine had only .NET 8 runtime, no SDK)
+- [Phase 01-foundation]: SKElement is the correct WPF control name in SkiaSharp.Views.WPF 3.119.2 — SKXamlCanvas is WinUI 3 only
+- [Phase 01-foundation]: PaintSurface event must be wired in code-behind (not XAML) to avoid XAML temp-project compat shim resolution failure for SKPaintSurfaceEventArgs
+- [Phase 01-foundation]: WPF Border does not support StrokeDashArray — use Rectangle with StrokeDashArray for dashed borders
 
 ### Pending Todos
 
@@ -83,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T16:21:26.499Z
-Stopped at: Completed 01-foundation/01-01-PLAN.md
+Last session: 2026-04-30T16:31:17.336Z
+Stopped at: Checkpoint: 01-foundation/01-02 Task 3 human-verify
 Resume file: None

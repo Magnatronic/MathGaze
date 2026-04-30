@@ -32,7 +32,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 5 plans
 Plans:
 - [x] 01-01-PLAN.md — Project scaffold + CoordinateMapper + 32 unit tests (CORE-04 foundation)
-- [ ] 01-02-PLAN.md — 3-column WPF shell: TopBar, ToolRail stubs, PdfCanvas, ScrollRail, RightRail (visual)
+- [x] 01-02-PLAN.md — 3-column WPF shell: TopBar, ToolRail stubs, PdfCanvas, ScrollRail, RightRail (visual)
 - [ ] 01-03-PLAN.md — PDF rendering pipeline: IPdfService, DocnetPdfService, PdfCanvasViewModel, PaintSurface
 - [ ] 01-04-PLAN.md — Interactive wiring: all TopBar + ScrollRail commands in MainViewModel (CORE-01, CORE-02, CORE-03)
 - [ ] 01-05-PLAN.md — Self-contained publish + deployment verification (CORE-04)
@@ -87,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/5 | In Progress|  |
+| 1. Foundation | 2/5 | In Progress|  |
 | 2. Geometry Core | 0/TBD | Not started | - |
 | 3. Protractor | 0/TBD | Not started | - |
 | 4. Answer Layer | 0/TBD | Not started | - |
