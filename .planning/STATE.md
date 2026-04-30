@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Checkpoint: 01-foundation/01-02 Task 3 human-verify"
-last_updated: "2026-04-30T16:31:25.682Z"
+stopped_at: Completed 01-foundation/01-02-PLAN.md
+last_updated: "2026-04-30T16:53:01.175Z"
 last_activity: 2026-04-30
 progress:
   total_phases: 4
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-29)
 ## Current Position
 
 Phase: 01 (foundation) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-04-30
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 35 | 2 tasks | 10 files |
+| Phase 01-foundation P02 | 20 | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,10 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: SKElement is the correct WPF control name in SkiaSharp.Views.WPF 3.119.2 — SKXamlCanvas is WinUI 3 only
 - [Phase 01-foundation]: PaintSurface event must be wired in code-behind (not XAML) to avoid XAML temp-project compat shim resolution failure for SKPaintSurfaceEventArgs
 - [Phase 01-foundation]: WPF Border does not support StrokeDashArray — use Rectangle with StrokeDashArray for dashed borders
+- [Phase 01-foundation]: SKElement is the correct WPF control name in SkiaSharp.Views.WPF 3.119.2 — SKXamlCanvas is WinUI 3 only
+- [Phase 01-foundation]: PaintSurface event must be wired in code-behind (not XAML) to avoid XAML temp-project compat shim resolution failure for SKPaintSurfaceEventArgs
+- [Phase 01-foundation]: WPF Border does not support StrokeDashArray — use Rectangle with StrokeDashArray for dashed borders
+- [Phase 01-foundation]: All stub RelayCommands added to MainViewModel upfront to prevent XAML binding warnings at runtime
 
 ### Pending Todos
 
@@ -86,6 +91,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-30T16:31:17.336Z
-Stopped at: Checkpoint: 01-foundation/01-02 Task 3 human-verify
+Last session: 2026-04-30T16:53:01.172Z
+Stopped at: Completed 01-foundation/01-02-PLAN.md
 Resume file: None
