@@ -1,3 +1,4 @@
+using MathGaze.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
@@ -15,7 +16,10 @@ public partial class App : Application
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
-                // Services — Phase 1 stubs; real implementations added in later tasks
+                // ViewModels
+                services.AddSingleton<MainViewModel>();
+
+                // Windows — resolved from DI so they can receive injected ViewModels
                 services.AddSingleton<MainWindow>();
             })
             .Build();
