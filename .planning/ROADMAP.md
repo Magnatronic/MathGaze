@@ -29,7 +29,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can navigate to any page in a multi-page PDF
   4. User can zoom in and out and the PDF view updates correctly
   5. CoordinateMapper unit tests pass at zoom 0.5×/1×/1.5×/2× and DPI 100/125/150/200%
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [x] 01-01-PLAN.md — Project scaffold + CoordinateMapper + 32 unit tests (CORE-04 foundation)
+- [ ] 01-02-PLAN.md — 3-column WPF shell: TopBar, ToolRail stubs, PdfCanvas, ScrollRail, RightRail (visual)
+- [ ] 01-03-PLAN.md — PDF rendering pipeline: IPdfService, DocnetPdfService, PdfCanvasViewModel, PaintSurface
+- [ ] 01-04-PLAN.md — Interactive wiring: all TopBar + ScrollRail commands in MainViewModel (CORE-01, CORE-02, CORE-03)
+- [ ] 01-05-PLAN.md — Self-contained publish + deployment verification (CORE-04)
 **UI hint**: yes
 
 ### Phase 2: Geometry Core
@@ -81,7 +87,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/TBD | Not started | - |
+| 1. Foundation | 1/5 | In Progress|  |
 | 2. Geometry Core | 0/TBD | Not started | - |
 | 3. Protractor | 0/TBD | Not started | - |
 | 4. Answer Layer | 0/TBD | Not started | - |
