@@ -32,6 +32,12 @@ public partial class App : Application
 
         await _host.StartAsync();
 
+        // Break circular constructor dependency: MainViewModel ↔ PdfCanvasViewModel.
+        // Both are singletons so resolving them here and cross-wiring is safe.
+        var mainVm      = _host.Services.GetRequiredService<MainViewModel>();
+        var pdfCanvasVm = _host.Services.GetRequiredService<PdfCanvasViewModel>();
+        mainVm.SetPdfCanvasViewModel(pdfCanvasVm);
+
         var window = _host.Services.GetRequiredService<MainWindow>();
         window.Show();
     }

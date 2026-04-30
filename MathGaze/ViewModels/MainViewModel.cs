@@ -1,55 +1,221 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MathGaze.Services;
+using System.IO;
 
 namespace MathGaze.ViewModels;
 
 /// <summary>
-/// Top-level ViewModel: file state, mode toggle, zoom, page navigation.
-/// Commands for PDF open/close, zoom, page nav, and scroll are wired in Plan 04
-/// after PDF service is available. This plan provides the observable state skeleton.
+/// Top-level ViewModel: file state, mode, zoom, page navigation, scroll.
+/// All commands are RelayCommand/AsyncRelayCommand — safe to bind directly in XAML.
+///
+/// PdfCanvasViewModel is wired via SetPdfCanvasViewModel() after both singletons are
+/// resolved by DI (avoids a circular constructor dependency).
 /// </summary>
 public partial class MainViewModel : ObservableObject
 {
+    private readonly IPdfService        _pdfService;
+    private readonly IFileDialogService _fileDialogService;
+    private PdfCanvasViewModel?         _pdfCanvasVm;
+
+    public MainViewModel(
+        IPdfService pdfService,
+        IFileDialogService fileDialogService)
+    {
+        _pdfService        = pdfService;
+        _fileDialogService = fileDialogService;
+    }
+
+    /// <summary>
+    /// Called from App.xaml.cs after both singletons are resolved to break the circular
+    /// constructor dependency (MainViewModel ↔ PdfCanvasViewModel).
+    /// </summary>
+    public void SetPdfCanvasViewModel(PdfCanvasViewModel pdfCanvasViewModel)
+    {
+        _pdfCanvasVm = pdfCanvasViewModel;
+    }
+
     // ── File state ──────────────────────────────────────────────────────────────
-    [ObservableProperty] private string _fileName = string.Empty;
-    [ObservableProperty] private bool   _isPdfOpen = false;
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CloseFileCommand))]
+    private bool _isPdfOpen;
+
+    [ObservableProperty]
+    private string _fileName = string.Empty;
 
     // ── Mode ────────────────────────────────────────────────────────────────────
-    /// <summary>True = Practice Mode (angle readouts visible). False = Exam Mode (hidden).</summary>
-    [ObservableProperty] private bool _isPracticeMode = true;
+    [ObservableProperty]
+    private bool _isPracticeMode = true;
+
+    [RelayCommand]
+    private void ToggleMode() => IsPracticeMode = !IsPracticeMode;
 
     // ── Zoom ────────────────────────────────────────────────────────────────────
-    /// <summary>1.0 = 100%. Range: 0.25 to 4.0. Updated by zoom commands in Plan 04.</summary>
-    [ObservableProperty] private double _zoomFactor = 1.0;
+    private static readonly double[] ZoomSteps =
+        { 0.25, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 3.75, 4.00 };
 
-    /// <summary>Display string for TopBar zoom indicator, e.g. "100%".</summary>
+    [ObservableProperty]
+    private double _zoomFactor = 1.0;
+
     public string ZoomLabel => $"{(int)Math.Round(ZoomFactor * 100)}%";
 
     partial void OnZoomFactorChanged(double value) => OnPropertyChanged(nameof(ZoomLabel));
 
-    // ── Page navigation ─────────────────────────────────────────────────────────
-    /// <summary>1-based current page index.</summary>
-    [ObservableProperty] private int _currentPage = 1;
+    [RelayCommand]
+    private void ZoomIn()
+    {
+        // Find the next step above current zoom
+        var next = ZoomSteps.FirstOrDefault(z => z > ZoomFactor + 0.001);
+        if (next > 0) ZoomFactor = next;
+    }
 
+    [RelayCommand]
+    private void ZoomOut()
+    {
+        // Find the next step below current zoom
+        var prev = ZoomSteps.LastOrDefault(z => z < ZoomFactor - 0.001);
+        if (prev > 0) ZoomFactor = prev;
+    }
+
+    [RelayCommand]
+    private void FitPage()
+    {
+        // Set zoom so the full page height fits in the canvas viewport.
+        if (!IsPdfOpen) return;
+
+        var (_, heightPt) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
+        if (heightPt <= 0) return;
+
+        int canvasHeightPx = _pdfCanvasVm?.CanvasHeightPx ?? 0;
+        if (canvasHeightPx <= 0)
+        {
+            ZoomFactor = 1.0;
+            return;
+        }
+
+        // Compute zoom that makes page height == canvas height (at 96 DPI baseline)
+        double zoom = canvasHeightPx / (heightPt * 96.0 / 72.0);
+        // Clamp to valid range
+        zoom = Math.Clamp(zoom, ZoomSteps[0], ZoomSteps[^1]);
+        ZoomFactor = zoom;
+    }
+
+    // ── Page navigation ─────────────────────────────────────────────────────────
+    [ObservableProperty] private int _currentPage = 1;
     [ObservableProperty] private int _totalPages = 0;
 
-    /// <summary>Display string for TopBar page counter, e.g. "7 / 22".</summary>
     public string PageLabel => TotalPages > 0 ? $"{CurrentPage} / {TotalPages}" : "— / —";
 
     partial void OnCurrentPageChanged(int value) => OnPropertyChanged(nameof(PageLabel));
     partial void OnTotalPagesChanged(int value)  => OnPropertyChanged(nameof(PageLabel));
 
-    // ── Stub commands (Plan 04 wires real implementations) ──────────────────────
-    [RelayCommand] private void ToggleMode()       => IsPracticeMode = !IsPracticeMode;
-    [RelayCommand] private void OpenFile()         { /* wired in Plan 04 */ }
-    [RelayCommand] private void CloseFile()        { /* wired in Plan 04 */ }
-    [RelayCommand] private void ZoomIn()           { /* wired in Plan 04 */ }
-    [RelayCommand] private void ZoomOut()          { /* wired in Plan 04 */ }
-    [RelayCommand] private void FitPage()          { /* wired in Plan 04 */ }
-    [RelayCommand] private void PreviousPage()     { /* wired in Plan 04 */ }
-    [RelayCommand] private void NextPage()         { /* wired in Plan 04 */ }
-    [RelayCommand] private void ScrollUp()         { /* wired in Plan 04 */ }
-    [RelayCommand] private void ScrollDown()       { /* wired in Plan 04 */ }
-    [RelayCommand] private void ScrollPageUp()     { /* wired in Plan 04 */ }
-    [RelayCommand] private void ScrollPageDown()   { /* wired in Plan 04 */ }
+    [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
+    private void PreviousPage()
+    {
+        if (CurrentPage > 1) CurrentPage--;
+    }
+    private bool CanGoToPreviousPage() => IsPdfOpen && CurrentPage > 1;
+
+    [RelayCommand(CanExecute = nameof(CanGoToNextPage))]
+    private void NextPage()
+    {
+        if (CurrentPage < TotalPages) CurrentPage++;
+    }
+    private bool CanGoToNextPage() => IsPdfOpen && CurrentPage < TotalPages;
+
+    partial void OnIsPdfOpenChanged(bool value)
+    {
+        PreviousPageCommand.NotifyCanExecuteChanged();
+        NextPageCommand.NotifyCanExecuteChanged();
+    }
+
+    // ── Scroll ──────────────────────────────────────────────────────────────────
+    // ScrollOffsetY is the logical Y offset in physical pixels (positive = scrolled down).
+    // PdfCanvasViewModel reads this via MainViewModel.ScrollOffsetY to offset canvasOriginY.
+    [ObservableProperty]
+    private double _scrollOffsetY = 0;
+
+    private const double SmallScrollPx = 120.0;
+
+    [RelayCommand]
+    private void ScrollUp()
+    {
+        ScrollOffsetY = Math.Max(0, ScrollOffsetY - SmallScrollPx);
+    }
+
+    [RelayCommand]
+    private void ScrollDown()
+    {
+        ScrollOffsetY += SmallScrollPx;
+        ClampScrollOffset();
+    }
+
+    [RelayCommand]
+    private void ScrollPageUp()
+    {
+        double pageScroll = (_pdfCanvasVm?.CanvasHeightPx ?? 0) * 0.85;
+        if (pageScroll <= 0) pageScroll = SmallScrollPx * 5;
+        ScrollOffsetY = Math.Max(0, ScrollOffsetY - pageScroll);
+    }
+
+    [RelayCommand]
+    private void ScrollPageDown()
+    {
+        double pageScroll = (_pdfCanvasVm?.CanvasHeightPx ?? 0) * 0.85;
+        if (pageScroll <= 0) pageScroll = SmallScrollPx * 5;
+        ScrollOffsetY += pageScroll;
+        ClampScrollOffset();
+    }
+
+    private void ClampScrollOffset()
+    {
+        if (!IsPdfOpen) return;
+        var (_, heightPt) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
+        double pageHeightPx = heightPt * (ZoomFactor * 96.0 / 72.0);
+        double canvasH = _pdfCanvasVm?.CanvasHeightPx ?? 0;
+        double maxScroll = Math.Max(0, pageHeightPx - canvasH);
+        ScrollOffsetY = Math.Min(ScrollOffsetY, maxScroll);
+    }
+
+    // ── File commands ───────────────────────────────────────────────────────────
+    [RelayCommand]
+    private async Task OpenFileAsync()
+    {
+        // ShowOpenPdfDialog MUST run on the UI thread (WPF dialog requirement)
+        string? filePath = _fileDialogService.ShowOpenPdfDialog();
+        if (filePath is null) return;
+
+        bool success = await _pdfService.OpenDocumentAsync(filePath).ConfigureAwait(false);
+        if (!success) return;
+
+        // Update ViewModel state on UI thread
+        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+        {
+            FileName      = Path.GetFileName(filePath);
+            TotalPages    = _pdfService.PageCount;
+            CurrentPage   = 1;
+            IsPdfOpen     = true;
+            ScrollOffsetY = 0;
+        });
+
+        // Trigger initial render
+        if (_pdfCanvasVm is not null)
+            await _pdfCanvasVm.OnDocumentOpenedAsync().ConfigureAwait(false);
+
+        // Set fit-page zoom on first open (discretion: fit-page is sensible default)
+        await System.Windows.Application.Current.Dispatcher.InvokeAsync(FitPage);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanCloseFile))]
+    private void CloseFile()
+    {
+        _pdfService.CloseDocument();
+        FileName      = string.Empty;
+        TotalPages    = 0;
+        CurrentPage   = 1;
+        IsPdfOpen     = false;
+        ZoomFactor    = 1.0;
+        ScrollOffsetY = 0;
+    }
+    private bool CanCloseFile() => IsPdfOpen;
 }

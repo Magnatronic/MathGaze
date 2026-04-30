@@ -45,12 +45,17 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
 
     private void OnMainViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName is nameof(MainViewModel.CurrentPage) or nameof(MainViewModel.ZoomFactor))
+        if (e.PropertyName is nameof(MainViewModel.CurrentPage)
+                           or nameof(MainViewModel.ZoomFactor)
+                           or nameof(MainViewModel.ScrollOffsetY))
         {
             // Fire-and-forget page re-render; errors are swallowed (bitmap stays null = grey canvas)
             _ = LoadCurrentPageAsync();
         }
     }
+
+    /// <summary>Last-known canvas height in physical pixels. Used by MainViewModel for fit-page and scroll clamping.</summary>
+    public int CanvasHeightPx => _canvasHeightPx;
 
     /// <summary>
     /// Called by PdfCanvas.xaml.cs when the SKElement has reported its physical pixel dimensions.
@@ -127,7 +132,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
                 pageWidthPt:   widthPt,
                 pageHeightPt:  heightPt,
                 canvasOriginX: originX,
-                canvasOriginY: 0);
+                canvasOriginY: -_mainVm.ScrollOffsetY);   // negative: scrolling down increases offset, moves content up
         }
         else
         {
@@ -137,7 +142,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
                 pageWidthPt:   widthPt,
                 pageHeightPt:  heightPt,
                 canvasOriginX: originX,
-                canvasOriginY: 0);
+                canvasOriginY: -_mainVm.ScrollOffsetY);   // negative: scrolling down increases offset, moves content up
         }
     }
 
