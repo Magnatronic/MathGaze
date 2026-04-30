@@ -23,6 +23,7 @@ public partial class App : Application
 
                 // ViewModels
                 services.AddSingleton<MainViewModel>();
+                services.AddSingleton<PdfCanvasViewModel>();
 
                 // Windows — resolved from DI so they can receive injected ViewModels
                 services.AddSingleton<MainWindow>();

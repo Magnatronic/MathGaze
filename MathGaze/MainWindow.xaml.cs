@@ -5,9 +5,14 @@ namespace MathGaze;
 
 public partial class MainWindow : Window
 {
-    public MainWindow(MainViewModel viewModel)
+    private readonly PdfCanvasViewModel _pdfCanvasVm;
+
+    public MainWindow(MainViewModel viewModel, PdfCanvasViewModel pdfCanvasViewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
+        _pdfCanvasVm = pdfCanvasViewModel;
+        // Wire PdfCanvas DataContext to its dedicated ViewModel
+        PdfCanvasView.DataContext = pdfCanvasViewModel;
     }
 }
