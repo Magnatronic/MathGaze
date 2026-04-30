@@ -1,3 +1,4 @@
+using MathGaze.Services;
 using MathGaze.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -16,6 +17,10 @@ public partial class App : Application
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
+                // Services
+                services.AddSingleton<IPdfService, DocnetPdfService>();
+                services.AddSingleton<IFileDialogService, FileDialogService>();
+
                 // ViewModels
                 services.AddSingleton<MainViewModel>();
 
