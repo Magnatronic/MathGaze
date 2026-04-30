@@ -128,16 +128,10 @@ public sealed class DocnetPdfService : IPdfService
                 var imageInfo = new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
                 var bitmap    = new SKBitmap(imageInfo);
 
-                var gcHandle = GCHandle.Alloc(rawBytes, GCHandleType.Pinned);
-                try
-                {
-                    bitmap.InstallPixels(imageInfo, gcHandle.AddrOfPinnedObject(),
-                        imageInfo.RowBytes);
-                }
-                finally
-                {
-                    gcHandle.Free();
-                }
+                // Copy pixel data directly into the bitmap's own managed pixel buffer.
+                // InstallPixels only stores a pointer — using it with a freed GCHandle
+                // leaves a dangling pointer and produces a blank or corrupted image.
+                Marshal.Copy(rawBytes, 0, bitmap.GetPixels(), rawBytes.Length);
 
                 // If we swapped dimensions for landscape, rotate the bitmap 90°
                 if (needsSwap)
