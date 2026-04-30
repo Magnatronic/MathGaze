@@ -101,39 +101,39 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORE-01 | — | Pending |
-| CORE-02 | — | Pending |
-| CORE-03 | — | Pending |
-| CORE-04 | — | Pending |
-| GEOM-01 | — | Pending |
-| GEOM-02 | — | Pending |
-| GEOM-03 | — | Pending |
-| GEOM-04 | — | Pending |
-| GEOM-05 | — | Pending |
-| GEOM-06 | — | Pending |
-| GEOM-07 | — | Pending |
-| PROT-01 | — | Pending |
-| PROT-02 | — | Pending |
-| PROT-03 | — | Pending |
-| PROT-04 | — | Pending |
-| PROT-05 | — | Pending |
-| PROT-06 | — | Pending |
-| TEXT-01 | — | Pending |
-| TEXT-02 | — | Pending |
-| ANS-01 | — | Pending |
-| ANS-02 | — | Pending |
-| ANS-03 | — | Pending |
-| SYS-01 | — | Pending |
-| SYS-02 | — | Pending |
-| SYS-03 | — | Pending |
-| SYS-04 | — | Pending |
-| SYS-05 | — | Pending |
+| CORE-01 | Phase 1 | Pending |
+| CORE-02 | Phase 1 | Pending |
+| CORE-03 | Phase 1 | Pending |
+| CORE-04 | Phase 1 | Pending |
+| GEOM-01 | Phase 2 | Pending |
+| GEOM-02 | Phase 2 | Pending |
+| GEOM-03 | Phase 2 | Pending |
+| GEOM-04 | Phase 2 | Pending |
+| GEOM-05 | Phase 2 | Pending |
+| GEOM-06 | Phase 2 | Pending |
+| GEOM-07 | Phase 2 | Pending |
+| PROT-01 | Phase 3 | Pending |
+| PROT-02 | Phase 3 | Pending |
+| PROT-03 | Phase 3 | Pending |
+| PROT-04 | Phase 3 | Pending |
+| PROT-05 | Phase 3 | Pending |
+| PROT-06 | Phase 3 | Pending |
+| TEXT-01 | Phase 4 | Pending |
+| TEXT-02 | Phase 4 | Pending |
+| ANS-01 | Phase 4 | Pending |
+| ANS-02 | Phase 4 | Pending |
+| ANS-03 | Phase 4 | Pending |
+| SYS-01 | Phase 2 | Pending |
+| SYS-02 | Phase 4 | Pending |
+| SYS-03 | Phase 4 | Pending |
+| SYS-04 | Phase 3 | Pending |
+| SYS-05 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 27 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 27 ⚠️
+- Mapped to phases: 27
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-29*
-*Last updated: 2026-04-29 after initial definition*
+*Last updated: 2026-04-29 after roadmap creation*
