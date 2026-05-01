@@ -59,13 +59,19 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
 
     /// <summary>
     /// Called by PdfCanvas.xaml.cs when the SKElement has reported its physical pixel dimensions.
-    /// Triggers a re-render at the new canvas size.
+    /// If a document is already open, triggers a full page reload at the new size so the bitmap
+    /// matches the canvas dimensions (covers the case where canvas size arrives after document
+    /// open, or after a window resize).
     /// </summary>
     public void SetCanvasSize(int widthPx, int heightPx)
     {
         _canvasWidthPx  = widthPx;
         _canvasHeightPx = heightPx;
-        InvalidationRequested?.Invoke(this, EventArgs.Empty);
+
+        if (_pdfService.IsOpen)
+            _ = LoadCurrentPageAsync();
+        else
+            InvalidationRequested?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

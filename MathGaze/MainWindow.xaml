@@ -29,9 +29,8 @@
             <!-- Left tool rail -->
             <views:ToolRail Grid.Column="0" Panel.ZIndex="2"/>
 
-            <!-- Centre: canvas -->
-            <views:PdfCanvas Grid.Column="1" x:Name="PdfCanvasView"
-                             DataContext="{Binding}"/>
+            <!-- Centre: canvas — DataContext is set in code-behind to PdfCanvasViewModel -->
+            <views:PdfCanvas Grid.Column="1" x:Name="PdfCanvasView"/>
 
             <!-- ScrollRail overlaid on right edge of canvas, inside canvas column -->
             <views:ScrollRail Grid.Column="1"

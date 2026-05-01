@@ -23,18 +23,35 @@ public partial class PdfCanvas : UserControl
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        // Obtain PdfCanvasViewModel from DataContext.
-        // MainWindow sets PdfCanvas.DataContext = PdfCanvasViewModel instance (wired in App.xaml.cs).
-        _vm = DataContext as PdfCanvasViewModel;
+        // Wire DataContextChanged so we capture the ViewModel even if DataContext arrives
+        // after Loaded (e.g. binding expression resolves after initial layout).
+        DataContextChanged += OnDataContextChanged;
+
+        WireViewModel(DataContext as PdfCanvasViewModel);
+    }
+
+    private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        WireViewModel(e.NewValue as PdfCanvasViewModel);
+    }
+
+    private void WireViewModel(PdfCanvasViewModel? newVm)
+    {
+        // Unsubscribe from old ViewModel
+        if (_vm is not null)
+            _vm.InvalidationRequested -= OnInvalidationRequested;
+
+        _vm = newVm;
+
         if (_vm is null) return;
 
         _vm.InvalidationRequested += OnInvalidationRequested;
 
-        // Report initial canvas size to ViewModel if already laid out
+        // Report canvas size to the new ViewModel if the element is already laid out.
+        // SizeChanged fires during layout (before Loaded) when _vm is still null, so we
+        // must push the size here once the ViewModel is available.
         if (SkCanvas.ActualWidth > 0 && SkCanvas.ActualHeight > 0)
-        {
             ReportCanvasSize();
-        }
     }
 
     private void OnCanvasSizeChanged(object? sender, SizeChangedEventArgs e)
