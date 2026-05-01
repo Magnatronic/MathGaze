@@ -75,6 +75,18 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
+    /// Called by MainViewModel.CloseFile to dispose the current page bitmap and repaint
+    /// the canvas blank so the closed PDF is no longer visible.
+    /// </summary>
+    public void ClearCanvas()
+    {
+        var old = Interlocked.Exchange(ref _pageBitmap, null);
+        old?.Dispose();
+        _coordinateMapper = null;
+        InvalidationRequested?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
     /// Called by MainViewModel.OpenFileCommand (Plan 04) after a document is successfully opened.
     /// Loads page 0 at the current canvas size.
     /// </summary>

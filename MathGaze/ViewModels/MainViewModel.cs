@@ -106,8 +106,19 @@ public partial class MainViewModel : ObservableObject
 
     public string PageLabel => TotalPages > 0 ? $"{CurrentPage} / {TotalPages}" : "— / —";
 
-    partial void OnCurrentPageChanged(int value) => OnPropertyChanged(nameof(PageLabel));
-    partial void OnTotalPagesChanged(int value)  => OnPropertyChanged(nameof(PageLabel));
+    partial void OnCurrentPageChanged(int value)
+    {
+        OnPropertyChanged(nameof(PageLabel));
+        PreviousPageCommand.NotifyCanExecuteChanged();
+        NextPageCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnTotalPagesChanged(int value)
+    {
+        OnPropertyChanged(nameof(PageLabel));
+        PreviousPageCommand.NotifyCanExecuteChanged();
+        NextPageCommand.NotifyCanExecuteChanged();
+    }
 
     [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
     private void PreviousPage()
@@ -134,6 +145,8 @@ public partial class MainViewModel : ObservableObject
     // PdfCanvasViewModel reads this via MainViewModel.ScrollOffsetY to offset canvasOriginY.
     [ObservableProperty]
     private double _scrollOffsetY = 0;
+
+    partial void OnScrollOffsetYChanged(double value) => OnPropertyChanged(nameof(ScrollThumbTopRatio));
 
     private const double SmallScrollPx = 120.0;
 
@@ -175,6 +188,26 @@ public partial class MainViewModel : ObservableObject
         double canvasH = _pdfCanvasVm?.CanvasHeightPx ?? 0;
         double maxScroll = Math.Max(0, pageHeightPx - canvasH);
         ScrollOffsetY = Math.Min(ScrollOffsetY, maxScroll);
+        OnPropertyChanged(nameof(ScrollThumbTopRatio));
+    }
+
+    /// <summary>
+    /// The scroll position as a ratio 0–1 of (ScrollOffsetY / MaxScrollY).
+    /// Used by ScrollRail to position the thumb indicator.
+    /// Returns 0 when there is nothing to scroll or no document is open.
+    /// </summary>
+    public double ScrollThumbTopRatio
+    {
+        get
+        {
+            if (!IsPdfOpen) return 0;
+            var (_, heightPt) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
+            double pageHeightPx = heightPt * (ZoomFactor * 96.0 / 72.0);
+            double canvasH = _pdfCanvasVm?.CanvasHeightPx ?? 0;
+            double maxScroll = Math.Max(0, pageHeightPx - canvasH);
+            if (maxScroll <= 0) return 0;
+            return Math.Clamp(ScrollOffsetY / maxScroll, 0.0, 1.0);
+        }
     }
 
     // ── File commands ───────────────────────────────────────────────────────────
@@ -216,6 +249,8 @@ public partial class MainViewModel : ObservableObject
         IsPdfOpen     = false;
         ZoomFactor    = 1.0;
         ScrollOffsetY = 0;
+        // Clear the canvas so the last rendered page is not shown after close
+        _pdfCanvasVm?.ClearCanvas();
     }
     private bool CanCloseFile() => IsPdfOpen;
 }

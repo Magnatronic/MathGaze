@@ -79,40 +79,49 @@
                 </StackPanel>
             </Border>
 
-            <!-- 3. Mode pill -->
-            <Border DockPanel.Dock="Left" VerticalAlignment="Center"
+            <!-- 3. Mode pill — clickable, toggles Practice/Exam mode -->
+            <Button DockPanel.Dock="Left" VerticalAlignment="Center"
+                    Style="{StaticResource IconButtonStyle}"
                     BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
-                    CornerRadius="999" Margin="0,0,10,0"
-                    Background="Transparent">
-                <StackPanel Orientation="Horizontal" Margin="12,6">
-                    <!-- Coloured dot — BrushPractice when IsPracticeMode, BrushExam otherwise -->
-                    <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
-                        <Ellipse.Style>
-                            <Style TargetType="Ellipse">
-                                <Setter Property="Fill" Value="{StaticResource BrushExam}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsPracticeMode}" Value="True">
-                                        <Setter Property="Fill" Value="{StaticResource BrushPractice}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Ellipse.Style>
-                    </Ellipse>
-                    <TextBlock VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold"
-                               Foreground="{StaticResource BrushInk}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Text" Value="Exam Mode"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsPracticeMode}" Value="True">
-                                        <Setter Property="Text" Value="Practice Mode"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
+                    Margin="0,0,10,0" MinHeight="36"
+                    Command="{Binding ToggleModeCommand}"
+                    ToolTip="Toggle Practice / Exam mode">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                                CornerRadius="999" Background="Transparent"
+                                Padding="12,6" Cursor="Hand">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="8" Height="8" Margin="0,0,8,0" VerticalAlignment="Center">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="{StaticResource BrushExam}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPracticeMode}" Value="True">
+                                                    <Setter Property="Fill" Value="{StaticResource BrushPractice}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <TextBlock VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{StaticResource BrushInk}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="Exam Mode"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPracticeMode}" Value="True">
+                                                    <Setter Property="Text" Value="Practice Mode"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
 
             <!-- Settings button (right-docked) -->
             <Button DockPanel.Dock="Right" Width="40" Height="40"
