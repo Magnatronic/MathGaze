@@ -75,12 +75,14 @@ public sealed class DocnetPdfService : IPdfService
         _lock.Wait();
         try
         {
-            // Render at natural PDF point dimensions (1:1 mapping) to read page size
-            using var docReader = DocLib.Instance.GetDocReader(_currentFilePath, new PageDimensions(1, 1));
+            // PageDimensions(double scalingFactor) with 1.0 means 1 pixel per PDF point.
+            // GetPageWidth()/GetPageHeight() then return the page size in points directly.
+            // DO NOT use PageDimensions(int, int) here — that constructor takes a pixel-space
+            // viewport and GetPageWidth/Height returns scaled pixel dimensions, not points.
+            using var docReader = DocLib.Instance.GetDocReader(_currentFilePath, new PageDimensions(1.0));
             if (pageIndex < 0 || pageIndex >= docReader.GetPageCount()) return (595, 842);
 
             using var pageReader = docReader.GetPageReader(pageIndex);
-            // GetPageWidth/Height at PageDimensions(1,1) returns dimensions in PDF points
             return (pageReader.GetPageWidth(), pageReader.GetPageHeight());
         }
         catch
@@ -125,7 +127,8 @@ public sealed class DocnetPdfService : IPdfService
                 int width    = pageReader.GetPageWidth();
                 int height   = pageReader.GetPageHeight();
 
-                var imageInfo = new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
+                // Docnet returns BGRA bytes with straight (un-premultiplied) alpha.
+                var imageInfo = new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Unpremul);
                 var bitmap    = new SKBitmap(imageInfo);
 
                 // Copy pixel data directly into the bitmap's own managed pixel buffer.
