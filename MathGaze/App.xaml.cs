@@ -20,6 +20,8 @@ public partial class App : Application
                 // Services
                 services.AddSingleton<IPdfService, DocnetPdfService>();
                 services.AddSingleton<IFileDialogService, FileDialogService>();
+                services.AddSingleton<IGeometryService, GeometryService>();
+                services.AddSingleton<UndoService>();  // UndoService is internal to GeometryService but registered for future injection if needed
 
                 // ViewModels
                 services.AddSingleton<MainViewModel>();
