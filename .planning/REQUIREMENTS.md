@@ -18,8 +18,8 @@
 - [x] **GEOM-02**: User can draw a Line (segment) with two clicks (click start → click end)
 - [x] **GEOM-03**: User can draw a Circle with two clicks (click centre → click radius point)
 - [x] **GEOM-04**: User can select any geometry object with one click
-- [ ] **GEOM-05**: User can nudge a selected object using step controls in the right rail (step sizes: 1 / 5 / 20 px)
-- [ ] **GEOM-06**: User can delete a selected object via a right-rail action
+- [x] **GEOM-05**: User can nudge a selected object using step controls in the right rail (step sizes: 1 / 5 / 20 px)
+- [x] **GEOM-06**: User can delete a selected object via a right-rail action
 - [ ] **GEOM-07**: User can snap new points to existing object endpoints, line-line intersections, and orientation guides (vertical / horizontal / 45°)
 
 ### Protractor
@@ -44,7 +44,7 @@
 
 ### System
 
-- [ ] **SYS-01**: User can undo any action and redo previously undone actions
+- [x] **SYS-01**: User can undo any action and redo previously undone actions
 - [ ] **SYS-02**: Work is auto-saved to a JSON sidecar file alongside the PDF after every change (no manual save required)
 - [ ] **SYS-03**: User can resume a previous session by opening the same PDF — all geometry objects restore
 - [ ] **SYS-04**: User can toggle between Practice Mode (live angle readout shown) and Exam Mode (angle readout hidden) via a chip in the top bar
@@ -109,8 +109,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GEOM-02 | Phase 2 | Complete |
 | GEOM-03 | Phase 2 | Complete |
 | GEOM-04 | Phase 2 | Complete |
-| GEOM-05 | Phase 2 | Pending |
-| GEOM-06 | Phase 2 | Pending |
+| GEOM-05 | Phase 2 | Complete |
+| GEOM-06 | Phase 2 | Complete |
 | GEOM-07 | Phase 2 | Pending |
 | PROT-01 | Phase 3 | Pending |
 | PROT-02 | Phase 3 | Pending |
@@ -123,7 +123,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ANS-01 | Phase 4 | Pending |
 | ANS-02 | Phase 4 | Pending |
 | ANS-03 | Phase 4 | Pending |
-| SYS-01 | Phase 2 | Pending |
+| SYS-01 | Phase 2 | Complete |
 | SYS-02 | Phase 4 | Pending |
 | SYS-03 | Phase 4 | Pending |
 | SYS-04 | Phase 3 | Pending |

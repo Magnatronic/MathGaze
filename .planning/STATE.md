@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-geometry-core/02-01-PLAN.md
-last_updated: "2026-05-02T20:02:16.443Z"
+stopped_at: Completed 02-geometry-core/02-02-PLAN.md
+last_updated: "2026-05-02T20:07:15.193Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 6
-  percent: 60
+  completed_plans: 7
+  percent: 70
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-29)
 ## Current Position
 
 Phase: 02 (geometry-core) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-05-02
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P01 | 35 | 2 tasks | 10 files |
 | Phase 01-foundation P02 | 20 | 3 tasks | 16 files |
 | Phase 02-geometry-core P01 | 3 | 2 tasks | 8 files |
+| Phase 02-geometry-core P02 | 151 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: All stub RelayCommands added to MainViewModel upfront to prevent XAML binding warnings at runtime
 - [Phase 02-geometry-core]: GeometryMath.cs created in Task 1 (not Task 2) because LineObject.HitTest calls DistancePointToSegment — both must compile together
 - [Phase 02-geometry-core]: GeometryHitTester.SubPointTapRadius = 28f (56px diameter) satisfies >=56x56px gaze accuracy floor per D-04/D-05
+- [Phase 02-geometry-core]: NudgeSubPoint silently no-ops on out-of-range subPointIndex (T-02-06 mitigation — no exception, no crash)
+- [Phase 02-geometry-core]: GeometryService.AddObject does not raise ObjectsChanged; only ExecuteCommand raises it after the full command completes
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-02T20:02:16.440Z
-Stopped at: Completed 02-geometry-core/02-01-PLAN.md
+Last session: 2026-05-02T20:07:15.190Z
+Stopped at: Completed 02-geometry-core/02-02-PLAN.md
 Resume file: None

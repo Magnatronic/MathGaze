@@ -52,7 +52,7 @@ Plans:
 **Plans**: 5 plans
 Plans:
 - [x] 02-01-PLAN.md — Geometry object model (PointObject, LineObject, CircleObject) + hit-test math + unit tests
-- [ ] 02-02-PLAN.md — Command pattern (IGeometryCommand, 4 commands) + IGeometryService + UndoService + DI registration
+- [x] 02-02-PLAN.md — Command pattern (IGeometryCommand, 4 commands) + IGeometryService + UndoService + DI registration
 - [ ] 02-03-PLAN.md — Tool interaction layer: ToolViewModel state machine, SnapEngine, canvas mouse wiring, DPI fix, ghost preview, ToolRail bindings
 - [ ] 02-04-PLAN.md — GeometryLayerViewModel: renders all committed objects (Point/Line/Circle) with selection and sub-point indicators
 - [ ] 02-05-PLAN.md — Right rail: RightRailViewModel, RightRail.xaml (nudge block, delete, undo/redo), replaces RightRailPlaceholder
@@ -94,6 +94,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/5 | In Progress|  |
-| 2. Geometry Core | 1/5 | In Progress|  |
+| 2. Geometry Core | 2/5 | In Progress|  |
 | 3. Protractor | 0/TBD | Not started | - |
 | 4. Answer Layer | 0/TBD | Not started | - |
