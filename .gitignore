@@ -1,0 +1,18 @@
+# .NET build output
+bin/
+obj/
+
+# Published output — produced by dotnet publish, not checked into source control
+publish/
+
+# Debug symbols for third-party libs in publish output
+*.pdb
+
+# Visual Studio / Rider
+.vs/
+*.user
+*.suo
+
+# NuGet
+*.nupkg
+packages/
