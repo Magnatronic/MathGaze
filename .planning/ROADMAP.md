@@ -33,9 +33,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — Project scaffold + CoordinateMapper + 32 unit tests (CORE-04 foundation)
 - [x] 01-02-PLAN.md — 3-column WPF shell: TopBar, ToolRail stubs, PdfCanvas, ScrollRail, RightRail (visual)
-- [ ] 01-03-PLAN.md — PDF rendering pipeline: IPdfService, DocnetPdfService, PdfCanvasViewModel, PaintSurface
-- [ ] 01-04-PLAN.md — Interactive wiring: all TopBar + ScrollRail commands in MainViewModel (CORE-01, CORE-02, CORE-03)
-- [ ] 01-05-PLAN.md — Self-contained publish + deployment verification (CORE-04)
+- [x] 01-03-PLAN.md — PDF rendering pipeline: IPdfService, DocnetPdfService, PdfCanvasViewModel, PaintSurface
+- [x] 01-04-PLAN.md — Interactive wiring: all TopBar + ScrollRail commands in MainViewModel (CORE-01, CORE-02, CORE-03)
+- [x] 01-05-PLAN.md — Self-contained publish + deployment verification (CORE-04)
 **UI hint**: yes
 
 ### Phase 2: Geometry Core
