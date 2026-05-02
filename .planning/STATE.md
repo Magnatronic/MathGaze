@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-05-02T15:17:43.536Z"
+stopped_at: Completed 02-geometry-core/02-01-PLAN.md
+last_updated: "2026-05-02T20:02:16.443Z"
 last_activity: 2026-05-02
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_plans: 10
+  completed_plans: 6
+  percent: 60
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-29)
 
 **Core value:** A student can complete a GCSE geometry question using only their eyes, without the app reducing the cognitive challenge of the maths itself.
-**Current focus:** Phase 01 — foundation
+**Current focus:** Phase 02 — geometry-core
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: Executing Phase 01
+Phase: 02 (geometry-core) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
 Last activity: 2026-05-02
 
 Progress: [░░░░░░░░░░] 0%
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 35 | 2 tasks | 10 files |
 | Phase 01-foundation P02 | 20 | 3 tasks | 16 files |
+| Phase 02-geometry-core P01 | 3 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: PaintSurface event must be wired in code-behind (not XAML) to avoid XAML temp-project compat shim resolution failure for SKPaintSurfaceEventArgs
 - [Phase 01-foundation]: WPF Border does not support StrokeDashArray — use Rectangle with StrokeDashArray for dashed borders
 - [Phase 01-foundation]: All stub RelayCommands added to MainViewModel upfront to prevent XAML binding warnings at runtime
+- [Phase 02-geometry-core]: GeometryMath.cs created in Task 1 (not Task 2) because LineObject.HitTest calls DistancePointToSegment — both must compile together
+- [Phase 02-geometry-core]: GeometryHitTester.SubPointTapRadius = 28f (56px diameter) satisfies >=56x56px gaze accuracy floor per D-04/D-05
 
 ### Pending Todos
 
@@ -91,6 +94,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-02T15:17:43.533Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-geometry-core/02-CONTEXT.md
+Last session: 2026-05-02T20:02:16.440Z
+Stopped at: Completed 02-geometry-core/02-01-PLAN.md
+Resume file: None

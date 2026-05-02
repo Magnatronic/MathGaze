@@ -14,10 +14,10 @@
 
 ### Geometry Tools
 
-- [ ] **GEOM-01**: User can place a Point with one click
-- [ ] **GEOM-02**: User can draw a Line (segment) with two clicks (click start → click end)
-- [ ] **GEOM-03**: User can draw a Circle with two clicks (click centre → click radius point)
-- [ ] **GEOM-04**: User can select any geometry object with one click
+- [x] **GEOM-01**: User can place a Point with one click
+- [x] **GEOM-02**: User can draw a Line (segment) with two clicks (click start → click end)
+- [x] **GEOM-03**: User can draw a Circle with two clicks (click centre → click radius point)
+- [x] **GEOM-04**: User can select any geometry object with one click
 - [ ] **GEOM-05**: User can nudge a selected object using step controls in the right rail (step sizes: 1 / 5 / 20 px)
 - [ ] **GEOM-06**: User can delete a selected object via a right-rail action
 - [ ] **GEOM-07**: User can snap new points to existing object endpoints, line-line intersections, and orientation guides (vertical / horizontal / 45°)
@@ -105,10 +105,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CORE-02 | Phase 1 | Pending |
 | CORE-03 | Phase 1 | Complete |
 | CORE-04 | Phase 1 | Complete |
-| GEOM-01 | Phase 2 | Pending |
-| GEOM-02 | Phase 2 | Pending |
-| GEOM-03 | Phase 2 | Pending |
-| GEOM-04 | Phase 2 | Pending |
+| GEOM-01 | Phase 2 | Complete |
+| GEOM-02 | Phase 2 | Complete |
+| GEOM-03 | Phase 2 | Complete |
+| GEOM-04 | Phase 2 | Complete |
 | GEOM-05 | Phase 2 | Pending |
 | GEOM-06 | Phase 2 | Pending |
 | GEOM-07 | Phase 2 | Pending |
