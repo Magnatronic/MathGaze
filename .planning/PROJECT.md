@@ -116,4 +116,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-29 after initialization*
+*Last updated: 2026-05-02 — Phase 01 complete: WPF shell, PDF rendering pipeline, MainViewModel commands, self-contained EXE verified. Phase 02 (geometry core) is next.*
