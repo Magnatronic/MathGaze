@@ -1,3 +1,4 @@
+using MathGaze.Core;
 using MathGaze.Services;
 using MathGaze.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,8 @@ public partial class App : Application
                 // ViewModels
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<PdfCanvasViewModel>();
+                services.AddSingleton<ToolViewModel>();
+                services.AddSingleton<SnapEngine>();
 
                 // Windows — resolved from DI so they can receive injected ViewModels
                 services.AddSingleton<MainWindow>();

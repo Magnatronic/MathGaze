@@ -79,6 +79,11 @@ public sealed class GeometryService : IGeometryService
         }
     }
 
+    // ── Transient UI state helpers ────────────────────────────────────────────
+
+    /// <summary>Raises ObjectsChanged without going through the command stack. Use only for transient UI state (sub-point selection).</summary>
+    public void ObjectsChanged_ForceRaise() => ObjectsChanged?.Invoke(this, EventArgs.Empty);
+
     // ── Selection (not undoable — transient UI state) ─────────────────────────
 
     public void SetSelected(Guid id)

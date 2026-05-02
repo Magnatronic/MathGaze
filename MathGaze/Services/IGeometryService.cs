@@ -25,6 +25,10 @@ public interface IGeometryService
     void SetSelected(Guid id);
     void ClearSelection();
 
+    // ── Transient UI state helpers ──
+    /// <summary>Raises ObjectsChanged without going through the command stack. Use only for transient UI state (sub-point selection).</summary>
+    void ObjectsChanged_ForceRaise();
+
     // ── Command dispatch (records undo entry) ──
     void ExecuteCommand(IGeometryCommand cmd);
 
