@@ -69,9 +69,18 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         _canvasHeightPx = heightPx;
 
         if (_pdfService.IsOpen)
+        {
+            // Let MainViewModel re-apply fit-page zoom if that mode is active.
+            // This must run before LoadCurrentPageAsync so the zoom update triggers
+            // its own reload; our unconditional reload below is then redundant but
+            // harmless — it serves as the fallback for non-fit-page zoom.
+            _mainVm.OnCanvasSizeChanged();
             _ = LoadCurrentPageAsync();
+        }
         else
+        {
             InvalidationRequested?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     /// <summary>
@@ -110,9 +119,12 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
             return;
         }
 
-        // Keep canvas size in sync (may have changed since last LoadCurrentPageAsync)
-        _canvasWidthPx  = canvasWidthPx;
-        _canvasHeightPx = canvasHeightPx;
+        // Do NOT overwrite _canvasWidthPx/_canvasHeightPx from the Skia surface info
+        // here.  SetCanvasSize() is the authoritative source (driven by the UserControl's
+        // SizeChanged event using e.NewSize * PixelsPerDip).  Overwriting from
+        // e.Info.Width/Height would revert the correct new dimensions to potentially
+        // stale surface dimensions if SKElement has not yet recreated its internal
+        // WriteableBitmap at the new size when this Paint call arrives.
 
         EnsureCoordinateMapper();
 

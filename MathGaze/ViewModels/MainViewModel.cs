@@ -57,6 +57,10 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private double _zoomFactor = 1.0;
 
+    // True while the user is in "fit-page" mode (zoom was set via FitPage, not manually).
+    // Re-applying fit-page on resize keeps the whole page visible after maximize/restore.
+    private bool _isFitPageMode;
+
     public string ZoomLabel => $"{(int)Math.Round(ZoomFactor * 100)}%";
 
     partial void OnZoomFactorChanged(double value) => OnPropertyChanged(nameof(ZoomLabel));
@@ -64,7 +68,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ZoomIn()
     {
-        // Find the next step above current zoom
+        _isFitPageMode = false;         // user has taken manual control of zoom
         var next = ZoomSteps.FirstOrDefault(z => z > ZoomFactor + 0.001);
         if (next > 0) ZoomFactor = next;
     }
@@ -72,13 +76,30 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void ZoomOut()
     {
-        // Find the next step below current zoom
+        _isFitPageMode = false;         // user has taken manual control of zoom
         var prev = ZoomSteps.LastOrDefault(z => z < ZoomFactor - 0.001);
         if (prev > 0) ZoomFactor = prev;
     }
 
     [RelayCommand]
     private void FitPage()
+    {
+        ApplyFitPage();
+        _isFitPageMode = true;          // entering fit-page mode
+    }
+
+    /// <summary>
+    /// Called by PdfCanvasViewModel.SetCanvasSize when the canvas is resized.
+    /// Re-runs the fit-page calculation if the user is in fit-page mode so the
+    /// page continues to fill the viewport after a window resize or maximize.
+    /// </summary>
+    public void OnCanvasSizeChanged()
+    {
+        if (_isFitPageMode && IsPdfOpen)
+            ApplyFitPage();
+    }
+
+    private void ApplyFitPage()
     {
         // Set zoom so the full page height fits in the canvas viewport.
         if (!IsPdfOpen) return;
@@ -243,12 +264,13 @@ public partial class MainViewModel : ObservableObject
     private void CloseFile()
     {
         _pdfService.CloseDocument();
-        FileName      = string.Empty;
-        TotalPages    = 0;
-        CurrentPage   = 1;
-        IsPdfOpen     = false;
-        ZoomFactor    = 1.0;
-        ScrollOffsetY = 0;
+        FileName       = string.Empty;
+        TotalPages     = 0;
+        CurrentPage    = 1;
+        IsPdfOpen      = false;
+        ZoomFactor     = 1.0;
+        ScrollOffsetY  = 0;
+        _isFitPageMode = false;
         // Clear the canvas so the last rendered page is not shown after close
         _pdfCanvasVm?.ClearCanvas();
     }
