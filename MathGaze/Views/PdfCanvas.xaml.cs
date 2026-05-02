@@ -4,6 +4,7 @@ using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace MathGaze.Views;
@@ -18,6 +19,10 @@ public partial class PdfCanvas : UserControl
         // Wire PaintSurface in code-behind to avoid XAML temp-project type resolution
         // issues with the SkiaSharp.Views.WPF compat shim on net9.0-windows.
         SkCanvas.PaintSurface += OnPaintSurface;
+
+        // Wire mouse events for tool interaction
+        SkCanvas.MouseDown += OnMouseDown;
+        SkCanvas.MouseMove += OnMouseMove;
 
         // Attach SizeChanged to the UserControl (this), not to the inner SKElement.
         // WPF fires SizeChanged on the element whose RenderSize has changed; attaching
@@ -89,7 +94,11 @@ public partial class PdfCanvas : UserControl
         int widthPx  = (int)Math.Round(logicalWidth  * scale);
         int heightPx = (int)Math.Round(logicalHeight * scale);
         if (widthPx > 0 && heightPx > 0)
+        {
             _vm.SetCanvasSize(widthPx, heightPx);
+            // D-11: forward real DPI to ViewModel so CoordinateMapper uses correct scale
+            _vm.SetDpiScale(dpiInfo.PixelsPerDip);
+        }
     }
 
     private void OnInvalidationRequested(object? sender, EventArgs e)
@@ -108,5 +117,45 @@ public partial class PdfCanvas : UserControl
             return;
         }
         _vm.Paint(canvas, e.Info.Width, e.Info.Height);
+    }
+
+    // ── Mouse event handlers — DPI-correct physical pixel conversion (Pitfall 1) ──
+
+    private void OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (_vm is null) return;
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+        var logicalPos = e.GetPosition(SkCanvas);
+        var dpi        = VisualTreeHelper.GetDpi(this);
+        var physPx     = new SKPoint(
+            (float)(logicalPos.X * dpi.PixelsPerDip),
+            (float)(logicalPos.Y * dpi.PixelsPerDip));
+        _vm.HandleCanvasClick(physPx);
+    }
+
+    private void OnMouseMove(object sender, MouseEventArgs e)
+    {
+        if (_vm is null) return;
+        var logicalPos = e.GetPosition(SkCanvas);
+        var dpi        = VisualTreeHelper.GetDpi(this);
+        var physPx     = new SKPoint(
+            (float)(logicalPos.X * dpi.PixelsPerDip),
+            (float)(logicalPos.Y * dpi.PixelsPerDip));
+        _vm.HandleMouseMove(physPx);
+        UpdateStatusToast(_vm.ToolVmStatusMessage);
+    }
+
+    private void UpdateStatusToast(string msg)
+    {
+        if (StatusToast is null || StatusText is null) return;
+        if (string.IsNullOrEmpty(msg))
+        {
+            StatusToast.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            StatusText.Text = msg;
+            StatusToast.Visibility = Visibility.Visible;
+        }
     }
 }

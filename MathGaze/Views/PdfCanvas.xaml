@@ -9,5 +9,17 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         IgnorePixelScaling="False"/>
+        <!-- Status toast overlay: bottom-centre, used by ToolViewModel.StatusMessage (D-01) -->
+        <Border x:Name="StatusToast"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                Margin="0,0,0,16"
+                Padding="12,6"
+                Background="#CC1A1A2E"
+                CornerRadius="6"
+                Visibility="Collapsed">
+            <TextBlock x:Name="StatusText"
+                       FontSize="13" Foreground="White"
+                       FontFamily="Segoe UI"/>
+        </Border>
     </Grid>
 </UserControl>

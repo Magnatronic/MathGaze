@@ -26,8 +26,8 @@
                 <ColumnDefinition Width="148"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Left tool rail -->
-            <views:ToolRail Grid.Column="0" Panel.ZIndex="2"/>
+            <!-- Left tool rail — DataContext set in code-behind to ToolViewModel -->
+            <views:ToolRail Grid.Column="0" x:Name="ToolRailControl" Panel.ZIndex="2"/>
 
             <!-- Centre: canvas — DataContext is set in code-behind to PdfCanvasViewModel -->
             <views:PdfCanvas Grid.Column="1" x:Name="PdfCanvasView"/>
