@@ -7,7 +7,8 @@ public partial class MainWindow : Window
 {
     private readonly PdfCanvasViewModel _pdfCanvasVm;
 
-    public MainWindow(MainViewModel viewModel, PdfCanvasViewModel pdfCanvasViewModel, ToolViewModel toolViewModel)
+    public MainWindow(MainViewModel viewModel, PdfCanvasViewModel pdfCanvasViewModel,
+                      ToolViewModel toolViewModel, RightRailViewModel rightRailViewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
@@ -16,5 +17,7 @@ public partial class MainWindow : Window
         PdfCanvasView.DataContext = pdfCanvasViewModel;
         // Wire ToolRail DataContext to ToolViewModel so command bindings resolve
         ToolRailControl.DataContext = toolViewModel;
+        // Wire RightRail DataContext to RightRailViewModel
+        RightRailControl.DataContext = rightRailViewModel;
     }
 }

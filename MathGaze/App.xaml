@@ -1,11 +1,15 @@
 <Application x:Class="MathGaze.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:MathGaze.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Styles/AppStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <!-- Visibility converters used by RightRail and other views -->
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:InverseBoolToVisibilityConverter x:Key="BoolToInverseVisibilityConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

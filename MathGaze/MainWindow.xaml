@@ -41,7 +41,7 @@
                               Panel.ZIndex="2"/>
 
             <!-- Right rail -->
-            <views:RightRailPlaceholder Grid.Column="2" Panel.ZIndex="2"/>
+            <views:RightRail x:Name="RightRailControl" Grid.Column="2" Panel.ZIndex="2"/>
         </Grid>
     </Grid>
 </Window>
