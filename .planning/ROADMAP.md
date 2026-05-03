@@ -13,7 +13,7 @@ Four phases deliver a GCSE geometry tool a student can drive entirely with their
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation** - Deployment validation spike + WPF shell + PDF rendering + CoordinateMapper
-- [x] **Phase 2: Geometry Core** - All geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo) (completed 2026-05-03)
+- [ ] **Phase 2: Geometry Core** - All geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo) — gap closure in progress
 - [ ] **Phase 3: Protractor** - 2-click protractor placement, controls, and Practice/Exam mode infrastructure
 - [ ] **Phase 4: Answer Layer** - Text boxes, MCQ selection, auto-save, and session resume
 
@@ -49,13 +49,15 @@ Plans:
   4. User can delete a selected object via a right-rail action
   5. Snap feedback appears when a new point is near an endpoint, line-line intersection, or orientation guide; committing the click snaps to the detected position
   6. User can undo any action and redo previously undone actions
-**Plans**: 5 plans
+**Plans**: 7 plans
 Plans:
 - [x] 02-01-PLAN.md — Geometry object model (PointObject, LineObject, CircleObject) + hit-test math + unit tests
 - [x] 02-02-PLAN.md — Command pattern (IGeometryCommand, 4 commands) + IGeometryService + UndoService + DI registration
 - [x] 02-03-PLAN.md — Tool interaction layer: ToolViewModel state machine, SnapEngine, canvas mouse wiring, DPI fix, ghost preview, ToolRail bindings
 - [x] 02-04-PLAN.md — GeometryLayerViewModel: renders all committed objects (Point/Line/Circle) with selection and sub-point indicators
 - [x] 02-05-PLAN.md — Right rail: RightRailViewModel, RightRail.xaml (nudge block, delete, undo/redo), replaces RightRailPlaceholder
+- [x] 02-06-PLAN.md — GAP CLOSURE: coordinate offset fix (bitmap scale + DPI) and nudge Y-axis inversion fix (GAP-1, GAP-2, GAP-3)
+- [ ] 02-07-PLAN.md — GAP CLOSURE: right rail design language and step selector active highlight (GAP-4, GAP-5)
 **UI hint**: yes
 
 ### Phase 3: Protractor
@@ -94,6 +96,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/5 | In Progress|  |
-| 2. Geometry Core | 5/5 | Complete   | 2026-05-03 |
+| 2. Geometry Core | 6/7 | In Progress|  |
 | 3. Protractor | 0/TBD | Not started | - |
 | 4. Answer Layer | 0/TBD | Not started | - |
