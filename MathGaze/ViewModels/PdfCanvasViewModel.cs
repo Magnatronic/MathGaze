@@ -328,7 +328,9 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
 
         // Compute target pixel dimensions from zoom and canvas size
         var (widthPt, heightPt) = _pdfService.GetPageDimensionsPt(pageIndex);
-        double scale        = (_mainVm.ZoomFactor * 96.0 / 72.0);
+        // Match EnsureCoordinateMapper scale: include _dpiScale so bitmap px-dimensions align
+        // with the physical-pixel coordinate space (GAP-1/GAP-2 fix).
+        double scale        = (_dpiScale * _mainVm.ZoomFactor * 96.0 / 72.0);
         int targetWidthPx   = Math.Max(1, (int)Math.Round(widthPt  * scale));
         int targetHeightPx  = Math.Max(1, (int)Math.Round(heightPt * scale));
 
