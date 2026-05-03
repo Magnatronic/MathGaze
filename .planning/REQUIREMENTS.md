@@ -20,7 +20,7 @@
 - [x] **GEOM-04**: User can select any geometry object with one click
 - [x] **GEOM-05**: User can nudge a selected object using step controls in the right rail (step sizes: 1 / 5 / 20 px)
 - [x] **GEOM-06**: User can delete a selected object via a right-rail action
-- [ ] **GEOM-07**: User can snap new points to existing object endpoints, line-line intersections, and orientation guides (vertical / horizontal / 45°)
+- [x] **GEOM-07**: User can snap new points to existing object endpoints, line-line intersections, and orientation guides (vertical / horizontal / 45°)
 
 ### Protractor
 
@@ -111,7 +111,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GEOM-04 | Phase 2 | Complete |
 | GEOM-05 | Phase 2 | Complete |
 | GEOM-06 | Phase 2 | Complete |
-| GEOM-07 | Phase 2 | Pending |
+| GEOM-07 | Phase 2 | Complete |
 | PROT-01 | Phase 3 | Pending |
 | PROT-02 | Phase 3 | Pending |
 | PROT-03 | Phase 3 | Pending |

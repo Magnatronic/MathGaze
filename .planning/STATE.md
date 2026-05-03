@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-geometry-core/02-02-PLAN.md
-last_updated: "2026-05-02T20:07:15.193Z"
-last_activity: 2026-05-02
+stopped_at: Completed 02-geometry-core/02-03-PLAN.md
+last_updated: "2026-05-03T06:55:23.999Z"
+last_activity: 2026-05-03
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 10
-  completed_plans: 7
-  percent: 70
+  completed_plans: 8
+  percent: 80
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-29)
 ## Current Position
 
 Phase: 02 (geometry-core) — EXECUTING
-Plan: 3 of 5
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-05-02
+Last activity: 2026-05-03
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-foundation P02 | 20 | 3 tasks | 16 files |
 | Phase 02-geometry-core P01 | 3 | 2 tasks | 8 files |
 | Phase 02-geometry-core P02 | 151 | 2 tasks | 10 files |
+| Phase 02-geometry-core P03 | 151 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Recent decisions affecting current work:
 - [Phase 02-geometry-core]: GeometryHitTester.SubPointTapRadius = 28f (56px diameter) satisfies >=56x56px gaze accuracy floor per D-04/D-05
 - [Phase 02-geometry-core]: NudgeSubPoint silently no-ops on out-of-range subPointIndex (T-02-06 mitigation — no exception, no crash)
 - [Phase 02-geometry-core]: GeometryService.AddObject does not raise ObjectsChanged; only ExecuteCommand raises it after the full command completes
+- [Phase 02-geometry-core]: Anchor stored in PDF point coordinates (D-10), not screen pixels — survives zoom/scroll changes between click 1 and click 2
+- [Phase 02-geometry-core]: ToolViewModel receives IGeometryService via constructor injection — no static access or service locator (T-02-10 mitigation)
+- [Phase 02-geometry-core]: SnapEngine orientation guides snap cursor to H/V/45-degree alignment with existing snap points within 20px threshold
 
 ### Pending Todos
 
@@ -97,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-02T20:07:15.190Z
-Stopped at: Completed 02-geometry-core/02-02-PLAN.md
+Last session: 2026-05-03T06:55:23.995Z
+Stopped at: Completed 02-geometry-core/02-03-PLAN.md
 Resume file: None
