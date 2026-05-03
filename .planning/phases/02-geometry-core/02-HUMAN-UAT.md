@@ -1,14 +1,14 @@
 ---
-status: diagnosed
+status: partial
 phase: 02-geometry-core
 source: [02-VERIFICATION.md]
 started: 2026-05-03T07:09:27Z
-updated: 2026-05-03T07:17:00Z
+updated: 2026-05-03T11:00:00Z
 ---
 
 ## Current Test
 
-Human testing complete — 5 issues found.
+5 gaps fixed — awaiting human re-verification.
 
 ## Tests
 
@@ -56,26 +56,26 @@ blocked: 0
 ## Gaps
 
 ### GAP-1: Point placement coordinate offset
-status: failed
-description: Committed point objects do not appear at the gaze cursor position. Likely a mismatch between WPF logical coordinates (MouseDown position) and the physical-pixel PDF coordinate space used by the rendering layer.
+status: resolved
+description: Fixed in 02-06 — `_dpiScale` added to `LoadCurrentPageAsync` scale formula so bitmap dimensions match CoordinateMapper's physical-pixel space.
 severity: blocking
 
 ### GAP-2: Ghost preview / snap ring cursor misalignment
-status: failed
-description: During mid-draw (after click 1), the dashed ghost line and snap ring indicator do not track accurately to the cursor position. Same root cause as GAP-1 — DPI/coordinate conversion in HandleMouseMove path.
+status: resolved
+description: Fixed in 02-06 — same root cause and fix as GAP-1.
 severity: blocking
 
 ### GAP-3: Up/Down nudge directions inverted
-status: failed
-description: Pressing the Up nudge button moves the object downward; Down moves it upward. The Y-axis delta sign is reversed in NudgeObjectCommand or NudgeEndpointCommand.
+status: resolved
+description: Fixed in 02-06 — NudgeUp now passes `+NudgeStepPx`, NudgeDown passes `-NudgeStepPx`, matching PDF Y-axis convention.
 severity: blocking
 
 ### GAP-4: Right rail visual style does not match app UI
-status: failed
-description: Right rail uses default WPF gray button styling. Needs to match the clean minimal white style of the rest of the app (toolbar, tool rail). Buttons should have consistent border radius, background, font, and spacing matching the established design language.
+status: resolved
+description: Fixed in 02-07 — `RailButtonStyle` added to AppStyles.xaml and applied to all right rail action buttons.
 severity: high
 
 ### GAP-5: Step size selection has no visual highlight
-status: failed
-description: When selecting 1px, 5px, or 20px nudge step, the selected option is not visually distinguished from the others. User cannot tell which step size is currently active.
+status: resolved
+description: Fixed in 02-07 — `StepButtonStyle` with DataTrigger on `NudgeStepPx` gives active step cobalt highlight.
 severity: high
