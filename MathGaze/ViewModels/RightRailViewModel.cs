@@ -83,11 +83,13 @@ public sealed partial class RightRailViewModel : ObservableObject
 
     private bool CanNudge() => _geometryService.SelectedObject is not null;
 
+    // PDF Y-axis: 0 = bottom, positive = upward. Increasing YPt moves object UP on screen.
+    // PageToScreen: screenY = (pageHeightPt - yPt) * Scale + originY → higher YPt = lower screenY.
     [RelayCommand(CanExecute = nameof(CanNudge))]
-    private void NudgeUp()    => DispatchNudge(0, -NudgeStepPx);
+    private void NudgeUp()    => DispatchNudge(0, +NudgeStepPx);   // GAP-3 fix: +Y = upward in PDF space
 
     [RelayCommand(CanExecute = nameof(CanNudge))]
-    private void NudgeDown()  => DispatchNudge(0, +NudgeStepPx);
+    private void NudgeDown()  => DispatchNudge(0, -NudgeStepPx);   // GAP-3 fix: -Y = downward in PDF space
 
     [RelayCommand(CanExecute = nameof(CanNudge))]
     private void NudgeLeft()  => DispatchNudge(-NudgeStepPx, 0);
