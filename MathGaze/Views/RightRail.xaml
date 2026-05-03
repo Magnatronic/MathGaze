@@ -10,10 +10,12 @@
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal"
                         HorizontalAlignment="Center" Margin="0,8">
                 <Button Width="56" Height="56"
+                        Style="{StaticResource RailButtonStyle}"
                         Command="{Binding UndoCommand}"
                         ToolTip="Undo"
                         Content="&#x21A9;" FontSize="20" Margin="0,0,4,0"/>
                 <Button Width="56" Height="56"
+                        Style="{StaticResource RailButtonStyle}"
                         Command="{Binding RedoCommand}"
                         ToolTip="Redo"
                         Content="&#x21AA;" FontSize="20"/>
@@ -62,13 +64,43 @@
                     <UniformGrid Rows="1" Columns="3" Margin="0,0,0,6">
                         <Button Height="40"
                                 Command="{Binding SetStepCommand}" CommandParameter="1"
-                                Content="1px" FontSize="12"/>
+                                Content="1px">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding NudgeStepPx}" Value="1">
+                                            <Setter Property="Tag" Value="active"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Height="40"
                                 Command="{Binding SetStepCommand}" CommandParameter="5"
-                                Content="5px" FontSize="12"/>
+                                Content="5px">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding NudgeStepPx}" Value="5">
+                                            <Setter Property="Tag" Value="active"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                         <Button Height="40"
                                 Command="{Binding SetStepCommand}" CommandParameter="20"
-                                Content="20px" FontSize="12"/>
+                                Content="20px">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding NudgeStepPx}" Value="20">
+                                            <Setter Property="Tag" Value="active"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </UniformGrid>
 
                     <!-- UDLR directional pad (3x3 grid with centre empty) -->
@@ -77,23 +109,27 @@
                         <!-- Row 1 -->
                         <Rectangle/>
                         <Button Width="56" Height="56"
+                                Style="{StaticResource RailButtonStyle}"
                                 Command="{Binding NudgeUpCommand}"
                                 Content="&#x25B2;" FontSize="16"
                                 ToolTip="Nudge up"/>
                         <Rectangle/>
                         <!-- Row 2 -->
                         <Button Width="56" Height="56"
+                                Style="{StaticResource RailButtonStyle}"
                                 Command="{Binding NudgeLeftCommand}"
                                 Content="&#x25C0;" FontSize="16"
                                 ToolTip="Nudge left"/>
                         <Rectangle/>
                         <Button Width="56" Height="56"
+                                Style="{StaticResource RailButtonStyle}"
                                 Command="{Binding NudgeRightCommand}"
                                 Content="&#x25B6;" FontSize="16"
                                 ToolTip="Nudge right"/>
                         <!-- Row 3 -->
                         <Rectangle/>
                         <Button Width="56" Height="56"
+                                Style="{StaticResource RailButtonStyle}"
                                 Command="{Binding NudgeDownCommand}"
                                 Content="&#x25BC;" FontSize="16"
                                 ToolTip="Nudge down"/>
@@ -102,11 +138,12 @@
 
                     <!-- Delete button — 56px height minimum -->
                     <Button Height="56"
+                            Style="{StaticResource RailButtonStyle}"
                             Command="{Binding DeleteCommand}"
                             Content="Delete"
                             FontSize="13"
-                            Foreground="White"
                             Background="#CC2020"
+                            Foreground="White"
                             HorizontalAlignment="Stretch"/>
                 </StackPanel>
 
