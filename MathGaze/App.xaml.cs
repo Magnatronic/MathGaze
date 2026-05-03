@@ -29,6 +29,7 @@ public partial class App : Application
                 services.AddSingleton<GeometryLayerViewModel>();
                 services.AddSingleton<PdfCanvasViewModel>();
                 services.AddSingleton<ToolViewModel>();
+                services.AddSingleton<RightRailViewModel>();
                 services.AddSingleton<SnapEngine>();
 
                 // Windows — resolved from DI so they can receive injected ViewModels
