@@ -26,6 +26,7 @@ public partial class App : Application
 
                 // ViewModels
                 services.AddSingleton<MainViewModel>();
+                services.AddSingleton<GeometryLayerViewModel>();
                 services.AddSingleton<PdfCanvasViewModel>();
                 services.AddSingleton<ToolViewModel>();
                 services.AddSingleton<SnapEngine>();

@@ -16,11 +16,12 @@ namespace MathGaze.ViewModels;
 /// </summary>
 public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
 {
-    private readonly IPdfService      _pdfService;
-    private readonly MainViewModel    _mainVm;
-    private readonly IGeometryService _geometryService;
-    private readonly ToolViewModel    _toolVm;
-    private readonly SnapEngine       _snapEngine;
+    private readonly IPdfService             _pdfService;
+    private readonly MainViewModel           _mainVm;
+    private readonly IGeometryService        _geometryService;
+    private readonly ToolViewModel           _toolVm;
+    private readonly SnapEngine              _snapEngine;
+    private readonly GeometryLayerViewModel  _geometryLayer;
 
     private SKBitmap? _pageBitmap;
     private bool _disposed;
@@ -46,23 +47,32 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         MainViewModel mainViewModel,
         IGeometryService geometryService,
         ToolViewModel toolViewModel,
-        SnapEngine snapEngine)
+        SnapEngine snapEngine,
+        GeometryLayerViewModel geometryLayer)
     {
         _pdfService      = pdfService;
         _mainVm          = mainViewModel;
         _geometryService = geometryService;
         _toolVm          = toolViewModel;
         _snapEngine      = snapEngine;
+        _geometryLayer   = geometryLayer;
 
         // Observe MainViewModel for zoom/page changes that require re-render
         _mainVm.PropertyChanged += OnMainViewModelPropertyChanged;
 
-        // Subscribe to ghost changes so canvas repaints on every MouseMove
-        _toolVm.GhostChanged += (_, _) => InvalidationRequested?.Invoke(this, EventArgs.Empty);
+        // Subscribe to ghost changes so canvas repaints on every MouseMove.
+        // Named methods (not lambdas) so they can be unsubscribed in Dispose().
+        _toolVm.GhostChanged += OnGhostChanged;
 
         // Subscribe to geometry changes (objects placed/deleted/nudged)
-        _geometryService.ObjectsChanged += (_, _) => InvalidationRequested?.Invoke(this, EventArgs.Empty);
+        _geometryService.ObjectsChanged += OnObjectsChanged;
     }
+
+    private void OnGhostChanged(object? sender, EventArgs e)
+        => InvalidationRequested?.Invoke(this, EventArgs.Empty);
+
+    private void OnObjectsChanged(object? sender, EventArgs e)
+        => InvalidationRequested?.Invoke(this, EventArgs.Empty);
 
     private void OnMainViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -192,6 +202,9 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
 
         var destRect = _coordinateMapper.GetPageDestRect(canvasWidthPx, canvasHeightPx);
         canvas.DrawBitmap(_pageBitmap, destRect);
+
+        // Draw committed geometry objects (vector layer above PDF bitmap, below ghost preview)
+        _geometryLayer.Draw(canvas, _coordinateMapper);
 
         // Draw ghost preview (dashed line/circle between click 1 and click 2) — D-01/D-02
         DrawGhostPreview(canvas);
@@ -337,6 +350,10 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         if (_disposed) return;
         _disposed = true;
         _mainVm.PropertyChanged -= OnMainViewModelPropertyChanged;
+        // Unsubscribe named event handlers to prevent memory leaks
+        _geometryService.ObjectsChanged -= OnObjectsChanged;
+        _toolVm.GhostChanged -= OnGhostChanged;
+        _geometryLayer.Dispose();
         _pageBitmap?.Dispose();
         _pageBitmap = null;
     }
