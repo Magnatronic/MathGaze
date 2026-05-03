@@ -13,7 +13,7 @@ Four phases deliver a GCSE geometry tool a student can drive entirely with their
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation** - Deployment validation spike + WPF shell + PDF rendering + CoordinateMapper
-- [ ] **Phase 2: Geometry Core** - All geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo)
+- [x] **Phase 2: Geometry Core** - All geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo) (completed 2026-05-03)
 - [ ] **Phase 3: Protractor** - 2-click protractor placement, controls, and Practice/Exam mode infrastructure
 - [ ] **Phase 4: Answer Layer** - Text boxes, MCQ selection, auto-save, and session resume
 
@@ -55,7 +55,7 @@ Plans:
 - [x] 02-02-PLAN.md — Command pattern (IGeometryCommand, 4 commands) + IGeometryService + UndoService + DI registration
 - [x] 02-03-PLAN.md — Tool interaction layer: ToolViewModel state machine, SnapEngine, canvas mouse wiring, DPI fix, ghost preview, ToolRail bindings
 - [x] 02-04-PLAN.md — GeometryLayerViewModel: renders all committed objects (Point/Line/Circle) with selection and sub-point indicators
-- [ ] 02-05-PLAN.md — Right rail: RightRailViewModel, RightRail.xaml (nudge block, delete, undo/redo), replaces RightRailPlaceholder
+- [x] 02-05-PLAN.md — Right rail: RightRailViewModel, RightRail.xaml (nudge block, delete, undo/redo), replaces RightRailPlaceholder
 **UI hint**: yes
 
 ### Phase 3: Protractor
@@ -94,6 +94,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/5 | In Progress|  |
-| 2. Geometry Core | 4/5 | In Progress|  |
+| 2. Geometry Core | 5/5 | Complete   | 2026-05-03 |
 | 3. Protractor | 0/TBD | Not started | - |
 | 4. Answer Layer | 0/TBD | Not started | - |
