@@ -16,14 +16,17 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IPdfService        _pdfService;
     private readonly IFileDialogService _fileDialogService;
+    private readonly IGeometryService   _geometryService;
     private PdfCanvasViewModel?         _pdfCanvasVm;
 
     public MainViewModel(
         IPdfService pdfService,
-        IFileDialogService fileDialogService)
+        IFileDialogService fileDialogService,
+        IGeometryService geometryService)
     {
         _pdfService        = pdfService;
         _fileDialogService = fileDialogService;
+        _geometryService   = geometryService;
     }
 
     /// <summary>
@@ -250,6 +253,7 @@ public partial class MainViewModel : ObservableObject
             CurrentPage   = 1;
             IsPdfOpen     = true;
             ScrollOffsetY = 0;
+            _geometryService.Reset();
         });
 
         // Trigger initial render
