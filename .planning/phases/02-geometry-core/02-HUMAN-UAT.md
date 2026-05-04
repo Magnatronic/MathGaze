@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: partial
 phase: 02-geometry-core
 source: [02-VERIFICATION.md]
 started: 2026-05-03T07:09:27Z
@@ -8,13 +8,13 @@ updated: 2026-05-04T00:00:00Z
 
 ## Current Test
 
-Re-verification 2026-05-04 — 3 of 5 gaps confirmed closed; 2 partially fixed; 5 new issues found.
+Re-verification 2026-05-04 — GAP-6 through GAP-10 closed by plans 02-08/09/10. Awaiting human re-UAT to confirm fixes in running app.
 
 ## Tests
 
 ### 1. Geometry objects render correctly on canvas
 expected: Point, Line, and Circle objects appear at correct screen positions on top of the PDF bitmap layer with correct visual styling (1A1A2E ink colour)
-result: PARTIAL — Placement is accurate sometimes but not always. DPI fix reduced the offset but intermittent inaccuracy remains (see GAP-6).
+result: [pending re-test — GAP-6 DPI ordering fix applied, verify placement accurate at all zoom levels]
 
 ### 2. Selection highlighting and sub-point tap target indicators
 expected: Selected objects render in accent cobalt (#3B6FD4); selected Line shows 8px endpoint dots; selected Circle shows centre + edge dots; active sub-point shows additional 14px ring indicator
@@ -22,7 +22,7 @@ result: [pending — not tested separately]
 
 ### 3. Ghost preview during mid-draw
 expected: After click 1 in Line or Circle mode, a dashed preview line/circle follows the cursor until click 2 commits the object; snap ring indicator appears when within 20px of a snap candidate
-result: PARTIAL — Ghost line tracks correctly but snap ring flickers: disappears and reappears during movement (see GAP-7).
+result: [pending re-test — GAP-7 snap ring flicker fix applied, verify ring is always visible during draw]
 
 ### 4. Nudge step accuracy
 expected: Selecting 1/5/20px step and pressing a directional nudge button shifts the selected object by exactly that many PDF-space pixels; Up/Down directions correct
@@ -38,7 +38,7 @@ result: [pending]
 
 ### 7. Right rail visual style
 expected: All right rail buttons match app design language — white surface, BrushBorder, CornerRadius=6, no WPF chrome
-result: PARTIAL — Normal state correct (GAP-4 resolved). Hover state on Delete button is unreadable: ControlTemplate hover trigger overrides local red background with BrushSurface2 cream, white text becomes invisible (see GAP-8). Step button active state loses cobalt on hover (see GAP-9).
+result: [pending re-test — GAP-8 Delete hover + GAP-9 active step hover fixed; verify all button states correct]
 
 ### 8. Grid 3 / standard pointer click compatibility
 expected: Full interaction loop works from assistive technology device
@@ -46,14 +46,14 @@ result: [pending]
 
 ### 9. Geometry state cleared on PDF reload
 expected: Opening a new PDF resets the geometry canvas — no objects from the previous PDF appear on the new document
-result: FAIL — Objects drawn on a previous PDF appear on the first page of the next PDF opened (see GAP-10).
+result: [pending re-test — GAP-10 Reset() call added to OpenFileAsync; verify canvas clears on every new PDF]
 
 ## Summary
 
 total: 9
 passed: 1
-issues: 6
-pending: 4
+issues: 0
+pending: 8
 skipped: 0
 blocked: 0
 
@@ -85,26 +85,26 @@ description: Fixed in 02-07 — `StepButtonStyle` with DataTrigger on `NudgeStep
 severity: high
 
 ### GAP-6: Point placement intermittently inaccurate
-status: failed
-description: After the DPI fix, placement is correct sometimes but not consistently. Likely a remaining coordinate conversion race or a separate code path (e.g. zoom != 1.0, or first-render timing) that still misaligns bitmap vs CoordinateMapper. Needs diagnostic logging of scale values at click time.
+status: resolved
+description: Fixed in 02-10 — SetDpiScale now called before SetCanvasSize in ReportCanvasSize; CoordinateMapper always created with correct _dpiScale.
 severity: blocking
 
 ### GAP-7: Snap ring flickers during mid-draw
-status: failed
-description: During a draw operation (after click 1), the snap ring indicator disappears and reappears as the cursor moves. Root cause likely: snap ring render is only invalidated on certain MouseMove events, or a condition in ToolViewModel clears the ghost state incorrectly between frames.
+status: resolved
+description: Fixed in 02-10 — DrawGhostPreview now always renders a ring during AnchorPlaced state: lighter solid ring at GhostCursorPx when free, dashed cobalt at LastSnap.Position when snapped.
 severity: high
 
 ### GAP-8: Delete button hover state unreadable
-status: failed
-description: RailButtonStyle ControlTemplate hover trigger sets the Border's Background to BrushSurface2 (cream) via TargetName="Bd", overriding the local Background="#CC2020" TemplateBinding. Foreground="White" stays white → white text on cream = invisible. Fix: Delete button needs a dedicated style or the hover trigger must preserve a custom background.
+status: resolved
+description: Fixed in 02-08 — DeleteButtonStyle added to AppStyles.xaml with IsMouseOver trigger setting #991818 (dark red) on Border. Delete button in RightRail.xaml uses DeleteButtonStyle.
 severity: high
 
 ### GAP-9: Active step button loses cobalt highlight on hover
-status: failed
-description: StepButtonStyle has two MultiTriggers for IsMouseOver. The generic IsMouseOver trigger (BrushSurface2) is listed after the IsMouseOver+Tag="active" trigger, so it wins in WPF trigger precedence (later in collection = higher priority). Active cobalt background is overridden by cream on hover. Fix: swap the order so active+hover trigger is last, or use a single MultiTrigger with an else-if pattern.
+status: resolved
+description: Fixed in 02-08 — StepButtonStyle trigger order corrected: generic IsMouseOver MultiTrigger now at position 2, IsMouseOver+Tag=active MultiTrigger at position 3 (last = wins).
 severity: high
 
 ### GAP-10: Geometry objects persist when opening a new PDF
-status: failed
-description: When a new PDF is loaded, the geometry object collection is not cleared. Objects drawn on the previous document appear on the first page of the new one. Root cause: `GeometryService` (or `PdfCanvasViewModel`) does not call a clear/reset when the PDF session changes.
+status: resolved
+description: Fixed in 02-09 — IGeometryService injected into MainViewModel; _geometryService.Reset() called inside Dispatcher.InvokeAsync in OpenFileAsync before OnDocumentOpenedAsync.
 severity: blocking
