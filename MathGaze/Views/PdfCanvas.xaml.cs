@@ -95,9 +95,10 @@ public partial class PdfCanvas : UserControl
         int heightPx = (int)Math.Round(logicalHeight * scale);
         if (widthPx > 0 && heightPx > 0)
         {
-            _vm.SetCanvasSize(widthPx, heightPx);
-            // D-11: forward real DPI to ViewModel so CoordinateMapper uses correct scale
+            // D-11: forward real DPI to ViewModel BEFORE SetCanvasSize so CoordinateMapper
+            // always uses the correct scale when LoadCurrentPageAsync is triggered (GAP-6 fix).
             _vm.SetDpiScale(dpiInfo.PixelsPerDip);
+            _vm.SetCanvasSize(widthPx, heightPx);
         }
     }
 
