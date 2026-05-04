@@ -155,18 +155,13 @@
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <!-- 1: active state — cobalt background, white text -->
                         <Trigger Property="Tag" Value="active">
                             <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushAccent}"/>
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
                             <Setter Property="Foreground" Value="White"/>
                         </Trigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True"/>
-                                <Condition Property="Tag" Value="active"/>
-                            </MultiTrigger.Conditions>
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushAccentInk}"/>
-                        </MultiTrigger>
+                        <!-- 2: generic hover — cream (MUST come before active+hover so active+hover wins) -->
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True"/>
@@ -175,8 +170,48 @@
                                 <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushSurface2}"/>
                             </MultiTrigger.Setters>
                         </MultiTrigger>
+                        <!-- 3: hover-while-active — darker cobalt (LAST = highest WPF priority, wins over #2) -->
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="Tag" Value="active"/>
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushAccentInk}"/>
+                        </MultiTrigger>
+                        <!-- 4: pressed -->
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushAccentSoft}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── DeleteButton style: danger-red button with readable hover state ── -->
+    <!-- BasedOn RailButtonStyle but uses a custom ControlTemplate so IsMouseOver -->
+    <!-- sets a dark red (#991818) instead of cream — keeps white text readable. -->
+    <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource RailButtonStyle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#991818"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="#660000"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="#CC2020"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.4"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
