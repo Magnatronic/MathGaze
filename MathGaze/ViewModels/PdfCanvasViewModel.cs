@@ -263,26 +263,40 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
                 canvas.DrawCircle(anchorPx, ghostRadius, ghostPaint);
         }
 
-        // Draw snap ring indicator if a snap candidate is active
-        if (_toolVm.LastSnap?.Label is not null)
+        // Draw snap ring indicator — always shown during mid-draw (GAP-7 fix).
+        // When snapped (Label not null): full ring at snap position.
+        // When free (Label null): lighter ring at cursor, giving continuous feedback.
         {
+            bool isSnapped = _toolVm.LastSnap?.Label is not null;
+            var  ringCenter = isSnapped
+                ? _toolVm.LastSnap!.Value.Position
+                : _toolVm.GhostCursorPx;
+
             using var snapRingPaint = new SKPaint
             {
                 Style       = SKPaintStyle.Stroke,
-                Color       = new SKColor(0x3B, 0x6F, 0xD4, 200),
+                Color       = isSnapped
+                    ? new SKColor(0x3B, 0x6F, 0xD4, 200)   // full cobalt ring when snapped
+                    : new SKColor(0x3B, 0x6F, 0xD4, 100),   // lighter ring when free-cursor
                 StrokeWidth = 2f,
                 IsAntialias = true,
-                PathEffect  = SKPathEffect.CreateDash(new float[] { 3f, 3f }, 0f),
+                PathEffect  = isSnapped
+                    ? SKPathEffect.CreateDash(new float[] { 3f, 3f }, 0f)
+                    : null,                                  // solid ring when free-cursor
             };
-            using var snapDotPaint = new SKPaint
+            canvas.DrawCircle(ringCenter, 18f, snapRingPaint);
+
+            // Only draw the filled snap dot at the snapped position (not at free cursor)
+            if (isSnapped)
             {
-                Style       = SKPaintStyle.Fill,
-                Color       = new SKColor(0x3B, 0x6F, 0xD4, 255),
-                IsAntialias = true,
-            };
-            var snapPos = _toolVm.LastSnap.Value.Position;
-            canvas.DrawCircle(snapPos, 18f, snapRingPaint);
-            canvas.DrawCircle(snapPos, 5f,  snapDotPaint);
+                using var snapDotPaint = new SKPaint
+                {
+                    Style       = SKPaintStyle.Fill,
+                    Color       = new SKColor(0x3B, 0x6F, 0xD4, 255),
+                    IsAntialias = true,
+                };
+                canvas.DrawCircle(ringCenter, 5f, snapDotPaint);
+            }
         }
     }
 
