@@ -1,20 +1,20 @@
 ---
-status: partial
+status: diagnosed
 phase: 02-geometry-core
 source: [02-VERIFICATION.md]
 started: 2026-05-03T07:09:27Z
-updated: 2026-05-03T11:00:00Z
+updated: 2026-05-04T00:00:00Z
 ---
 
 ## Current Test
 
-5 gaps fixed — awaiting human re-verification.
+Re-verification 2026-05-04 — 3 of 5 gaps confirmed closed; 2 partially fixed; 5 new issues found.
 
 ## Tests
 
 ### 1. Geometry objects render correctly on canvas
 expected: Point, Line, and Circle objects appear at correct screen positions on top of the PDF bitmap layer with correct visual styling (1A1A2E ink colour)
-result: FAIL — Point placement is inconsistent; the committed point object does not always appear under the gaze cursor at the click position. Appears to be a coordinate conversion offset.
+result: PARTIAL — Placement is accurate sometimes but not always. DPI fix reduced the offset but intermittent inaccuracy remains (see GAP-6).
 
 ### 2. Selection highlighting and sub-point tap target indicators
 expected: Selected objects render in accent cobalt (#3B6FD4); selected Line shows 8px endpoint dots; selected Circle shows centre + edge dots; active sub-point shows additional 14px ring indicator
@@ -22,11 +22,11 @@ result: [pending — not tested separately]
 
 ### 3. Ghost preview during mid-draw
 expected: After click 1 in Line or Circle mode, a dashed preview line/circle follows the cursor until click 2 commits the object; snap ring indicator appears when within 20px of a snap candidate
-result: FAIL — Ghost preview line and snap indicator circle are misaligned with the actual cursor/click position during mid-draw. The snap ring does not track precisely to where the cursor is.
+result: PARTIAL — Ghost line tracks correctly but snap ring flickers: disappears and reappears during movement (see GAP-7).
 
 ### 4. Nudge step accuracy
-expected: Selecting 1/5/20px step and pressing a directional nudge button shifts the selected object (or its active endpoint) by exactly that many PDF-space pixels; visual result matches expectation
-result: FAIL — Up and down nudge directions are inverted: pressing Up moves the object down, pressing Down moves it up.
+expected: Selecting 1/5/20px step and pressing a directional nudge button shifts the selected object by exactly that many PDF-space pixels; Up/Down directions correct
+result: PASS — Nudge direction now correct (GAP-3 resolved). Step accuracy not separately timed.
 
 ### 5. Undo/Redo button state management
 expected: Undo button enables after the first geometry command; Redo enables after an undo; both disable at their respective stack limits
@@ -36,20 +36,24 @@ result: [pending]
 expected: All interactive elements ≥56×56px on target school hardware
 result: [pending]
 
-### 7. Snap engine accuracy with gaze cursor
-expected: Snap ring appears within 20px of endpoint/intersection/orientation candidates
-result: FAIL — Snap ring position is misaligned (linked to same coordinate issue as tests 1 and 3)
+### 7. Right rail visual style
+expected: All right rail buttons match app design language — white surface, BrushBorder, CornerRadius=6, no WPF chrome
+result: PARTIAL — Normal state correct (GAP-4 resolved). Hover state on Delete button is unreadable: ControlTemplate hover trigger overrides local red background with BrushSurface2 cream, white text becomes invisible (see GAP-8). Step button active state loses cobalt on hover (see GAP-9).
 
 ### 8. Grid 3 / standard pointer click compatibility
 expected: Full interaction loop works from assistive technology device
 result: [pending]
 
+### 9. Geometry state cleared on PDF reload
+expected: Opening a new PDF resets the geometry canvas — no objects from the previous PDF appear on the new document
+result: FAIL — Objects drawn on a previous PDF appear on the first page of the next PDF opened (see GAP-10).
+
 ## Summary
 
-total: 8
-passed: 0
-issues: 5
-pending: 3
+total: 9
+passed: 1
+issues: 6
+pending: 4
 skipped: 0
 blocked: 0
 
@@ -79,3 +83,28 @@ severity: high
 status: resolved
 description: Fixed in 02-07 — `StepButtonStyle` with DataTrigger on `NudgeStepPx` gives active step cobalt highlight.
 severity: high
+
+### GAP-6: Point placement intermittently inaccurate
+status: failed
+description: After the DPI fix, placement is correct sometimes but not consistently. Likely a remaining coordinate conversion race or a separate code path (e.g. zoom != 1.0, or first-render timing) that still misaligns bitmap vs CoordinateMapper. Needs diagnostic logging of scale values at click time.
+severity: blocking
+
+### GAP-7: Snap ring flickers during mid-draw
+status: failed
+description: During a draw operation (after click 1), the snap ring indicator disappears and reappears as the cursor moves. Root cause likely: snap ring render is only invalidated on certain MouseMove events, or a condition in ToolViewModel clears the ghost state incorrectly between frames.
+severity: high
+
+### GAP-8: Delete button hover state unreadable
+status: failed
+description: RailButtonStyle ControlTemplate hover trigger sets the Border's Background to BrushSurface2 (cream) via TargetName="Bd", overriding the local Background="#CC2020" TemplateBinding. Foreground="White" stays white → white text on cream = invisible. Fix: Delete button needs a dedicated style or the hover trigger must preserve a custom background.
+severity: high
+
+### GAP-9: Active step button loses cobalt highlight on hover
+status: failed
+description: StepButtonStyle has two MultiTriggers for IsMouseOver. The generic IsMouseOver trigger (BrushSurface2) is listed after the IsMouseOver+Tag="active" trigger, so it wins in WPF trigger precedence (later in collection = higher priority). Active cobalt background is overridden by cream on hover. Fix: swap the order so active+hover trigger is last, or use a single MultiTrigger with an else-if pattern.
+severity: high
+
+### GAP-10: Geometry objects persist when opening a new PDF
+status: failed
+description: When a new PDF is loaded, the geometry object collection is not cleared. Objects drawn on the previous document appear on the first page of the new one. Root cause: `GeometryService` (or `PdfCanvasViewModel`) does not call a clear/reset when the PDF session changes.
+severity: blocking
