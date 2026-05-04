@@ -138,7 +138,7 @@
 
                     <!-- Delete button — 56px height minimum -->
                     <Button Height="56"
-                            Style="{StaticResource RailButtonStyle}"
+                            Style="{StaticResource DeleteButtonStyle}"
                             Command="{Binding DeleteCommand}"
                             Content="Delete"
                             FontSize="13"
