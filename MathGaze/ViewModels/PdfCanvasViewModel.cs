@@ -98,6 +98,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
     public void SetDpiScale(double pixelsPerDip)
     {
         _dpiScale = pixelsPerDip;
+        EnsureCoordinateMapper(); // synchronously update mapper before any click can fire
     }
 
     /// <summary>
@@ -140,10 +141,12 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
             // its own reload; our unconditional reload below is then redundant but
             // harmless — it serves as the fallback for non-fit-page zoom.
             _mainVm.OnCanvasSizeChanged();
+            EnsureCoordinateMapper(); // synchronously bring mapper up to date with new size + any new ZoomFactor
             _ = LoadCurrentPageAsync();
         }
         else
         {
+            EnsureCoordinateMapper(); // update even when no PDF open (guard returns early if !IsOpen)
             InvalidationRequested?.Invoke(this, EventArgs.Empty);
         }
     }
