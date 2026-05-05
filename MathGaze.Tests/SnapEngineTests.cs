@@ -115,4 +115,58 @@ public class SnapEngineTests
 
         Assert.Equal("point", label);
     }
+
+    /// <summary>
+    /// GAP-12 regression: endpoint priority — when cursor is near endpoint A (within 20px),
+    /// endpoint snap wins and orientation guides are entirely skipped (section 3 runs only when
+    /// label is null). This test documents the priority architecture introduced in 02-11/02-12.
+    /// Two points: pointA (near cursor) and pointB (horizontally aligned with cursor but further
+    /// away). Endpoint wins over orientation guide.
+    /// </summary>
+    [Fact]
+    public void Snap_HorizontalAlignment_WhenEndpointAlreadySnapped_StillReturnsPoint()
+    {
+        var engine = new SnapEngine();
+        var mapper = MakeMapper();
+        // pointA: cursor will be within ~4.24px (3+3 diagonal) — endpoint snap fires
+        // pointB: horizontally aligned with cursor, 100px away — orientation guide would fire
+        //   if section 3 ran, but endpoint wins and section 3 is skipped.
+        var pointA = new PointObject(100, 400);
+        var pointB = new PointObject(200, 400); // same PDF Y → same screen Y as pointA
+        var objects = new List<GeometryObject> { pointA, pointB };
+        var snapPtA = mapper.PageToScreen(100, 400);
+        // Cursor: 3px right and 3px below pointA (distance ~4.24px — endpoint snap fires)
+        var cursor = new SKPoint(snapPtA.X + 3f, snapPtA.Y + 3f);
+
+        var (pos, label) = engine.Snap(cursor, objects, mapper);
+
+        // Endpoint snap on pointA must win — section 3 orientation guides are not run
+        Assert.Equal("point", label);
+    }
+
+    /// <summary>
+    /// GAP-12 fix verification: horizontal snap fires at 21px horizontal offset (just outside
+    /// the 20px endpoint threshold) so the absolute SnapThresholdPx gate in section 3 is the
+    /// only thing enabling the snap. With the old bestDist guard this case was suppressed;
+    /// with the SnapThresholdPx absolute gate it always fires when dH &lt; 20px.
+    /// At 21px offset: distance to endpoint = 21px (outside threshold → no endpoint snap),
+    /// dH = 0 &lt; 20 → horizontal snap fires.
+    /// </summary>
+    [Fact]
+    public void Snap_HorizontalAlignment_JustOutsideEndpointThreshold_ReturnsHorizontal()
+    {
+        var engine = new SnapEngine();
+        var mapper = MakeMapper();
+        var point = new PointObject(100, 400);
+        var objects = new List<GeometryObject> { point };
+        var snapPt = mapper.PageToScreen(100, 400);
+        // 21px to the right, same Y: distance = 21 > 20 → endpoint snap does NOT fire.
+        // dH = 0 < 20 → horizontal guide fires.
+        var cursor = new SKPoint(snapPt.X + 21f, snapPt.Y);
+
+        var (pos, label) = engine.Snap(cursor, objects, mapper);
+
+        Assert.Equal("horizontal", label);
+        Assert.InRange(pos.Y, snapPt.Y - 0.5f, snapPt.Y + 0.5f);
+    }
 }
