@@ -12,22 +12,21 @@ A student can complete a GCSE geometry question — measuring angles, drawing li
 
 ### Validated
 
-(None yet — ship to validate)
+#### Core (Validated in Phase 1: Foundation)
+- [x] User can load a PDF and navigate between pages
+- [x] User can zoom in and out of the PDF
+- [x] App runs as a self-contained EXE with no admin install required
+
+#### Geometry Tools (Validated in Phase 2: Geometry Core — pending human re-test of GAP-11/12/13 fixes)
+- [x] User can place a Point with one click
+- [x] User can draw a Line (segment) with two clicks
+- [x] User can draw a Circle (center → radius point) with two clicks
+- [x] User can select any geometry object with one click
+- [x] User can nudge a selected object using step controls (1px / 5px / 20px)
+- [x] User can delete a selected object
+- [x] User can undo and redo any action (Validated in Phase 2: Geometry Core)
 
 ### Active
-
-#### Core
-- [ ] User can load a PDF and navigate between pages
-- [ ] User can zoom in and out of the PDF
-- [ ] App runs as a self-contained EXE with no admin install required
-
-#### Geometry Tools
-- [ ] User can place a Point with one click
-- [ ] User can draw a Line (segment) with two clicks
-- [ ] User can draw a Circle (center → radius point) with two clicks
-- [ ] User can select any geometry object with one click
-- [ ] User can nudge a selected object using step controls (1px / 5px / 20px)
-- [ ] User can delete a selected object
 
 #### Protractor
 - [ ] User can activate Protractor mode, click two lines, and have the protractor auto-placed at their intersection with baseline aligned to the first line
@@ -46,7 +45,6 @@ A student can complete a GCSE geometry question — measuring angles, drawing li
 - [ ] User can lock an answer to prevent accidental change
 
 #### System
-- [ ] User can undo and redo any action
 - [ ] Work is auto-saved to a JSON sidecar file alongside the PDF
 - [ ] User can resume a previously saved session
 - [ ] Practice Mode shows live measurements; an Exam Mode toggle hides them (top bar, always visible)
@@ -116,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-02 — Phase 01 complete: WPF shell, PDF rendering pipeline, MainViewModel commands, self-contained EXE verified. Phase 02 (geometry core) is next.*
+*Last updated: 2026-05-05 — Phase 02 complete: all geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo) shipped across 13 plans including 8 UAT gap-closure plans. 29/29 automated truths verified; 7 items pending human re-test. Phase 03 (Protractor) is next.*
