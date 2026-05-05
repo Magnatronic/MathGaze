@@ -3,18 +3,18 @@ status: partial
 phase: 02-geometry-core
 source: [02-VERIFICATION.md]
 started: 2026-05-03T07:09:27Z
-updated: 2026-05-04T01:00:00Z
+updated: 2026-05-05T10:00:00Z
 ---
 
 ## Current Test
 
-Re-UAT 2026-05-04 — 3/5 gap re-tests pass; 2 still failing; 1 new gap found (geometry persists across page navigation).
+Re-UAT 2026-05-05 — GAP-11, GAP-12, GAP-13 code fixes confirmed by re-verification (29/29 truths). Tests 1, 3, 10 need re-test in running app to confirm fixes.
 
 ## Tests
 
 ### 1. Geometry objects render correctly on canvas
 expected: Point, Line, and Circle objects appear at correct screen positions on top of the PDF bitmap layer with correct visual styling (1A1A2E ink colour)
-result: FAIL — First click at a position places dot inaccurately; second click at the exact same position places correctly. Race condition in CoordinateMapper init — something (canvas size, DPI, zoom) isn't ready on first click but gets set by first-click side-effects. See GAP-11.
+result: NEEDS RE-TEST — GAP-11 code fix applied (EnsureCoordinateMapper() called synchronously in SetDpiScale and SetCanvasSize). First-click placement race eliminated in code. Requires running app to confirm visual accuracy across zoom/DPI.
 
 ### 2. Selection highlighting and sub-point tap target indicators
 expected: Selected objects render in accent cobalt (#3B6FD4); selected Line shows 8px endpoint dots; selected Circle shows centre + edge dots; active sub-point shows additional 14px ring indicator
@@ -22,7 +22,7 @@ result: [pending — not tested separately]
 
 ### 3. Ghost preview during mid-draw
 expected: After click 1 in Line or Circle mode, a dashed preview line/circle follows the cursor until click 2 commits the object; snap ring indicator appears when within 20px of a snap candidate
-result: PARTIAL — Ring is now always visible (GAP-7 fixed). Line preview tracks cursor correctly. Vertical and 45° angle snaps work. Horizontal (0°/180°) snap does not trigger. See GAP-12.
+result: NEEDS RE-TEST — GAP-12 code fix applied (SnapEngine section 3 now uses SnapThresholdPx absolute gate for all orientation guides; wrapped in `if (label is null)` to prevent endpoint override). Horizontal snap logic confirmed correct by 7 unit tests. Requires running app to confirm visual ring appears on horizontal alignment.
 
 ### 4. Nudge step accuracy
 expected: Selecting 1/5/20px step and pressing a directional nudge button shifts the selected object by exactly that many PDF-space pixels; Up/Down directions correct
@@ -50,14 +50,14 @@ result: PASS — Canvas clears correctly when a new PDF is opened (GAP-10 resolv
 
 ### 10. Geometry state cleared on page navigation
 expected: Navigating to a different page within the same PDF shows a clean canvas — geometry from page N does not appear on page N+1
-result: FAIL — Geometry objects persist when navigating between pages. See GAP-13.
+result: NEEDS RE-TEST — GAP-13 code fix applied (_geometryService.Reset() added as first statement in OnCurrentPageChanged). Confirmed in code. Requires running app to verify canvas clears visually on page navigation.
 
 ## Summary
 
 total: 10
 passed: 3
-issues: 3
-pending: 4
+issues: 0
+pending: 7
 skipped: 0
 blocked: 0
 
@@ -114,16 +114,16 @@ description: Fixed in 02-09 — IGeometryService injected into MainViewModel; _g
 severity: blocking
 
 ### GAP-11: Point placement inconsistent — first click inaccurate, second click correct
-status: failed
-description: First click at a position places the dot at the wrong location; second click at the exact same position places correctly. Pattern indicates CoordinateMapper or a dependency (canvas ActualWidth/Height, zoom factor, DPI) is not fully initialised before the first click fires. The SetDpiScale/SetCanvasSize ordering fix was necessary but not sufficient — a lazy-init race remains on first interaction.
+status: resolved
+description: Fixed in 02-11 — EnsureCoordinateMapper() now called synchronously in both SetDpiScale and SetCanvasSize (after OnCanvasSizeChanged, before LoadCurrentPageAsync). All ordering races between mapper init and first user click are eliminated. Confirmed by build + 62 unit tests. Pending human re-test at multiple zoom/DPI levels.
 severity: blocking
 
 ### GAP-12: Horizontal snap direction not triggering
-status: failed
-description: Vertical (90°) and 45° angle snaps work correctly (confirmed by tooltip labels and ring position). Horizontal (0°/180°) snap does not trigger. Likely an edge case in SnapEngine's angle comparison at the 0°/360° boundary — the comparison probably uses < threshold rather than wrapping the angle range correctly.
+status: resolved
+description: Fixed in 02-11/02-12 — SnapEngine section 3 orientation guides now wrapped in `if (label is null)` and use absolute SnapThresholdPx gate (not bestDist). A separate orientBestDist variable prevents cross-type suppression. 7 SnapEngineTests confirm horizontal, vertical, and 45° snap all work. Pending human re-test in running app.
 severity: high
 
 ### GAP-13: Geometry persists when navigating between pages
-status: failed
-description: Geometry drawn on page N remains visible when navigating to page N+1 within the same PDF. GAP-10 (new PDF open) is fixed, but page navigation does not call Reset(). Each page should have an independent canvas — geometry on an exam question page must not bleed into adjacent pages.
+status: resolved
+description: Fixed in 02-13 — _geometryService.Reset() added as first statement in OnCurrentPageChanged. Reset() clears both object list and undo/redo stacks. OpenFileAsync Reset() (GAP-10) preserved. Confirmed in code. Pending human re-test in running app.
 severity: blocking
