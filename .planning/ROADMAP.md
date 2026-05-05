@@ -49,7 +49,7 @@ Plans:
   4. User can delete a selected object via a right-rail action
   5. Snap feedback appears when a new point is near an endpoint, line-line intersection, or orientation guide; committing the click snaps to the detected position
   6. User can undo any action and redo previously undone actions
-**Plans**: 7 plans
+**Plans**: 13 plans
 Plans:
 - [x] 02-01-PLAN.md — Geometry object model (PointObject, LineObject, CircleObject) + hit-test math + unit tests
 - [x] 02-02-PLAN.md — Command pattern (IGeometryCommand, 4 commands) + IGeometryService + UndoService + DI registration
@@ -58,6 +58,12 @@ Plans:
 - [x] 02-05-PLAN.md — Right rail: RightRailViewModel, RightRail.xaml (nudge block, delete, undo/redo), replaces RightRailPlaceholder
 - [x] 02-06-PLAN.md — GAP CLOSURE: coordinate offset fix (bitmap scale + DPI) and nudge Y-axis inversion fix (GAP-1, GAP-2, GAP-3)
 - [x] 02-07-PLAN.md — GAP CLOSURE: right rail design language and step selector active highlight (GAP-4, GAP-5)
+- [x] 02-08-PLAN.md — GAP CLOSURE: Delete button hover readable + step button active-hover cobalt fix (GAP-8, GAP-9)
+- [x] 02-09-PLAN.md — GAP CLOSURE: geometry objects cleared on new PDF open (GAP-10)
+- [x] 02-10-PLAN.md — GAP CLOSURE: DPI call-order race fix + continuous snap ring during mid-draw (GAP-6, GAP-7)
+- [x] 02-11-PLAN.md — GAP CLOSURE: CoordinateMapper sync race fix + SnapEngine horizontal alignment unit tests (GAP-11)
+- [x] 02-12-PLAN.md — GAP CLOSURE: horizontal orientation snap suppression fix (GAP-12)
+- [x] 02-13-PLAN.md — GAP CLOSURE: geometry cleared on page navigation (GAP-13)
 **UI hint**: yes
 
 ### Phase 3: Protractor
@@ -96,6 +102,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/5 | In Progress|  |
-| 2. Geometry Core | 7/7 | Complete   | 2026-05-03 |
+| 2. Geometry Core | 10/13 | Gap closure in progress | - |
 | 3. Protractor | 0/TBD | Not started | - |
 | 4. Answer Layer | 0/TBD | Not started | - |
