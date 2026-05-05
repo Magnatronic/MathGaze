@@ -132,6 +132,10 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnCurrentPageChanged(int value)
     {
+        // GAP-13 fix: each page has an independent geometry canvas.
+        // Reset clears all objects and undo/redo stacks when the user navigates pages.
+        // Also called in OpenFileAsync (GAP-10) — two calls on PDF open is harmless (Reset is idempotent).
+        _geometryService.Reset();
         OnPropertyChanged(nameof(PageLabel));
         PreviousPageCommand.NotifyCanExecuteChanged();
         NextPageCommand.NotifyCanExecuteChanged();
