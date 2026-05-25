@@ -117,9 +117,10 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260525-k0a | GAP-14: reduce orientation guide snap threshold to fix inconsistent placement | 2026-05-25 | 086e1b1 | [260525-k0a-gap-14-reduce-orientation-guide-snap-thr](.planning/quick/260525-k0a-gap-14-reduce-orientation-guide-snap-thr/) |
+| 260525-kih | GAP-14b: remove orientation guide snap; disable snap on first clicks | 2026-05-25 | 8bcaefc | [260525-kih-gap-14b-remove-orientation-guide-snap-di](.planning/quick/260525-kih-gap-14b-remove-orientation-guide-snap-di/) |
 
 ## Session Continuity
 
 Last session: 2026-05-25T00:00:00.000Z
-Stopped at: Fixed GAP-14 (orientation guide snap threshold 20px→10px). Phase 2 UAT: 8/10 pass, GAP-14 fixed, Test 8 deferred. Ready to re-test placement then proceed to Phase 3.
+Stopped at: GAP-14b complete — orientation guide snap removed; snap now only fires on second clicks (Line endpoint, Circle radius). Needs human re-test of placement accuracy before Phase 3.
 Resume file: None
