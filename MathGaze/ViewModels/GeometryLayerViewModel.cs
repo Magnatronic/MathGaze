@@ -110,8 +110,8 @@ public sealed class GeometryLayerViewModel : IDisposable
         IsAntialias = true,
     };
 
-    // SKFont for protractor numeric labels (outer) — 11pt, modern SkiaSharp 3.x API
-    private readonly SKFont _labelFont = new(SKTypeface.Default, 11f);
+    // SKFont for protractor numeric labels (outer) — 16pt for eye-gaze readability
+    private readonly SKFont _labelFont = new(SKTypeface.Default, 16f);
 
     // Protractor numeric labels — inner scale (180→0), slightly smaller and more transparent
     private readonly SKPaint _innerLabelPaint = new()
@@ -121,8 +121,8 @@ public sealed class GeometryLayerViewModel : IDisposable
         IsAntialias = true,
     };
 
-    // SKFont for inner scale labels — 8pt
-    private readonly SKFont _innerLabelFont = new(SKTypeface.Default, 8f);
+    // SKFont for inner scale labels — 11pt
+    private readonly SKFont _innerLabelFont = new(SKTypeface.Default, 11f);
 
     // Practice Mode readout arc paint
     private readonly SKPaint _readoutArcPaint = new()
@@ -307,7 +307,7 @@ public sealed class GeometryLayerViewModel : IDisposable
 
             bool isMajor = (a % 10 == 0);
             bool isMid   = (!isMajor && a % 5 == 0);
-            float tickLen = isMajor ? 18f : isMid ? 9f : 5f;
+            float tickLen = isMajor ? 24f : isMid ? 13f : 5f;
 
             float r1 = radiusPx - tickLen;
             float r2 = radiusPx;
@@ -317,8 +317,8 @@ public sealed class GeometryLayerViewModel : IDisposable
 
         // 4. Numeric labels every 10° — dual scale (outer 0→180, inner 180→0)
         // Real protractors show both directions so students can read from either end.
-        float outerLabelR = radiusPx - 24f;
-        float innerLabelR = radiusPx - 42f;
+        float outerLabelR = radiusPx - 32f;   // clear the 24px major tick + 8px gap
+        float innerLabelR = radiusPx - 58f;   // further inward so dual scales don't overlap at 16pt
         if (outerLabelR < 8f) outerLabelR = 8f;
         if (innerLabelR < 8f) innerLabelR = 8f;
 
@@ -377,35 +377,35 @@ public sealed class GeometryLayerViewModel : IDisposable
         var line1 = _geometryService.Objects.FirstOrDefault(o => o.Id == obj.Line1Id) as LineObject;
         var line2 = _geometryService.Objects.FirstOrDefault(o => o.Id == obj.Line2Id) as LineObject;
 
-        if (line1 is null || line2 is null) return 0f;  // lines deleted — show 0° (A-4 assumption)
+        if (line1 is null || line2 is null) return 0f;
 
-        // Direction vectors of line 1 and line 2 in PDF-space (use Y as-is for PDF space)
-        double dx1 = line1.X2Pt - line1.X1Pt, dy1 = line1.Y2Pt - line1.Y1Pt;
-        double dx2 = line2.X2Pt - line2.X1Pt, dy2 = line2.Y2Pt - line2.Y1Pt;
-
-        // Angle between two direction vectors: dot product / (|v1| * |v2|)
-        double dot  = dx1 * dx2 + dy1 * dy2;
-        double len1 = Math.Sqrt(dx1 * dx1 + dy1 * dy1);
-        double len2 = Math.Sqrt(dx2 * dx2 + dy2 * dy2);
-        if (len1 < 1e-9 || len2 < 1e-9) return 0f;
-
-        double cosAngle = Math.Clamp(dot / (len1 * len2), -1.0, 1.0);
-        double angleDeg = Math.Acos(cosAngle) * 180.0 / Math.PI;
-
-        // angleDeg is in [0, 180]. For full-circle style, compute the full rotation offset instead.
         if (obj.Style == ProtractorStyle.Full360)
         {
-            // For bearings, show the rotated angle from North (0° baseline)
-            // = RotationOffsetDeg mod 360, normalized to [0, 360)
             double bearing = ((obj.RotationOffsetDeg % 360.0) + 360.0) % 360.0;
             return (float)bearing;
         }
 
-        // For Classic180: apply IsFlipped (inner=direct reading, outer=supplementary)
-        if (obj.IsFlipped)
-            angleDeg = 180.0 - angleDeg;
+        // Use screen-space direction so the result is independent of draw direction.
+        // PDF Y increases upward; screen Y increases downward — flip dy.
+        double dx2_s = line2.X2Pt - line2.X1Pt;
+        double dy2_s = -(line2.Y2Pt - line2.Y1Pt);
 
-        return (float)Math.Clamp(angleDeg, 0.0, 180.0);
+        // Rotate Line 2 into the protractor's local frame.
+        double bRad  = obj.BaselineAngleDeg * Math.PI / 180.0;
+        double cosB  = Math.Cos(-bRad), sinB = Math.Sin(-bRad);
+        double localDx = dx2_s * cosB - dy2_s * sinB;
+        double localDy = dx2_s * sinB + dy2_s * cosB;
+
+        // Arc occupies negative-Y of local space. If Line 2 points the other way, flip it.
+        if (localDy > 0) { localDx = -localDx; localDy = -localDy; }
+
+        // Natural reading = angle from right-end baseline (+X) going CCW into arc.
+        double localAngle   = Math.Atan2(localDy, localDx) * 180.0 / Math.PI;
+        double naturalAngle = -localAngle;   // [-180,0] → [0,180]
+
+        if (obj.IsFlipped) naturalAngle = 180.0 - naturalAngle;
+
+        return (float)Math.Clamp(naturalAngle, 0.0, 180.0);
     }
 
     /// <summary>

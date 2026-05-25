@@ -61,10 +61,11 @@ public sealed class ProtractorObject : GeometryObject
     // ── Constants ────────────────────────────────────────────────────────────
     /// <summary>
     /// Default protractor radius in PDF points.
-    /// 108 pt × 1.333 (Scale at zoom=1, 96 DPI) ≈ 144 screen px.
-    /// Per RESEARCH.md §Default Radius: target ~150px at zoom=1.0.
+    /// 144 pt × 1.333 (Scale at zoom=1, 96 DPI) ≈ 192 screen px — large enough
+    /// for 16pt labels at 10° intervals (~34px arc length each) to be readable
+    /// for eye-gaze students without zooming in.
     /// </summary>
-    public const double DefaultRadiusPt = 108.0;
+    public const double DefaultRadiusPt = 144.0;
 
     // ── Constructor ──────────────────────────────────────────────────────────
     public ProtractorObject(double centerXPt, double centerYPt,
