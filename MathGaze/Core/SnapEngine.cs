@@ -6,11 +6,12 @@ namespace MathGaze.Core;
 /// <summary>
 /// Computes the nearest snap candidate for a given cursor position.
 /// Priority: 1. Existing object endpoints, 2. Line-line intersections (≤6 lines), 3. Orientation guides (V/H/45°).
-/// Snap threshold: 20px screen pixels (large enough for ±10px gaze imprecision).
+/// Snap threshold: 20px (endpoints/intersections), 10px (orientation guides).
 /// </summary>
 public sealed class SnapEngine
 {
-    private const float SnapThresholdPx = 20f;
+    private const float SnapThresholdPx  = 20f;
+    private const float OrientThresholdPx = 10f;
 
     /// <summary>
     /// Returns the best snapped position (screen px) and an optional label for the status toast.
@@ -70,14 +71,14 @@ public sealed class SnapEngine
         // Orientation guides are lowest priority — they must not override endpoint or intersection snaps.
         if (label is null)
         {
-            float orientBestDist = SnapThresholdPx;
+            float orientBestDist = OrientThresholdPx;
             foreach (var obj in objects)
             {
                 foreach (var (snapPx, _) in obj.GetSnapPoints(mapper))
                 {
                     // Horizontal alignment: cursor Y within threshold of snap point Y
                     float dH = Math.Abs(cursorPx.Y - snapPx.Y);
-                    if (dH < SnapThresholdPx)
+                    if (dH < OrientThresholdPx)
                     {
                         var candidate = new SKPoint(cursorPx.X, snapPx.Y);
                         float d = SKPoint.Distance(cursorPx, candidate); // = dH
@@ -85,7 +86,7 @@ public sealed class SnapEngine
                     }
                     // Vertical alignment: cursor X within threshold of snap point X
                     float dV = Math.Abs(cursorPx.X - snapPx.X);
-                    if (dV < SnapThresholdPx)
+                    if (dV < OrientThresholdPx)
                     {
                         var candidate = new SKPoint(snapPx.X, cursorPx.Y);
                         float d = SKPoint.Distance(cursorPx, candidate); // = dV
@@ -95,7 +96,7 @@ public sealed class SnapEngine
                     float dx = cursorPx.X - snapPx.X;
                     float dy = cursorPx.Y - snapPx.Y;
                     float deviation = Math.Abs(Math.Abs(dx) - Math.Abs(dy));
-                    if (deviation < SnapThresholdPx)
+                    if (deviation < OrientThresholdPx)
                     {
                         float sign = dy >= 0 ? 1f : -1f;
                         float len  = (Math.Abs(dx) + Math.Abs(dy)) / 2f;

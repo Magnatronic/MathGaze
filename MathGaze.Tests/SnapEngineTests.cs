@@ -169,4 +169,30 @@ public class SnapEngineTests
         Assert.Equal("horizontal", label);
         Assert.InRange(pos.Y, snapPt.Y - 0.5f, snapPt.Y + 0.5f);
     }
+
+    /// <summary>
+    /// GAP-14 regression: orientation guide threshold reduced to 10px.
+    /// Cursor at 25px horizontal + 12px vertical offset: dH=12px and dV=25px both exceed
+    /// the new 10px OrientThresholdPx, and distance ~27.7px exceeds endpoint threshold.
+    /// Expects null label (no snap of any kind). Documents that orientation guides no longer
+    /// fire at 12px deviation.
+    /// </summary>
+    [Fact]
+    public void Snap_OrientationSnap_OutsideNewThreshold_ReturnsNull()
+    {
+        var engine = new SnapEngine();
+        var mapper = MakeMapper();
+        var point = new PointObject(100, 400);
+        var objects = new List<GeometryObject> { point };
+        var snapPt = mapper.PageToScreen(100, 400);
+        // dH = 12px (> new 10px orient threshold), dV = 25px (> 10px),
+        // distance to endpoint ≈ 27.7px (> 20px endpoint threshold) → no snap at all
+        var cursor = new SKPoint(snapPt.X + 25f, snapPt.Y + 12f);
+
+        var (pos, label) = engine.Snap(cursor, objects, mapper);
+
+        Assert.Null(label);
+        Assert.InRange(pos.X, cursor.X - 0.5f, cursor.X + 0.5f);
+        Assert.InRange(pos.Y, cursor.Y - 0.5f, cursor.Y + 0.5f);
+    }
 }
