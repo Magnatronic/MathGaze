@@ -180,21 +180,29 @@ public partial class ToolViewModel : ObservableObject
                 var p2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
                 double line1AngleDeg = Math.Atan2(p2Screen.Y - p1Screen.Y, p2Screen.X - p1Screen.X) * 180.0 / Math.PI;
 
-                // Flip baseline 180° if Line 2's midpoint falls on the positive-Y (flat/baseline) side
+                // Flip baseline 180° if Line 2's click falls on the positive-Y (flat/baseline) side
                 // of the protractor in local canvas space, so the arc always faces toward Line 2.
                 // All vectors must be in SCREEN space (Y down) because line1AngleDeg is screen-space.
                 // Using PDF-space coords here would invert Y and fire the flip in the wrong direction.
-                double mx2 = (line2.X1Pt + line2.X2Pt) / 2.0;
-                double my2 = (line2.Y1Pt + line2.Y2Pt) / 2.0;
-                var midScreen2 = mapper.PageToScreen(mx2, my2);
+                // Use the student's click point on Line 2 as the direction indicator.
+                // screenPx is already available as the HandleCanvasClick parameter.
                 var intPtScreen = mapper.PageToScreen(interPt.xPt, interPt.yPt);
-                double dxScreen = midScreen2.X - intPtScreen.X;
-                double dyScreen = midScreen2.Y - intPtScreen.Y;
-                double rad = line1AngleDeg * Math.PI / 180.0;
+                double dxScreen = screenPx.X - intPtScreen.X;
+                double dyScreen = screenPx.Y - intPtScreen.Y;
+
+                // Degenerate case: click within 5px of intersection — fall back to Line 2's P1→P2 direction.
+                if (Math.Sqrt(dxScreen * dxScreen + dyScreen * dyScreen) < 5.0)
+                {
+                    var p1s = mapper.PageToScreen(line2.X1Pt, line2.Y1Pt);
+                    var p2s = mapper.PageToScreen(line2.X2Pt, line2.Y2Pt);
+                    dxScreen = p2s.X - p1s.X;
+                    dyScreen = p2s.Y - p1s.Y;
+                }
+
+                double rad    = line1AngleDeg * Math.PI / 180.0;
                 double localX =  dxScreen * Math.Cos(-rad) - dyScreen * Math.Sin(-rad);
                 double localY =  dxScreen * Math.Sin(-rad) + dyScreen * Math.Cos(-rad);
-                // Arc occupies the negative-Y half of local canvas space.
-                // If Line 2 is in positive-Y half (below baseline), flip so the arc faces it.
+                // Arc occupies negative-Y of local space; flip baseline if Line 2 click is on positive-Y side.
                 if (localY > 0)
                     line1AngleDeg += 180.0;
 
