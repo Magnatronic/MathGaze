@@ -1,20 +1,20 @@
 ---
-status: partial
+status: complete
 phase: 02-geometry-core
 source: [02-VERIFICATION.md]
 started: 2026-05-03T07:09:27Z
-updated: 2026-05-25T00:00:00Z
+updated: 2026-05-25T12:00:00Z
 ---
 
 ## Current Test
 
-UAT session 2026-05-25 — all pending tests run in app. Test 1 FAIL: placement still inconsistent. New GAP-14 raised. Tests 2, 3, 5, 6, 10 passed. Test 8 deferred (no Grid 3 hardware).
+UAT session 2026-05-25 — Phase 2 UAT complete. All 9 testable items PASS. Test 1 confirmed PASS after GAP-14b fix (orientation guide snap removed; snap disabled on first clicks). Test 8 deferred (no Grid 3 hardware).
 
 ## Tests
 
 ### 1. Geometry objects render correctly on canvas
 expected: Point, Line, and Circle objects appear at correct screen positions on top of the PDF bitmap layer with correct visual styling (1A1A2E ink colour)
-result: FAIL — Placement is inconsistent: sometimes lands exactly where clicked, sometimes offset. Consistent across all tested zoom levels. Clicking near an existing point sometimes places the new object at the existing point instead of cursor position. Same behaviour on Line and Circle. → GAP-14
+result: PASS — Placement accurate after GAP-14b fix: orientation guide snap removed, snap now fires only on second clicks (Line endpoint, Circle radius). Confirmed 2026-05-25.
 
 ### 2. Selection highlighting and sub-point tap target indicators
 expected: Selected objects render in accent cobalt (#3B6FD4); selected Line shows 8px endpoint dots; selected Circle shows centre + edge dots; active sub-point shows additional 14px ring indicator
@@ -55,8 +55,8 @@ result: PASS — Canvas clears correctly on page navigation. (2026-05-25)
 ## Summary
 
 total: 10
-passed: 8
-issues: 1
+passed: 9
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
@@ -130,6 +130,6 @@ description: Fixed in 02-13 — _geometryService.Reset() added as first statemen
 severity: blocking
 
 ### GAP-14: Placement intermittently offset — snap engaging unexpectedly
-status: open
-description: Object placement (Point, Line, Circle) is inconsistent — sometimes lands exactly at cursor, sometimes offset. Consistent across zoom levels. Clicking near an existing point sometimes places the new object at the existing point rather than the cursor. Snap threshold (20px) may be too aggressive, causing unintended snaps. Or a residual CoordinateMapper timing issue. Dashed ghost preview tracks cursor correctly during mid-draw, but committed position diverges. Needs code investigation.
+status: resolved
+description: Fixed via GAP-14b — orientation guide snap section removed entirely from SnapEngine; snap now only fires on second clicks (Line endpoint, Circle radius). First click (anchor/centre) is always free of snap. Confirmed PASS in human UAT 2026-05-25.
 severity: blocking
