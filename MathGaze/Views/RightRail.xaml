@@ -51,6 +51,101 @@
                                Margin="0,0,0,10"
                                HorizontalAlignment="Center"/>
 
+                    <!-- PROTRACTOR PANEL (shown only when SelectedObjectType == "Protractor") -->
+                    <StackPanel x:Name="ProtractorPanel" Margin="0,0,0,8">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedObjectType}" Value="Protractor">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <!-- Rotate section label -->
+                        <TextBlock Text="ROTATE"
+                                   FontSize="9" FontWeight="Bold"
+                                   Foreground="{StaticResource BrushInk3}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+
+                        <!-- Rotate block: −5°, −1°, +1°, +5° — each 56x56px (gaze floor) -->
+                        <UniformGrid Rows="2" Columns="2" Margin="0,0,0,6">
+                            <Button Width="56" Height="56"
+                                    Style="{StaticResource RailButtonStyle}"
+                                    Command="{Binding RotateMinus5Command}"
+                                    Content="&#x2212;5&#xB0;"
+                                    ToolTip="Rotate left 5 degrees"/>
+                            <Button Width="56" Height="56"
+                                    Style="{StaticResource RailButtonStyle}"
+                                    Command="{Binding RotateMinus1Command}"
+                                    Content="&#x2212;1&#xB0;"
+                                    ToolTip="Rotate left 1 degree"/>
+                            <Button Width="56" Height="56"
+                                    Style="{StaticResource RailButtonStyle}"
+                                    Command="{Binding RotatePlus1Command}"
+                                    Content="+1&#xB0;"
+                                    ToolTip="Rotate right 1 degree"/>
+                            <Button Width="56" Height="56"
+                                    Style="{StaticResource RailButtonStyle}"
+                                    Command="{Binding RotatePlus5Command}"
+                                    Content="+5&#xB0;"
+                                    ToolTip="Rotate right 5 degrees"/>
+                        </UniformGrid>
+
+                        <!-- Flip scale button — full width, 56px height -->
+                        <Button Height="56"
+                                HorizontalAlignment="Stretch"
+                                Style="{StaticResource RailButtonStyle}"
+                                Command="{Binding FlipScaleCommand}"
+                                Content="Flip scale"
+                                Margin="0,0,0,6"
+                                ToolTip="Toggle inner/outer scale (0–180 or 180–0)"/>
+
+                        <!-- Style toggle: Classic 180° / Full 360° — StepButtonStyle pattern with Tag="active" -->
+                        <TextBlock Text="STYLE"
+                                   FontSize="9" FontWeight="Bold"
+                                   Foreground="{StaticResource BrushInk3}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+                        <UniformGrid Rows="1" Columns="2" Margin="0,0,0,6">
+                            <Button Height="40"
+                                    Command="{Binding SetStyleClassicCommand}"
+                                    Content="180&#xB0;"
+                                    ToolTip="Classic 180-degree protractor">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStyleClassic}" Value="True">
+                                                <Setter Property="Tag" Value="active"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Height="40"
+                                    Command="{Binding SetStyleFullCommand}"
+                                    Content="360&#xB0;"
+                                    ToolTip="Full 360-degree protractor (for bearings)">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStyleFull}" Value="True">
+                                                <Setter Property="Tag" Value="active"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </UniformGrid>
+
+                        <!-- Separator before nudge section -->
+                        <Separator Margin="0,4,0,8"/>
+
+                    </StackPanel>
+
                     <!-- ── NUDGE BLOCK ──────────────────────────────────────── -->
 
                     <!-- Nudge label (D-07) -->
