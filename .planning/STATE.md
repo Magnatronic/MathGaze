@@ -112,8 +112,14 @@ None yet.
 - Research flag (Phase 2 start): verify PDFiumSharp vs Docnet.Core maintenance status on NuGet before selecting PDF library.
 - Research flag (Phase 3 start): spike on rendering accurate graduated scale marks in SkiaSharp before full protractor implementation.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260525-k0a | GAP-14: reduce orientation guide snap threshold to fix inconsistent placement | 2026-05-25 | 086e1b1 | [260525-k0a-gap-14-reduce-orientation-guide-snap-thr](.planning/quick/260525-k0a-gap-14-reduce-orientation-guide-snap-thr/) |
+
 ## Session Continuity
 
-Last session: 2026-05-03T12:04:14.583Z
-Stopped at: Completed 02-geometry-core/02-07-PLAN.md
+Last session: 2026-05-25T00:00:00.000Z
+Stopped at: Fixed GAP-14 (orientation guide snap threshold 20px→10px). Phase 2 UAT: 8/10 pass, GAP-14 fixed, Test 8 deferred. Ready to re-test placement then proceed to Phase 3.
 Resume file: None

@@ -3,26 +3,26 @@ status: partial
 phase: 02-geometry-core
 source: [02-VERIFICATION.md]
 started: 2026-05-03T07:09:27Z
-updated: 2026-05-05T10:00:00Z
+updated: 2026-05-25T00:00:00Z
 ---
 
 ## Current Test
 
-Re-UAT 2026-05-05 — GAP-11, GAP-12, GAP-13 code fixes confirmed by re-verification (29/29 truths). Tests 1, 3, 10 need re-test in running app to confirm fixes.
+UAT session 2026-05-25 — all pending tests run in app. Test 1 FAIL: placement still inconsistent. New GAP-14 raised. Tests 2, 3, 5, 6, 10 passed. Test 8 deferred (no Grid 3 hardware).
 
 ## Tests
 
 ### 1. Geometry objects render correctly on canvas
 expected: Point, Line, and Circle objects appear at correct screen positions on top of the PDF bitmap layer with correct visual styling (1A1A2E ink colour)
-result: NEEDS RE-TEST — GAP-11 code fix applied (EnsureCoordinateMapper() called synchronously in SetDpiScale and SetCanvasSize). First-click placement race eliminated in code. Requires running app to confirm visual accuracy across zoom/DPI.
+result: FAIL — Placement is inconsistent: sometimes lands exactly where clicked, sometimes offset. Consistent across all tested zoom levels. Clicking near an existing point sometimes places the new object at the existing point instead of cursor position. Same behaviour on Line and Circle. → GAP-14
 
 ### 2. Selection highlighting and sub-point tap target indicators
 expected: Selected objects render in accent cobalt (#3B6FD4); selected Line shows 8px endpoint dots; selected Circle shows centre + edge dots; active sub-point shows additional 14px ring indicator
-result: [pending — not tested separately]
+result: PASS — Selected objects turn cobalt. (2026-05-25)
 
 ### 3. Ghost preview during mid-draw
 expected: After click 1 in Line or Circle mode, a dashed preview line/circle follows the cursor until click 2 commits the object; snap ring indicator appears when within 20px of a snap candidate
-result: NEEDS RE-TEST — GAP-12 code fix applied (SnapEngine section 3 now uses SnapThresholdPx absolute gate for all orientation guides; wrapped in `if (label is null)` to prevent endpoint override). Horizontal snap logic confirmed correct by 7 unit tests. Requires running app to confirm visual ring appears on horizontal alignment.
+result: PASS — Snap ring always present during mid-draw; snaps to nearby endpoints correctly. (2026-05-25)
 
 ### 4. Nudge step accuracy
 expected: Selecting 1/5/20px step and pressing a directional nudge button shifts the selected object by exactly that many PDF-space pixels; Up/Down directions correct
@@ -30,11 +30,11 @@ result: PASS — Nudge direction correct (GAP-3 resolved). Step accuracy not sep
 
 ### 5. Undo/Redo button state management
 expected: Undo button enables after the first geometry command; Redo enables after an undo; both disable at their respective stack limits
-result: [pending]
+result: PASS — Undo and redo work correctly. (2026-05-25)
 
 ### 6. Gaze target size floor at actual screen DPI
 expected: All interactive elements ≥56×56px on target school hardware
-result: [pending]
+result: PASS — Targets visually meet size floor. (2026-05-25)
 
 ### 7. Right rail visual style
 expected: All right rail buttons match app design language — white surface, BrushBorder, CornerRadius=6, no WPF chrome
@@ -42,7 +42,7 @@ result: PASS — Delete hover shows dark red; active step retains cobalt on hove
 
 ### 8. Grid 3 / standard pointer click compatibility
 expected: Full interaction loop works from assistive technology device
-result: [pending]
+result: DEFERRED — No Grid 3 hardware available for testing. (2026-05-25)
 
 ### 9. Geometry state cleared on PDF reload
 expected: Opening a new PDF resets the geometry canvas — no objects from the previous PDF appear on the new document
@@ -50,16 +50,17 @@ result: PASS — Canvas clears correctly when a new PDF is opened (GAP-10 resolv
 
 ### 10. Geometry state cleared on page navigation
 expected: Navigating to a different page within the same PDF shows a clean canvas — geometry from page N does not appear on page N+1
-result: NEEDS RE-TEST — GAP-13 code fix applied (_geometryService.Reset() added as first statement in OnCurrentPageChanged). Confirmed in code. Requires running app to verify canvas clears visually on page navigation.
+result: PASS — Canvas clears correctly on page navigation. (2026-05-25)
 
 ## Summary
 
 total: 10
-passed: 3
-issues: 0
-pending: 7
+passed: 8
+issues: 1
+pending: 0
 skipped: 0
 blocked: 0
+deferred: 1 (Test 8 — Grid 3 hardware unavailable)
 
 ## Gaps
 
@@ -126,4 +127,9 @@ severity: high
 ### GAP-13: Geometry persists when navigating between pages
 status: resolved
 description: Fixed in 02-13 — _geometryService.Reset() added as first statement in OnCurrentPageChanged. Reset() clears both object list and undo/redo stacks. OpenFileAsync Reset() (GAP-10) preserved. Confirmed in code. Pending human re-test in running app.
+severity: blocking
+
+### GAP-14: Placement intermittently offset — snap engaging unexpectedly
+status: open
+description: Object placement (Point, Line, Circle) is inconsistent — sometimes lands exactly at cursor, sometimes offset. Consistent across zoom levels. Clicking near an existing point sometimes places the new object at the existing point rather than the cursor. Snap threshold (20px) may be too aggressive, causing unintended snaps. Or a residual CoordinateMapper timing issue. Dashed ghost preview tracks cursor correctly during mid-draw, but committed position diverges. Needs code investigation.
 severity: blocking
