@@ -358,7 +358,7 @@ public sealed class GeometryLayerViewModel : IDisposable
         if (_mainVm.IsPracticeMode)
         {
             float measuredAngleDeg = ComputeMeasuredAngle(obj);
-            DrawReadout(canvas, measuredAngleDeg, radiusPx);
+            DrawReadout(canvas, measuredAngleDeg, radiusPx, obj.IsFlipped);
         }
 
         canvas.Restore();
@@ -413,22 +413,36 @@ public sealed class GeometryLayerViewModel : IDisposable
     /// Called inside canvas.Save()/Restore() scope from DrawProtractor — origin is at protractor center.
     /// Per RESEARCH.md Pattern 4 (shared.jsx measuring prop).
     /// </summary>
-    private void DrawReadout(SKCanvas canvas, float measuredAngleDeg, float radiusPx)
+    private void DrawReadout(SKCanvas canvas, float measuredAngleDeg, float radiusPx, bool isFlipped = false)
     {
         if (measuredAngleDeg < 0.5f) return;  // nothing meaningful to show
 
         float arcRadius = Math.Max(30f, radiusPx * 0.25f);  // inner arc at 25% of outer radius
         var ovalSmall   = new SKRect(-arcRadius, -arcRadius, arcRadius, arcRadius);
 
-        // Arc from 0 (baseline = right in local space) sweeping CCW by -measuredAngleDeg
-        // (negative sweep = CCW in SkiaSharp screen space = upward into the protractor body)
-        canvas.DrawArc(ovalSmall, 0f, -measuredAngleDeg, false, _readoutArcPaint);
+        // When IsFlipped, the outer scale's 0° is at the left end of the baseline (-180° in local space).
+        // Draw arc starting from -180°, sweeping CW (positive in Skia) by measuredAngleDeg.
+        // When not flipped, start from 0° sweeping CCW (negative in Skia) as before.
+        float arcStartDeg, arcSweepDeg, midAngleRad;
+        if (isFlipped)
+        {
+            arcStartDeg  = -180f;
+            arcSweepDeg  = measuredAngleDeg;          // positive = CW in Skia
+            midAngleRad  = (-180f + measuredAngleDeg / 2f) * MathF.PI / 180f;
+        }
+        else
+        {
+            arcStartDeg  = 0f;
+            arcSweepDeg  = -measuredAngleDeg;         // negative = CCW in Skia
+            midAngleRad  = (-measuredAngleDeg / 2f) * MathF.PI / 180f;
+        }
+
+        canvas.DrawArc(ovalSmall, arcStartDeg, arcSweepDeg, false, _readoutArcPaint);
 
         // Label at midpoint of the arc
-        float midAngleRad = (-measuredAngleDeg / 2f) * MathF.PI / 180f;
-        float textR       = arcRadius + 14f;
-        float tx          = MathF.Cos(midAngleRad) * textR;
-        float ty          = MathF.Sin(midAngleRad) * textR + _readoutFont.Size * 0.35f;
+        float textR = arcRadius + 14f;
+        float tx    = MathF.Cos(midAngleRad) * textR;
+        float ty    = MathF.Sin(midAngleRad) * textR + _readoutFont.Size * 0.35f;
 
         canvas.DrawText($"{(int)MathF.Round(measuredAngleDeg)}°", tx, ty, SKTextAlign.Center, _readoutFont, _readoutTextPaint);
     }
