@@ -17,64 +17,65 @@ public class SnapEngineTests
         new CoordinateMapper(zoomFactor: 1.0, dpiScale: 1.0, pageWidthPt: 595, pageHeightPt: 842);
 
     /// <summary>
-    /// Horizontal snap: cursor at same Y as a PointObject's screen position, 25px to the right.
-    /// Must be >20px from the endpoint so priority-1 endpoint snap does not fire first.
+    /// GAP-14b: orientation guides removed. Cursor at same Y as a PointObject, 25px to the right
+    /// (outside 20px endpoint threshold). No snap fires — label is null, position is unchanged.
     /// </summary>
     [Fact]
-    public void Snap_HorizontalAlignment_ReturnsHorizontalLabel()
+    public void Snap_HorizontalAlignment_ReturnsNullLabel()
     {
         var engine = new SnapEngine();
         var mapper = MakeMapper();
         var point = new PointObject(100, 400);
         var objects = new List<GeometryObject> { point };
         var snapPt = mapper.PageToScreen(100, 400); // screen position of point
-        // 25px right — outside the 20px endpoint threshold so horizontal guide fires, not "point"
+        // 25px right — outside 20px endpoint threshold; orientation guide removed → null
         var cursor = new SKPoint(snapPt.X + 25f, snapPt.Y); // same Y, 25px right
 
         var (pos, label) = engine.Snap(cursor, objects, mapper);
 
-        Assert.Equal("horizontal", label);
-        Assert.InRange(pos.X, cursor.X - 0.5f, cursor.X + 0.5f); // X stays at cursor
-        Assert.InRange(pos.Y, snapPt.Y - 0.5f, snapPt.Y + 0.5f); // Y snapped to point
+        Assert.Null(label);
+        Assert.InRange(pos.X, cursor.X - 0.5f, cursor.X + 0.5f);
+        Assert.InRange(pos.Y, cursor.Y - 0.5f, cursor.Y + 0.5f);
     }
 
     /// <summary>
-    /// Horizontal snap: cursor at same Y as a PointObject's screen position, 25px to the left.
+    /// GAP-14b: orientation guides removed. Cursor at same Y as a PointObject, 25px to the left.
+    /// No snap fires — label is null.
     /// </summary>
     [Fact]
-    public void Snap_HorizontalAlignment_LeftOfPoint_ReturnsHorizontalLabel()
+    public void Snap_HorizontalAlignment_LeftOfPoint_ReturnsNullLabel()
     {
         var engine = new SnapEngine();
         var mapper = MakeMapper();
         var point = new PointObject(100, 400);
         var objects = new List<GeometryObject> { point };
         var snapPt = mapper.PageToScreen(100, 400);
-        // 25px left — outside the 20px endpoint threshold so horizontal guide fires, not "point"
+        // 25px left — outside 20px endpoint threshold; orientation guide removed → null
         var cursor = new SKPoint(snapPt.X - 25f, snapPt.Y);
 
         var (pos, label) = engine.Snap(cursor, objects, mapper);
 
-        Assert.Equal("horizontal", label);
+        Assert.Null(label);
     }
 
     /// <summary>
-    /// Vertical snap: cursor at same X as a PointObject, 25px below.
-    /// Must be >20px from the endpoint so priority-1 endpoint snap does not fire first.
+    /// GAP-14b: orientation guides removed. Cursor at same X as a PointObject, 25px below
+    /// (outside 20px endpoint threshold). No snap fires — label is null.
     /// </summary>
     [Fact]
-    public void Snap_VerticalAlignment_ReturnsVerticalLabel()
+    public void Snap_VerticalAlignment_ReturnsNullLabel()
     {
         var engine = new SnapEngine();
         var mapper = MakeMapper();
         var point = new PointObject(100, 400);
         var objects = new List<GeometryObject> { point };
         var snapPt = mapper.PageToScreen(100, 400);
-        // 25px below — outside the 20px endpoint threshold so vertical guide fires, not "point"
+        // 25px below — outside 20px endpoint threshold; orientation guide removed → null
         var cursor = new SKPoint(snapPt.X, snapPt.Y + 25f); // same X, 25px below
 
         var (pos, label) = engine.Snap(cursor, objects, mapper);
 
-        Assert.Equal("vertical", label);
+        Assert.Null(label);
     }
 
     /// <summary>
@@ -117,11 +118,10 @@ public class SnapEngineTests
     }
 
     /// <summary>
-    /// GAP-12 regression: endpoint priority — when cursor is near endpoint A (within 20px),
-    /// endpoint snap wins and orientation guides are entirely skipped (section 3 runs only when
-    /// label is null). This test documents the priority architecture introduced in 02-11/02-12.
+    /// GAP-12 regression: endpoint priority — when cursor is within 20px of endpoint A,
+    /// endpoint snap wins. This test documents the priority architecture from 02-11/02-12.
     /// Two points: pointA (near cursor) and pointB (horizontally aligned with cursor but further
-    /// away). Endpoint wins over orientation guide.
+    /// away). Cursor snaps to pointA, not pointB.
     /// </summary>
     [Fact]
     public void Snap_HorizontalAlignment_WhenEndpointAlreadySnapped_StillReturnsPoint()
@@ -129,8 +129,7 @@ public class SnapEngineTests
         var engine = new SnapEngine();
         var mapper = MakeMapper();
         // pointA: cursor will be within ~4.24px (3+3 diagonal) — endpoint snap fires
-        // pointB: horizontally aligned with cursor, 100px away — orientation guide would fire
-        //   if section 3 ran, but endpoint wins and section 3 is skipped.
+        // pointB: same screen Y as pointA, 100px away
         var pointA = new PointObject(100, 400);
         var pointB = new PointObject(200, 400); // same PDF Y → same screen Y as pointA
         var objects = new List<GeometryObject> { pointA, pointB };
@@ -140,20 +139,16 @@ public class SnapEngineTests
 
         var (pos, label) = engine.Snap(cursor, objects, mapper);
 
-        // Endpoint snap on pointA must win — section 3 orientation guides are not run
         Assert.Equal("point", label);
     }
 
     /// <summary>
-    /// GAP-12 fix verification: horizontal snap fires at 21px horizontal offset (just outside
-    /// the 20px endpoint threshold) so the absolute SnapThresholdPx gate in section 3 is the
-    /// only thing enabling the snap. With the old bestDist guard this case was suppressed;
-    /// with the SnapThresholdPx absolute gate it always fires when dH &lt; 20px.
-    /// At 21px offset: distance to endpoint = 21px (outside threshold → no endpoint snap),
-    /// dH = 0 &lt; 20 → horizontal snap fires.
+    /// GAP-14b: orientation guides removed. Cursor 21px to the right of a PointObject, same Y:
+    /// distance = 21px (outside 20px endpoint threshold → no endpoint snap).
+    /// Horizontal guide also removed → no snap at all, label is null.
     /// </summary>
     [Fact]
-    public void Snap_HorizontalAlignment_JustOutsideEndpointThreshold_ReturnsHorizontal()
+    public void Snap_HorizontalAlignment_JustOutsideEndpointThreshold_ReturnsNull()
     {
         var engine = new SnapEngine();
         var mapper = MakeMapper();
@@ -161,21 +156,20 @@ public class SnapEngineTests
         var objects = new List<GeometryObject> { point };
         var snapPt = mapper.PageToScreen(100, 400);
         // 21px to the right, same Y: distance = 21 > 20 → endpoint snap does NOT fire.
-        // dH = 0 < 20 → horizontal guide fires.
+        // Orientation guide removed → no snap at all.
         var cursor = new SKPoint(snapPt.X + 21f, snapPt.Y);
 
         var (pos, label) = engine.Snap(cursor, objects, mapper);
 
-        Assert.Equal("horizontal", label);
-        Assert.InRange(pos.Y, snapPt.Y - 0.5f, snapPt.Y + 0.5f);
+        Assert.Null(label);
+        Assert.InRange(pos.X, cursor.X - 0.5f, cursor.X + 0.5f);
+        Assert.InRange(pos.Y, cursor.Y - 0.5f, cursor.Y + 0.5f);
     }
 
     /// <summary>
-    /// GAP-14 regression: orientation guide threshold reduced to 10px.
-    /// Cursor at 25px horizontal + 12px vertical offset: dH=12px and dV=25px both exceed
-    /// the new 10px OrientThresholdPx, and distance ~27.7px exceeds endpoint threshold.
-    /// Expects null label (no snap of any kind). Documents that orientation guides no longer
-    /// fire at 12px deviation.
+    /// GAP-14/GAP-14b regression: orientation guides entirely removed (GAP-14b).
+    /// Cursor at 25px horizontal + 12px vertical offset: distance ~27.7px exceeds endpoint
+    /// threshold, and orientation guides are gone. Expects null label (no snap of any kind).
     /// </summary>
     [Fact]
     public void Snap_OrientationSnap_OutsideNewThreshold_ReturnsNull()

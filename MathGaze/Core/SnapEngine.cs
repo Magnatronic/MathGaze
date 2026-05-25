@@ -5,13 +5,12 @@ namespace MathGaze.Core;
 
 /// <summary>
 /// Computes the nearest snap candidate for a given cursor position.
-/// Priority: 1. Existing object endpoints, 2. Line-line intersections (≤6 lines), 3. Orientation guides (V/H/45°).
-/// Snap threshold: 20px (endpoints/intersections), 10px (orientation guides).
+/// Priority: 1. Existing object endpoints, 2. Line-line intersections (≤6 lines).
+/// Snap threshold: 20px (endpoints/intersections).
 /// </summary>
 public sealed class SnapEngine
 {
     private const float SnapThresholdPx  = 20f;
-    private const float OrientThresholdPx = 10f;
 
     /// <summary>
     /// Returns the best snapped position (screen px) and an optional label for the status toast.
@@ -61,51 +60,6 @@ public sealed class SnapEngine
                         bestDist = d;
                         best     = pt;
                         label    = "intersection";
-                    }
-                }
-            }
-        }
-
-        // ── 3. Orientation guides: vertical, horizontal, 45° from existing endpoints ──
-        // Only runs when sections 1+2 found no snap (bestDist still equals SnapThresholdPx).
-        // Orientation guides are lowest priority — they must not override endpoint or intersection snaps.
-        if (label is null)
-        {
-            float orientBestDist = OrientThresholdPx;
-            foreach (var obj in objects)
-            {
-                foreach (var (snapPx, _) in obj.GetSnapPoints(mapper))
-                {
-                    // Horizontal alignment: cursor Y within threshold of snap point Y
-                    float dH = Math.Abs(cursorPx.Y - snapPx.Y);
-                    if (dH < OrientThresholdPx)
-                    {
-                        var candidate = new SKPoint(cursorPx.X, snapPx.Y);
-                        float d = SKPoint.Distance(cursorPx, candidate); // = dH
-                        if (d < orientBestDist) { orientBestDist = d; best = candidate; label = "horizontal"; }
-                    }
-                    // Vertical alignment: cursor X within threshold of snap point X
-                    float dV = Math.Abs(cursorPx.X - snapPx.X);
-                    if (dV < OrientThresholdPx)
-                    {
-                        var candidate = new SKPoint(snapPx.X, cursorPx.Y);
-                        float d = SKPoint.Distance(cursorPx, candidate); // = dV
-                        if (d < orientBestDist) { orientBestDist = d; best = candidate; label = "vertical"; }
-                    }
-                    // 45° alignment: |dx| ≈ |dy| from a snap point
-                    float dx = cursorPx.X - snapPx.X;
-                    float dy = cursorPx.Y - snapPx.Y;
-                    float deviation = Math.Abs(Math.Abs(dx) - Math.Abs(dy));
-                    if (deviation < OrientThresholdPx)
-                    {
-                        float sign = dy >= 0 ? 1f : -1f;
-                        float len  = (Math.Abs(dx) + Math.Abs(dy)) / 2f;
-                        var candidate = new SKPoint(snapPx.X + Math.Sign(dx) * len,
-                                                   snapPx.Y + sign * len);
-                        float d = SKPoint.Distance(cursorPx, candidate);
-                        // d > 0 guard: skip when cursor is already on the 45° line (d=0 means
-                        // the cursor IS the candidate — no actual snap movement would occur).
-                        if (d > 0f && d < orientBestDist) { orientBestDist = d; best = candidate; label = "45°"; }
                     }
                 }
             }
