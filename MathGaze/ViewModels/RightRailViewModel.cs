@@ -25,6 +25,8 @@ public sealed partial class RightRailViewModel : ObservableObject
     [ObservableProperty] private string _nudgeLabel  = string.Empty;
     [ObservableProperty] private bool   _hasSelection;
     [ObservableProperty] private string _selectedObjectType = string.Empty;
+    [ObservableProperty] private bool   _isStyleClassic = true;
+    [ObservableProperty] private bool   _isStyleFull    = false;
 
     public RightRailViewModel(IGeometryService geometryService)
     {
@@ -44,19 +46,21 @@ public sealed partial class RightRailViewModel : ObservableObject
 
         SelectedObjectType = obj switch
         {
-            PointObject  => "Point",
-            LineObject   => "Line",
-            CircleObject => "Circle",
-            _            => string.Empty,
+            PointObject      => "Point",
+            LineObject       => "Line",
+            CircleObject     => "Circle",
+            ProtractorObject => "Protractor",
+            _                => string.Empty,
         };
 
         NudgeLabel = obj switch
         {
-            null => string.Empty,
-            LineObject l when l.SelectedEndpoint == 0 => "Move endpoint A",   // D-07
-            LineObject l when l.SelectedEndpoint == 1 => "Move endpoint B",   // D-07
-            CircleObject c when c.SelectedSubPoint == 0 => "Move centre",     // D-07
-            CircleObject c when c.SelectedSubPoint == 1 => "Move radius",     // D-07
+            null             => string.Empty,
+            LineObject l when l.SelectedEndpoint == 0   => "Move endpoint A",   // D-07
+            LineObject l when l.SelectedEndpoint == 1   => "Move endpoint B",   // D-07
+            CircleObject c when c.SelectedSubPoint == 0 => "Move centre",       // D-07
+            CircleObject c when c.SelectedSubPoint == 1 => "Move radius",       // D-07
+            ProtractorObject => "Move protractor",
             _ => "Move",
         };
 
@@ -68,6 +72,25 @@ public sealed partial class RightRailViewModel : ObservableObject
         DeleteCommand.NotifyCanExecuteChanged();
         UndoCommand.NotifyCanExecuteChanged();
         RedoCommand.NotifyCanExecuteChanged();
+        RotateMinus5Command.NotifyCanExecuteChanged();
+        RotateMinus1Command.NotifyCanExecuteChanged();
+        RotatePlus1Command.NotifyCanExecuteChanged();
+        RotatePlus5Command.NotifyCanExecuteChanged();
+        FlipScaleCommand.NotifyCanExecuteChanged();
+        SetStyleClassicCommand.NotifyCanExecuteChanged();
+        SetStyleFullCommand.NotifyCanExecuteChanged();
+
+        // Update protractor style toggle state
+        if (obj is ProtractorObject prot)
+        {
+            IsStyleClassic = prot.Style == ProtractorStyle.Classic180;
+            IsStyleFull    = prot.Style == ProtractorStyle.Full360;
+        }
+        else
+        {
+            IsStyleClassic = true;
+            IsStyleFull    = false;
+        }
     }
 
     // ── Step selection ───────────────────────────────────────────────────────
@@ -125,6 +148,63 @@ public sealed partial class RightRailViewModel : ObservableObject
             : new NudgeObjectCommand(obj.Id, dxPt, dyPt);
 
         _geometryService.ExecuteCommand(cmd);
+    }
+
+    // ── Protractor commands ──────────────────────────────────────────────────
+
+    private bool CanProtractor() => _geometryService.SelectedObject is ProtractorObject;
+
+    [RelayCommand(CanExecute = nameof(CanProtractor))]
+    private void RotateMinus5()
+    {
+        if (_geometryService.SelectedObject is ProtractorObject p)
+            _geometryService.ExecuteCommand(new RotateProtractorCommand(p.Id, -5.0));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanProtractor))]
+    private void RotateMinus1()
+    {
+        if (_geometryService.SelectedObject is ProtractorObject p)
+            _geometryService.ExecuteCommand(new RotateProtractorCommand(p.Id, -1.0));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanProtractor))]
+    private void RotatePlus1()
+    {
+        if (_geometryService.SelectedObject is ProtractorObject p)
+            _geometryService.ExecuteCommand(new RotateProtractorCommand(p.Id, +1.0));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanProtractor))]
+    private void RotatePlus5()
+    {
+        if (_geometryService.SelectedObject is ProtractorObject p)
+            _geometryService.ExecuteCommand(new RotateProtractorCommand(p.Id, +5.0));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanProtractor))]
+    private void FlipScale()
+    {
+        if (_geometryService.SelectedObject is ProtractorObject p)
+            _geometryService.ExecuteCommand(new FlipProtractorCommand(p.Id));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanProtractor))]
+    private void SetStyleClassic()
+    {
+        if (_geometryService.SelectedObject is ProtractorObject p &&
+            p.Style != ProtractorStyle.Classic180)
+            _geometryService.ExecuteCommand(
+                new StyleProtractorCommand(p.Id, ProtractorStyle.Classic180, p.Style));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanProtractor))]
+    private void SetStyleFull()
+    {
+        if (_geometryService.SelectedObject is ProtractorObject p &&
+            p.Style != ProtractorStyle.Full360)
+            _geometryService.ExecuteCommand(
+                new StyleProtractorCommand(p.Id, ProtractorStyle.Full360, p.Style));
     }
 
     // ── Delete command ───────────────────────────────────────────────────────
