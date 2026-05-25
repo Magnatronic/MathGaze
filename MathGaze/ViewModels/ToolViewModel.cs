@@ -180,18 +180,21 @@ public partial class ToolViewModel : ObservableObject
                 var p2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
                 double line1AngleDeg = Math.Atan2(p2Screen.Y - p1Screen.Y, p2Screen.X - p1Screen.X) * 180.0 / Math.PI;
 
-                // Gap 2: flip baseline 180° if Line 2's midpoint falls on the flat/baseline side
-                // so the arc always faces toward Line 2
+                // Flip baseline 180° if Line 2's midpoint falls on the positive-Y (flat/baseline) side
+                // of the protractor in local canvas space, so the arc always faces toward Line 2.
+                // All vectors must be in SCREEN space (Y down) because line1AngleDeg is screen-space.
+                // Using PDF-space coords here would invert Y and fire the flip in the wrong direction.
                 double mx2 = (line2.X1Pt + line2.X2Pt) / 2.0;
                 double my2 = (line2.Y1Pt + line2.Y2Pt) / 2.0;
-                double dxLocal = mx2 - interPt.xPt;
-                double dyLocal = my2 - interPt.yPt;
+                var midScreen2 = mapper.PageToScreen(mx2, my2);
+                var intPtScreen = mapper.PageToScreen(interPt.xPt, interPt.yPt);
+                double dxScreen = midScreen2.X - intPtScreen.X;
+                double dyScreen = midScreen2.Y - intPtScreen.Y;
                 double rad = line1AngleDeg * Math.PI / 180.0;
-                // Rotate the vector into the protractor's local frame (un-rotate by line1AngleDeg)
-                double localX =  dxLocal * Math.Cos(-rad) - dyLocal * Math.Sin(-rad);
-                double localY =  dxLocal * Math.Sin(-rad) + dyLocal * Math.Cos(-rad);
-                // In SkiaSharp screen coords (Y down), arc is drawn in the NEGATIVE-Y half.
-                // If Line 2 midpoint has positive localY (below baseline in screen space), flip 180°.
+                double localX =  dxScreen * Math.Cos(-rad) - dyScreen * Math.Sin(-rad);
+                double localY =  dxScreen * Math.Sin(-rad) + dyScreen * Math.Cos(-rad);
+                // Arc occupies the negative-Y half of local canvas space.
+                // If Line 2 is in positive-Y half (below baseline), flip so the arc faces it.
                 if (localY > 0)
                     line1AngleDeg += 180.0;
 
