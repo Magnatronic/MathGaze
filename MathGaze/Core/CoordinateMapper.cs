@@ -111,4 +111,14 @@ public sealed class CoordinateMapper
     /// The page height in physical screen pixels at the current zoom and DPI.
     /// </summary>
     public double PageHeightPx => _pageHeightPt * Scale;
+
+    /// <summary>
+    /// The page width in PDF points (coordinate-space units). Used for clamping intersection points to page bounds.
+    /// </summary>
+    public double PageWidthPt => _pageWidthPt;
+
+    /// <summary>
+    /// The page height in PDF points (coordinate-space units). Used for clamping intersection points to page bounds.
+    /// </summary>
+    public double PageHeightPt => _pageHeightPt;
 }

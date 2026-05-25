@@ -8,7 +8,7 @@ using SkiaSharp;
 
 namespace MathGaze.ViewModels;
 
-public enum ToolMode { Select, Point, Line, Circle }
+public enum ToolMode { Select, Point, Line, Circle, Protractor }
 public enum DrawState { Idle, AnchorPlaced }
 
 /// <summary>
@@ -27,6 +27,9 @@ public partial class ToolViewModel : ObservableObject
     // In-progress anchor stored in PDF point coordinates (D-10)
     public (double xPt, double yPt)? AnchorPt { get; private set; }
 
+    // Protractor placement — the first selected line (DrawState.AnchorPlaced)
+    public LineObject? AnchorLine { get; private set; }
+
     // Ghost cursor position in physical screen pixels — updated on every MouseMove
     public SKPoint GhostCursorPx { get; private set; }
 
@@ -43,14 +46,16 @@ public partial class ToolViewModel : ObservableObject
 
     // ── Tool activation commands (bound from ToolRail) ───────────────────────
 
-    [RelayCommand] private void ActivateSelect() { ResetDrawState(); ActiveTool = ToolMode.Select; }
-    [RelayCommand] private void ActivatePoint()  { ResetDrawState(); ActiveTool = ToolMode.Point;  StatusMessage = "Click to place a point"; }
-    [RelayCommand] private void ActivateLine()   { ResetDrawState(); ActiveTool = ToolMode.Line;   StatusMessage = "Click to place start point"; }
-    [RelayCommand] private void ActivateCircle() { ResetDrawState(); ActiveTool = ToolMode.Circle; StatusMessage = "Click to place centre"; }
+    [RelayCommand] private void ActivateSelect()    { ResetDrawState(); ActiveTool = ToolMode.Select; }
+    [RelayCommand] private void ActivatePoint()     { ResetDrawState(); ActiveTool = ToolMode.Point;     StatusMessage = "Click to place a point"; }
+    [RelayCommand] private void ActivateLine()      { ResetDrawState(); ActiveTool = ToolMode.Line;      StatusMessage = "Click to place start point"; }
+    [RelayCommand] private void ActivateCircle()    { ResetDrawState(); ActiveTool = ToolMode.Circle;    StatusMessage = "Click to place centre"; }
+    [RelayCommand] private void ActivateProtractor(){ ResetDrawState(); ActiveTool = ToolMode.Protractor; StatusMessage = "Click a line (baseline)"; }
 
     private void ResetDrawState()
     {
         AnchorPt      = null;
+        AnchorLine    = null;
         DrawState     = DrawState.Idle;
         LastSnap      = null;
         StatusMessage = string.Empty;
@@ -131,6 +136,61 @@ public partial class ToolViewModel : ObservableObject
                 StatusMessage = "Circle placed";
                 break;
             }
+
+            case (ToolMode.Protractor, DrawState.Idle):
+            {
+                // Must hit a LineObject specifically (not any geometry object)
+                var hit = GeometryHitTester.TryHitObject(screenPx, _geometryService.Objects, mapper);
+                if (hit is not LineObject line1) break;  // ignore clicks that don't land on a line
+
+                AnchorLine    = line1;
+                DrawState     = DrawState.AnchorPlaced;
+                StatusMessage = "Click 2nd line";
+                GhostChanged?.Invoke(this, EventArgs.Empty);
+                break;
+            }
+
+            case (ToolMode.Protractor, DrawState.AnchorPlaced):
+            {
+                // Must hit a DIFFERENT LineObject
+                var hit = GeometryHitTester.TryHitObject(screenPx, _geometryService.Objects, mapper);
+                if (hit is not LineObject line2) break;               // not a line — ignore
+                if (line2.Id == AnchorLine!.Id) break;                // same line — ignore
+
+                // Compute intersection in PDF-point space
+                if (!GeometryMath.TryLineIntersectPt(AnchorLine, line2, out var interPt))
+                {
+                    // Parallel lines (D-02)
+                    StatusMessage = "Lines are parallel — pick two non-parallel lines";
+                    AnchorLine    = null;
+                    DrawState     = DrawState.Idle;
+                    GhostChanged?.Invoke(this, EventArgs.Empty);
+                    break;
+                }
+
+                // Clamp to page bounds (D-03) — 20pt margin so protractor is partially visible
+                double margin  = 20.0;
+                double clampedX = Math.Clamp(interPt.xPt, margin, mapper.PageWidthPt - margin);
+                double clampedY = Math.Clamp(interPt.yPt, margin, mapper.PageHeightPt - margin);
+
+                // Compute baseline angle in screen space (CW from right) per RESEARCH.md §Intersection Math
+                var p1Screen = mapper.PageToScreen(AnchorLine.X1Pt, AnchorLine.Y1Pt);
+                var p2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
+                double screenDx = p2Screen.X - p1Screen.X;
+                double screenDy = p2Screen.Y - p1Screen.Y;
+                double baselineAngleDeg = Math.Atan2(screenDy, screenDx) * 180.0 / Math.PI;
+
+                var protractor = new ProtractorObject(
+                    clampedX, clampedY,
+                    baselineAngleDeg,
+                    AnchorLine.Id, line2.Id);
+
+                _geometryService.ExecuteCommand(new PlaceObjectCommand(protractor));
+                _geometryService.SetSelected(protractor.Id);
+                ResetDrawState();
+                StatusMessage = "Protractor placed";
+                break;
+            }
         }
     }
 
@@ -146,11 +206,20 @@ public partial class ToolViewModel : ObservableObject
         // During Idle, snap is disabled, so no ring needed.
         if (DrawState == DrawState.AnchorPlaced)
         {
-            var result = snap.Snap(screenPx, _geometryService.Objects, mapper);
-            LastSnap = result;
-            StatusMessage = result.Label is not null
-                ? $"Click 2nd point · snap: {result.Label}"
-                : (ActiveTool == ToolMode.Circle ? "Click radius point" : "Click 2nd point");
+            if (ActiveTool == ToolMode.Protractor)
+            {
+                // Protractor: no snap during placement; ghost tracks cursor freely
+                LastSnap = null;
+                StatusMessage = "Click 2nd line";
+            }
+            else
+            {
+                var result = snap.Snap(screenPx, _geometryService.Objects, mapper);
+                LastSnap = result;
+                StatusMessage = result.Label is not null
+                    ? $"Click 2nd point · snap: {result.Label}"
+                    : (ActiveTool == ToolMode.Circle ? "Click radius point" : "Click 2nd point");
+            }
         }
         else
         {
