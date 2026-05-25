@@ -66,54 +66,71 @@ public partial class ToolViewModel : ObservableObject
     /// </summary>
     public void HandleCanvasClick(SKPoint screenPx, CoordinateMapper mapper, SnapEngine snap)
     {
-        var (snappedPx, snapLabel) = snap.Snap(screenPx, _geometryService.Objects, mapper);
-        var (xPt, yPt) = mapper.ScreenToPage(snappedPx);
-
         switch (ActiveTool, DrawState)
         {
             case (ToolMode.Point, DrawState.Idle):
+            {
+                // First click — exact placement, no snap
+                var (xPt, yPt) = mapper.ScreenToPage(screenPx);
                 _geometryService.ExecuteCommand(new PlaceObjectCommand(new PointObject(xPt, yPt)));
                 StatusMessage = "Point placed";
                 break;
+            }
 
             case (ToolMode.Select, DrawState.Idle):
                 HandleSelectClick(screenPx, mapper);
                 break;
 
             case (ToolMode.Line, DrawState.Idle):
+            {
+                // First click — exact anchor placement, no snap
+                var (xPt, yPt) = mapper.ScreenToPage(screenPx);
                 AnchorPt  = (xPt, yPt);
                 DrawState = DrawState.AnchorPlaced;
-                StatusMessage = snapLabel is not null
-                    ? $"Click 2nd point · snap: {snapLabel}"
-                    : "Click 2nd point";
+                StatusMessage = "Click 2nd point";
                 GhostChanged?.Invoke(this, EventArgs.Empty);
                 break;
+            }
 
             case (ToolMode.Line, DrawState.AnchorPlaced):
+            {
+                // Second click — snap to existing geometry
+                var (snappedPx, _) = snap.Snap(screenPx, _geometryService.Objects, mapper);
+                var (xPt, yPt) = mapper.ScreenToPage(snappedPx);
                 var anchor = AnchorPt!.Value;
                 _geometryService.ExecuteCommand(new PlaceObjectCommand(
                     new LineObject(anchor.xPt, anchor.yPt, xPt, yPt)));
                 ResetDrawState();
                 StatusMessage = "Line placed";
                 break;
+            }
 
             case (ToolMode.Circle, DrawState.Idle):
+            {
+                // First click — exact center placement, no snap
+                var (xPt, yPt) = mapper.ScreenToPage(screenPx);
                 AnchorPt  = (xPt, yPt);
                 DrawState = DrawState.AnchorPlaced;
                 StatusMessage = "Click radius point";
                 GhostChanged?.Invoke(this, EventArgs.Empty);
                 break;
+            }
 
             case (ToolMode.Circle, DrawState.AnchorPlaced):
+            {
+                // Second click — snap to existing geometry
+                var (snappedPx, _) = snap.Snap(screenPx, _geometryService.Objects, mapper);
+                var (xPt, yPt) = mapper.ScreenToPage(snappedPx);
                 var ctr = AnchorPt!.Value;
                 double dx = xPt - ctr.xPt, dy = yPt - ctr.yPt;
                 double radiusPt = Math.Sqrt(dx * dx + dy * dy);
-                if (radiusPt < 1.0) radiusPt = 1.0; // minimum 1pt radius
+                if (radiusPt < 1.0) radiusPt = 1.0;
                 _geometryService.ExecuteCommand(new PlaceObjectCommand(
                     new CircleObject(ctr.xPt, ctr.yPt, radiusPt)));
                 ResetDrawState();
                 StatusMessage = "Circle placed";
                 break;
+            }
         }
     }
 
@@ -124,14 +141,20 @@ public partial class ToolViewModel : ObservableObject
     public void HandleMouseMove(SKPoint screenPx, CoordinateMapper mapper, SnapEngine snap)
     {
         GhostCursorPx = screenPx;
-        var result = snap.Snap(screenPx, _geometryService.Objects, mapper);
-        LastSnap = result;
 
+        // Only run snap during mid-draw (AnchorPlaced) — snap ring shows where click 2 will land.
+        // During Idle, snap is disabled, so no ring needed.
         if (DrawState == DrawState.AnchorPlaced)
         {
+            var result = snap.Snap(screenPx, _geometryService.Objects, mapper);
+            LastSnap = result;
             StatusMessage = result.Label is not null
                 ? $"Click 2nd point · snap: {result.Label}"
                 : (ActiveTool == ToolMode.Circle ? "Click radius point" : "Click 2nd point");
+        }
+        else
+        {
+            LastSnap = null;
         }
 
         GhostChanged?.Invoke(this, EventArgs.Empty);
