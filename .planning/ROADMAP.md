@@ -77,7 +77,12 @@ Plans:
   4. User can lock the protractor to prevent accidental movement
   5. User can switch between 180° classic style and 360° full-circle style (required for bearings)
   6. In Practice Mode the protractor shows a live angle readout; toggling to Exam Mode hides the numeric value immediately; the mode chip is always visible in the top bar
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 03-01-PLAN.md — ProtractorObject model (D-06 fields, DefaultRadiusPt=108) + 3 commands (Rotate/Flip/Style) + GeometryMath.TryLineIntersectPt
+- [ ] 03-02-PLAN.md — ToolViewModel Protractor state machine (D-01/D-02/D-03) + GeometryService NudgeObject extension + ghost protractor preview
+- [ ] 03-03-PLAN.md — RightRail ProtractorPanel (rotate ±1°/±5°, flip scale, 180°/360° style toggle) + RightRailViewModel commands
+- [ ] 03-04-PLAN.md — GeometryLayerViewModel SkiaSharp renderer (arc body, 180 tick marks, labels, readout) + IsPracticeMode wiring
 **UI hint**: yes
 
 ### Phase 4: Answer Layer
@@ -102,6 +107,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/5 | In Progress|  |
-| 2. Geometry Core | 10/13 | Gap closure in progress | - |
-| 3. Protractor | 0/TBD | Not started | - |
+| 2. Geometry Core | 13/13 | Complete | 2026-05-25 |
+| 3. Protractor | 0/4 | Not started | - |
 | 4. Answer Layer | 0/TBD | Not started | - |
