@@ -24,11 +24,11 @@
 
 ### Protractor
 
-- [ ] **PROT-01**: User can activate Protractor mode, click two lines, and have the protractor auto-placed at their intersection with baseline aligned to the first line
-- [ ] **PROT-02**: User can rotate the placed protractor ±1° and ±5° via right-rail buttons
-- [ ] **PROT-03**: User can flip the protractor between inner scale (0°→180° left-to-right) and outer scale (180°→0°)
+- [x] **PROT-01**: User can activate Protractor mode, click two lines, and have the protractor auto-placed at their intersection with baseline aligned to the first line
+- [x] **PROT-02**: User can rotate the placed protractor ±1° and ±5° via right-rail buttons
+- [x] **PROT-03**: User can flip the protractor between inner scale (0°→180° left-to-right) and outer scale (180°→0°)
 - [ ] **PROT-04**: User can lock the protractor position to prevent accidental nudge
-- [ ] **PROT-05**: User can choose between 180° classic style and 360° full-circle style (required for bearings questions)
+- [x] **PROT-05**: User can choose between 180° classic style and 360° full-circle style (required for bearings questions)
 - [ ] **PROT-06**: In Practice Mode, protractor shows a live angle readout; in Exam Mode, no numeric value is displayed
 
 ### Text
@@ -112,11 +112,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GEOM-05 | Phase 2 | Complete |
 | GEOM-06 | Phase 2 | Complete |
 | GEOM-07 | Phase 2 | Complete |
-| PROT-01 | Phase 3 | Pending |
-| PROT-02 | Phase 3 | Pending |
-| PROT-03 | Phase 3 | Pending |
+| PROT-01 | Phase 3 | Complete |
+| PROT-02 | Phase 3 | Complete |
+| PROT-03 | Phase 3 | Complete |
 | PROT-04 | Phase 3 | Pending |
-| PROT-05 | Phase 3 | Pending |
+| PROT-05 | Phase 3 | Complete |
 | PROT-06 | Phase 3 | Pending |
 | TEXT-01 | Phase 4 | Pending |
 | TEXT-02 | Phase 4 | Pending |
