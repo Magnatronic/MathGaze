@@ -102,7 +102,7 @@ public sealed class GeometryLayerViewModel : IDisposable
         IsAntialias = true,
     };
 
-    // Protractor numeric labels (10° intervals)
+    // Protractor numeric labels — outer scale (0→180), 11pt for readability
     private readonly SKPaint _labelPaint = new()
     {
         Style       = SKPaintStyle.Fill,
@@ -110,8 +110,19 @@ public sealed class GeometryLayerViewModel : IDisposable
         IsAntialias = true,
     };
 
-    // SKFont for protractor numeric labels — 9pt, modern SkiaSharp 3.x API
-    private readonly SKFont _labelFont = new(SKTypeface.Default, 9f);
+    // SKFont for protractor numeric labels (outer) — 11pt, modern SkiaSharp 3.x API
+    private readonly SKFont _labelFont = new(SKTypeface.Default, 11f);
+
+    // Protractor numeric labels — inner scale (180→0), slightly smaller and more transparent
+    private readonly SKPaint _innerLabelPaint = new()
+    {
+        Style       = SKPaintStyle.Fill,
+        Color       = new SKColor(0x1A, 0x1A, 0x2E, 160),  // more transparent than outer
+        IsAntialias = true,
+    };
+
+    // SKFont for inner scale labels — 8pt
+    private readonly SKFont _innerLabelFont = new(SKTypeface.Default, 8f);
 
     // Practice Mode readout arc paint
     private readonly SKPaint _readoutArcPaint = new()
@@ -304,25 +315,36 @@ public sealed class GeometryLayerViewModel : IDisposable
                 isMajor ? _tickMajorPaint : _tickMinorPaint);
         }
 
-        // 4. Numeric labels every 10° (IsFlipped reverses label values per D-03/PROT-03)
-        float labelR = radiusPx - 32f;
-        if (labelR < 8f) labelR = 8f;  // guard for very small protractors
+        // 4. Numeric labels every 10° — dual scale (outer 0→180, inner 180→0)
+        // Real protractors show both directions so students can read from either end.
+        float outerLabelR = radiusPx - 24f;
+        float innerLabelR = radiusPx - 42f;
+        if (outerLabelR < 8f) outerLabelR = 8f;
+        if (innerLabelR < 8f) innerLabelR = 8f;
 
         for (int a = 0; a <= arcDeg; a += 10)
         {
             float angleDeg = startAngle + a;
             float angleRad = angleDeg * MathF.PI / 180f;
-            float lx = MathF.Cos(angleRad) * labelR;
-            float ly = MathF.Sin(angleRad) * labelR;
+            float cos = MathF.Cos(angleRad);
+            float sin = MathF.Sin(angleRad);
 
-            // IsFlipped = false (inner scale): label value = a (0→180 or 0→360)
-            // IsFlipped = true  (outer scale): label value = arcDeg - a (180→0 or 360→0)
-            int labelValue = obj.IsFlipped ? (arcDeg - a) : a;
+            // Outer label: increases left to right (IsFlipped reverses this)
+            int outerVal = obj.IsFlipped ? (arcDeg - a) : a;
+            // Inner label: decreases left to right (IsFlipped reverses this)
+            int innerVal = obj.IsFlipped ? a : (arcDeg - a);
 
-            // SkiaSharp DrawText places baseline at (lx, ly).
-            // Offset by +0.35 * font size for approximate vertical centering (Pitfall 5 fix)
-            float verticalOffset = _labelFont.Size * 0.35f;
-            canvas.DrawText(labelValue.ToString(), lx, ly + verticalOffset, SKTextAlign.Center, _labelFont, _labelPaint);
+            // SkiaSharp DrawText places baseline at position; offset by 0.35*size for vertical centering
+            float outerVert = _labelFont.Size * 0.35f;
+            float innerVert = _innerLabelFont.Size * 0.35f;
+
+            canvas.DrawText(outerVal.ToString(),
+                cos * outerLabelR, sin * outerLabelR + outerVert,
+                SKTextAlign.Center, _labelFont, _labelPaint);
+
+            canvas.DrawText(innerVal.ToString(),
+                cos * innerLabelR, sin * innerLabelR + innerVert,
+                SKTextAlign.Center, _innerLabelFont, _innerLabelPaint);
         }
 
         // 5. Center crosshair (small cross at origin)
@@ -427,6 +449,8 @@ public sealed class GeometryLayerViewModel : IDisposable
         _tickMajorPaint.Dispose();
         _labelPaint.Dispose();
         _labelFont.Dispose();
+        _innerLabelPaint.Dispose();
+        _innerLabelFont.Dispose();
         _readoutArcPaint.Dispose();
         _readoutTextPaint.Dispose();
         _readoutFont.Dispose();

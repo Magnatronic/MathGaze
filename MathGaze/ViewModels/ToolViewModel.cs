@@ -146,6 +146,8 @@ public partial class ToolViewModel : ObservableObject
                 AnchorLine    = line1;
                 DrawState     = DrawState.AnchorPlaced;
                 StatusMessage = "Click 2nd line";
+                // Gap 3: highlight the anchor line so the student can see it is selected
+                _geometryService.SetSelected(line1.Id);
                 GhostChanged?.Invoke(this, EventArgs.Empty);
                 break;
             }
@@ -173,12 +175,27 @@ public partial class ToolViewModel : ObservableObject
                 double clampedX = Math.Clamp(interPt.xPt, margin, mapper.PageWidthPt - margin);
                 double clampedY = Math.Clamp(interPt.yPt, margin, mapper.PageHeightPt - margin);
 
-                // Compute baseline angle in screen space (CW from right) per RESEARCH.md §Intersection Math
+                // Gap 1: BaselineAngleDeg = screen-space angle of Line 1 (flat diameter lies along Line 1)
                 var p1Screen = mapper.PageToScreen(AnchorLine.X1Pt, AnchorLine.Y1Pt);
                 var p2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
-                double screenDx = p2Screen.X - p1Screen.X;
-                double screenDy = p2Screen.Y - p1Screen.Y;
-                double baselineAngleDeg = Math.Atan2(screenDy, screenDx) * 180.0 / Math.PI;
+                double line1AngleDeg = Math.Atan2(p2Screen.Y - p1Screen.Y, p2Screen.X - p1Screen.X) * 180.0 / Math.PI;
+
+                // Gap 2: flip baseline 180° if Line 2's midpoint falls on the flat/baseline side
+                // so the arc always faces toward Line 2
+                double mx2 = (line2.X1Pt + line2.X2Pt) / 2.0;
+                double my2 = (line2.Y1Pt + line2.Y2Pt) / 2.0;
+                double dxLocal = mx2 - interPt.xPt;
+                double dyLocal = my2 - interPt.yPt;
+                double rad = line1AngleDeg * Math.PI / 180.0;
+                // Rotate the vector into the protractor's local frame (un-rotate by line1AngleDeg)
+                double localX =  dxLocal * Math.Cos(-rad) - dyLocal * Math.Sin(-rad);
+                double localY =  dxLocal * Math.Sin(-rad) + dyLocal * Math.Cos(-rad);
+                // In SkiaSharp screen coords (Y down), arc is drawn in the NEGATIVE-Y half.
+                // If Line 2 midpoint has positive localY (below baseline in screen space), flip 180°.
+                if (localY > 0)
+                    line1AngleDeg += 180.0;
+
+                double baselineAngleDeg = line1AngleDeg;
 
                 var protractor = new ProtractorObject(
                     clampedX, clampedY,

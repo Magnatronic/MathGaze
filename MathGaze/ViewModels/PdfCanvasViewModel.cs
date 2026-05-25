@@ -317,16 +317,28 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
     /// Uses the proxy-point radius pattern (same as ProtractorObject.HitTest) because
     /// CoordinateMapper.Scale is private — screen radius derived via PageToScreen offset.
     /// T-03-07 mitigated: radiusPx &lt; 20f guard prevents degenerate render.
+    /// Gap 5: ghost is pre-rotated to match AnchorLine's screen-space angle so the student
+    /// sees the correct orientation before committing.
     /// </summary>
     private void DrawGhostProtractor(SKCanvas canvas, SKPoint centerPx)
     {
         if (_coordinateMapper is null) return;
 
         // Derive screen radius from DefaultRadiusPt using proxy-point offset (Scale is private)
-        var edgeScreen = _coordinateMapper.PageToScreen(ProtractorObject.DefaultRadiusPt, 0);
+        var edgeScreen   = _coordinateMapper.PageToScreen(ProtractorObject.DefaultRadiusPt, 0);
         var originScreen = _coordinateMapper.PageToScreen(0, 0);
-        float radiusPx = edgeScreen.X - originScreen.X;
+        float radiusPx   = edgeScreen.X - originScreen.X;
         if (radiusPx < 20f) return; // too small to be useful
+
+        // Gap 5: compute anchor line angle in screen space so ghost aligns with Line 1
+        float ghostRotDeg = 0f;
+        var anchorLine = _toolVm.AnchorLine;
+        if (anchorLine is not null)
+        {
+            var sp1 = _coordinateMapper.PageToScreen(anchorLine.X1Pt, anchorLine.Y1Pt);
+            var sp2 = _coordinateMapper.PageToScreen(anchorLine.X2Pt, anchorLine.Y2Pt);
+            ghostRotDeg = (float)(Math.Atan2(sp2.Y - sp1.Y, sp2.X - sp1.X) * 180.0 / Math.PI);
+        }
 
         using var ghostArcPaint = new SKPaint
         {
@@ -336,19 +348,20 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
             IsAntialias = true,
         };
 
-        // Draw a simple semicircle arc to represent the protractor ghost
-        var oval = new SKRect(
-            centerPx.X - radiusPx, centerPx.Y - radiusPx,
-            centerPx.X + radiusPx, centerPx.Y + radiusPx);
+        // Draw rotated semicircle arc + baseline aligned with Line 1
+        canvas.Save();
+        canvas.Translate(centerPx.X, centerPx.Y);
+        canvas.RotateDegrees(ghostRotDeg);
+
+        var oval = new SKRect(-radiusPx, -radiusPx, radiusPx, radiusPx);
         canvas.DrawArc(oval, -180f, 180f, false, ghostArcPaint);
 
         // Baseline
-        canvas.DrawLine(
-            centerPx.X - radiusPx, centerPx.Y,
-            centerPx.X + radiusPx, centerPx.Y,
-            ghostArcPaint);
+        canvas.DrawLine(-radiusPx, 0f, radiusPx, 0f, ghostArcPaint);
 
-        // Center dot
+        canvas.Restore();
+
+        // Center dot (drawn in canvas space, not rotated)
         using var ghostDotPaint = new SKPaint
         {
             Style       = SKPaintStyle.Fill,
