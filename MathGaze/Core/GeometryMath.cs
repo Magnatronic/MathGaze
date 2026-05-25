@@ -1,3 +1,4 @@
+using MathGaze.Core.Geometry;
 using SkiaSharp;
 
 namespace MathGaze.Core;
@@ -36,6 +37,28 @@ public static class GeometryMath
         if (Math.Abs(denom) < 1e-6f) return false; // parallel
         float t = ((b1.X - a1.X) * dy2 - (b1.Y - a1.Y) * dx2) / denom;
         pt = new SKPoint(a1.X + t * dx1, a1.Y + t * dy1);
+        return true;
+    }
+
+    /// <summary>
+    /// Find the intersection of two LineObjects in PDF-point space (double precision).
+    /// Returns true and sets pt to the intersection point (in PDF points).
+    /// Returns false if lines are parallel or near-parallel (|denom| &lt; 1e-9).
+    /// This is the PDF-space equivalent of TryLineIntersect (which works in screen pixels).
+    /// Called by ToolViewModel protractor placement handler (D-01/D-03 from Phase 3 CONTEXT.md).
+    /// Per T-03-02: the parallel check prevents division by zero.
+    /// </summary>
+    public static bool TryLineIntersectPt(LineObject a, LineObject b, out (double xPt, double yPt) pt)
+    {
+        double dx1 = a.X2Pt - a.X1Pt;
+        double dy1 = a.Y2Pt - a.Y1Pt;
+        double dx2 = b.X2Pt - b.X1Pt;
+        double dy2 = b.Y2Pt - b.Y1Pt;
+        double denom = dx1 * dy2 - dy1 * dx2;
+        pt = default;
+        if (Math.Abs(denom) < 1e-9) return false; // parallel or coincident
+        double t = ((b.X1Pt - a.X1Pt) * dy2 - (b.Y1Pt - a.Y1Pt) * dx2) / denom;
+        pt = (a.X1Pt + t * dx1, a.Y1Pt + t * dy1);
         return true;
     }
 }
