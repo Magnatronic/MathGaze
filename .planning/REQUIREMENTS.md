@@ -29,7 +29,7 @@
 - [x] **PROT-03**: User can flip the protractor between inner scale (0°→180° left-to-right) and outer scale (180°→0°)
 - [ ] **PROT-04**: User can lock the protractor position to prevent accidental nudge
 - [x] **PROT-05**: User can choose between 180° classic style and 360° full-circle style (required for bearings questions)
-- [ ] **PROT-06**: In Practice Mode, protractor shows a live angle readout; in Exam Mode, no numeric value is displayed
+- [x] **PROT-06**: In Practice Mode, protractor shows a live angle readout; in Exam Mode, no numeric value is displayed
 
 ### Text
 
@@ -47,8 +47,8 @@
 - [x] **SYS-01**: User can undo any action and redo previously undone actions
 - [ ] **SYS-02**: Work is auto-saved to a JSON sidecar file alongside the PDF after every change (no manual save required)
 - [ ] **SYS-03**: User can resume a previous session by opening the same PDF — all geometry objects restore
-- [ ] **SYS-04**: User can toggle between Practice Mode (live angle readout shown) and Exam Mode (angle readout hidden) via a chip in the top bar
-- [ ] **SYS-05**: The current mode indicator (Practice / Exam) is permanently visible in the top bar at all times
+- [x] **SYS-04**: User can toggle between Practice Mode (live angle readout shown) and Exam Mode (angle readout hidden) via a chip in the top bar
+- [x] **SYS-05**: The current mode indicator (Practice / Exam) is permanently visible in the top bar at all times
 
 ## v2 Requirements
 
@@ -117,7 +117,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROT-03 | Phase 3 | Complete |
 | PROT-04 | Phase 3 | Pending |
 | PROT-05 | Phase 3 | Complete |
-| PROT-06 | Phase 3 | Pending |
+| PROT-06 | Phase 3 | Complete |
 | TEXT-01 | Phase 4 | Pending |
 | TEXT-02 | Phase 4 | Pending |
 | ANS-01 | Phase 4 | Pending |
@@ -126,8 +126,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SYS-01 | Phase 2 | Complete |
 | SYS-02 | Phase 4 | Pending |
 | SYS-03 | Phase 4 | Pending |
-| SYS-04 | Phase 3 | Pending |
-| SYS-05 | Phase 3 | Pending |
+| SYS-04 | Phase 3 | Complete |
+| SYS-05 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 27 total

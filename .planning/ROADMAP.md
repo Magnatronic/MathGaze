@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation** - Deployment validation spike + WPF shell + PDF rendering + CoordinateMapper
 - [x] **Phase 2: Geometry Core** - All geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo) — gap closure in progress (completed 2026-05-03)
-- [ ] **Phase 3: Protractor** - 2-click protractor placement, controls, and Practice/Exam mode infrastructure
+- [x] **Phase 3: Protractor** - 2-click protractor placement, controls, and Practice/Exam mode infrastructure (completed 2026-05-25)
 - [ ] **Phase 4: Answer Layer** - Text boxes, MCQ selection, auto-save, and session resume
 
 ## Phase Details
@@ -82,7 +82,7 @@ Plans:
 - [x] 03-01-PLAN.md — ProtractorObject model (D-06 fields, DefaultRadiusPt=108) + 3 commands (Rotate/Flip/Style) + GeometryMath.TryLineIntersectPt
 - [x] 03-02-PLAN.md — ToolViewModel Protractor state machine (D-01/D-02/D-03) + GeometryService NudgeObject extension + ghost protractor preview
 - [x] 03-03-PLAN.md — RightRail ProtractorPanel (rotate ±1°/±5°, flip scale, 180°/360° style toggle) + RightRailViewModel commands
-- [ ] 03-04-PLAN.md — GeometryLayerViewModel SkiaSharp renderer (arc body, 180 tick marks, labels, readout) + IsPracticeMode wiring
+- [x] 03-04-PLAN.md — GeometryLayerViewModel SkiaSharp renderer (arc body, 180 tick marks, labels, readout) + IsPracticeMode wiring
 **UI hint**: yes
 
 ### Phase 4: Answer Layer
@@ -108,5 +108,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/5 | In Progress|  |
 | 2. Geometry Core | 13/13 | Complete | 2026-05-25 |
-| 3. Protractor | 3/4 | In Progress|  |
+| 3. Protractor | 4/4 | Complete   | 2026-05-25 |
 | 4. Answer Layer | 0/TBD | Not started | - |
