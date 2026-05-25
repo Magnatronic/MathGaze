@@ -20,6 +20,7 @@ namespace MathGaze.ViewModels;
 public sealed class GeometryLayerViewModel : IDisposable
 {
     private readonly IGeometryService _geometryService;
+    private readonly MainViewModel    _mainVm;
     private bool _disposed;
 
     // ── Cached paints (created once — never per-frame) ───────────────────────
@@ -83,9 +84,67 @@ public sealed class GeometryLayerViewModel : IDisposable
         IsAntialias = true,
     };
 
-    public GeometryLayerViewModel(IGeometryService geometryService)
+    // Protractor tick mark — minor (1° and 5° ticks)
+    private readonly SKPaint _tickMinorPaint = new()
+    {
+        Style       = SKPaintStyle.Stroke,
+        Color       = new SKColor(0x1A, 0x1A, 0x2E, 160),   // BrushInk, 63% alpha
+        StrokeWidth = 1f,
+        IsAntialias = false,  // minor ticks: performance > quality
+    };
+
+    // Protractor tick mark — major (10° ticks)
+    private readonly SKPaint _tickMajorPaint = new()
+    {
+        Style       = SKPaintStyle.Stroke,
+        Color       = new SKColor(0x1A, 0x1A, 0x2E, 220),   // BrushInk, near-opaque
+        StrokeWidth = 1.5f,
+        IsAntialias = true,
+    };
+
+    // Protractor numeric labels (10° intervals)
+    private readonly SKPaint _labelPaint = new()
+    {
+        Style       = SKPaintStyle.Fill,
+        Color       = new SKColor(0x1A, 0x1A, 0x2E, 220),
+        IsAntialias = true,
+    };
+
+    // SKFont for protractor numeric labels — 9pt, modern SkiaSharp 3.x API
+    private readonly SKFont _labelFont = new(SKTypeface.Default, 9f);
+
+    // Practice Mode readout arc paint
+    private readonly SKPaint _readoutArcPaint = new()
+    {
+        Style       = SKPaintStyle.Stroke,
+        Color       = new SKColor(0x3B, 0x6F, 0xD4, 200),   // BrushAccent cobalt
+        StrokeWidth = 2f,
+        IsAntialias = true,
+    };
+
+    // Practice Mode readout text paint
+    private readonly SKPaint _readoutTextPaint = new()
+    {
+        Style       = SKPaintStyle.Fill,
+        Color       = new SKColor(0x3B, 0x6F, 0xD4, 255),
+        IsAntialias = true,
+    };
+
+    // SKFont for Practice Mode readout text — 14pt, modern SkiaSharp 3.x API
+    private readonly SKFont _readoutFont = new(SKTypeface.Default, 14f);
+
+    public GeometryLayerViewModel(IGeometryService geometryService, MainViewModel mainViewModel)
     {
         _geometryService = geometryService;
+        _mainVm          = mainViewModel;
+        // Subscribe to IsPracticeMode changes so canvas repaints when mode toggles
+        _mainVm.PropertyChanged += OnMainVmPropertyChanged;
+    }
+
+    private void OnMainVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainViewModel.IsPracticeMode))
+            _geometryService.ObjectsChanged_ForceRaise();
     }
 
     /// <summary>
@@ -144,6 +203,10 @@ public sealed class GeometryLayerViewModel : IDisposable
                 // Small center dot
                 canvas.DrawCircle(centerPx, 4f, dotPaint);
                 break;
+
+            case ProtractorObject prot:
+                DrawProtractor(canvas, prot, mapper, selected);
+                break;
         }
     }
 
@@ -187,10 +250,172 @@ public sealed class GeometryLayerViewModel : IDisposable
         }
     }
 
+    private void DrawProtractor(SKCanvas canvas, ProtractorObject obj,
+                                 CoordinateMapper mapper, bool selected)
+    {
+        var centerPx = mapper.PageToScreen(obj.CenterXPt, obj.CenterYPt);
+
+        // Derive screen radius via proxy-point offset (CoordinateMapper.Scale is private)
+        // Same pattern as CircleObject and ProtractorObject.HitTest
+        var edgePx  = mapper.PageToScreen(obj.CenterXPt + ProtractorObject.DefaultRadiusPt, obj.CenterYPt);
+        float radiusPx = edgePx.X - centerPx.X;
+        if (radiusPx < 10f) return;  // too small to render meaningfully
+
+        var bodyPaint = selected ? _selectedPaint : _normalPaint;
+
+        // BaselineAngleDeg is stored in screen-space (CW from right) per RESEARCH.md §Intersection Math
+        // Total rotation = baseline (screen-space CW from right) + user rotation offset
+        float totalRotDeg = (float)(obj.BaselineAngleDeg + obj.RotationOffsetDeg);
+
+        bool isFull  = obj.Style == ProtractorStyle.Full360;
+        int  arcDeg  = isFull ? 360 : 180;
+
+        // For Classic180: startAngle=-180° positions the arc top (9 o'clock = left end of baseline)
+        // For Full360: startAngle=0° draws the full circle starting from 3 o'clock
+        float startAngle = isFull ? 0f : -180f;
+
+        canvas.Save();
+        canvas.Translate(centerPx.X, centerPx.Y);
+        canvas.RotateDegrees(totalRotDeg);
+
+        // 1. Arc body
+        var oval = new SKRect(-radiusPx, -radiusPx, radiusPx, radiusPx);
+        canvas.DrawArc(oval, startAngle, arcDeg, false, bodyPaint);
+
+        // 2. Baseline (for Classic180 only — the flat diameter line)
+        if (!isFull)
+            canvas.DrawLine(-radiusPx, 0, radiusPx, 0, bodyPaint);
+
+        // 3. Scale tick marks at 1° increments
+        for (int a = 0; a <= arcDeg; a++)
+        {
+            float angleDeg = startAngle + a;
+            float angleRad = angleDeg * MathF.PI / 180f;
+            float cos = MathF.Cos(angleRad);
+            float sin = MathF.Sin(angleRad);
+
+            bool isMajor = (a % 10 == 0);
+            bool isMid   = (!isMajor && a % 5 == 0);
+            float tickLen = isMajor ? 18f : isMid ? 9f : 5f;
+
+            float r1 = radiusPx - tickLen;
+            float r2 = radiusPx;
+            canvas.DrawLine(cos * r1, sin * r1, cos * r2, sin * r2,
+                isMajor ? _tickMajorPaint : _tickMinorPaint);
+        }
+
+        // 4. Numeric labels every 10° (IsFlipped reverses label values per D-03/PROT-03)
+        float labelR = radiusPx - 32f;
+        if (labelR < 8f) labelR = 8f;  // guard for very small protractors
+
+        for (int a = 0; a <= arcDeg; a += 10)
+        {
+            float angleDeg = startAngle + a;
+            float angleRad = angleDeg * MathF.PI / 180f;
+            float lx = MathF.Cos(angleRad) * labelR;
+            float ly = MathF.Sin(angleRad) * labelR;
+
+            // IsFlipped = false (inner scale): label value = a (0→180 or 0→360)
+            // IsFlipped = true  (outer scale): label value = arcDeg - a (180→0 or 360→0)
+            int labelValue = obj.IsFlipped ? (arcDeg - a) : a;
+
+            // SkiaSharp DrawText places baseline at (lx, ly).
+            // Offset by +0.35 * font size for approximate vertical centering (Pitfall 5 fix)
+            float verticalOffset = _labelFont.Size * 0.35f;
+            canvas.DrawText(labelValue.ToString(), lx, ly + verticalOffset, SKTextAlign.Center, _labelFont, _labelPaint);
+        }
+
+        // 5. Center crosshair (small cross at origin)
+        canvas.DrawCircle(0, 0, 4f, bodyPaint);
+        canvas.DrawLine(-8f, 0, -3f, 0, bodyPaint);
+        canvas.DrawLine( 3f, 0,  8f, 0, bodyPaint);
+        canvas.DrawLine(0, -8f, 0, -3f, bodyPaint);
+        canvas.DrawLine(0,  3f, 0,  8f, bodyPaint);
+
+        // 6. Practice Mode readout (D-14: only when IsPracticeMode = true)
+        if (_mainVm.IsPracticeMode)
+        {
+            float measuredAngleDeg = ComputeMeasuredAngle(obj);
+            DrawReadout(canvas, measuredAngleDeg, radiusPx);
+        }
+
+        canvas.Restore();
+    }
+
+    /// <summary>
+    /// Computes the angle the student would read off the protractor at its current orientation.
+    /// This is the angle between line 1 (baseline) and line 2, as seen from the protractor's perspective.
+    ///
+    /// Per D-11: the readout = angle where the second arm crosses the protractor scale.
+    /// Per RESEARCH.md §Open Questions Q3: show 0–180° (acute/obtuse); use IsFlipped for inner/outer reading.
+    /// </summary>
+    private float ComputeMeasuredAngle(ProtractorObject obj)
+    {
+        // Find the two source lines by ID
+        var line1 = _geometryService.Objects.FirstOrDefault(o => o.Id == obj.Line1Id) as LineObject;
+        var line2 = _geometryService.Objects.FirstOrDefault(o => o.Id == obj.Line2Id) as LineObject;
+
+        if (line1 is null || line2 is null) return 0f;  // lines deleted — show 0° (A-4 assumption)
+
+        // Direction vectors of line 1 and line 2 in PDF-space (use Y as-is for PDF space)
+        double dx1 = line1.X2Pt - line1.X1Pt, dy1 = line1.Y2Pt - line1.Y1Pt;
+        double dx2 = line2.X2Pt - line2.X1Pt, dy2 = line2.Y2Pt - line2.Y1Pt;
+
+        // Angle between two direction vectors: dot product / (|v1| * |v2|)
+        double dot  = dx1 * dx2 + dy1 * dy2;
+        double len1 = Math.Sqrt(dx1 * dx1 + dy1 * dy1);
+        double len2 = Math.Sqrt(dx2 * dx2 + dy2 * dy2);
+        if (len1 < 1e-9 || len2 < 1e-9) return 0f;
+
+        double cosAngle = Math.Clamp(dot / (len1 * len2), -1.0, 1.0);
+        double angleDeg = Math.Acos(cosAngle) * 180.0 / Math.PI;
+
+        // angleDeg is in [0, 180]. For full-circle style, compute the full rotation offset instead.
+        if (obj.Style == ProtractorStyle.Full360)
+        {
+            // For bearings, show the rotated angle from North (0° baseline)
+            // = RotationOffsetDeg mod 360, normalized to [0, 360)
+            double bearing = ((obj.RotationOffsetDeg % 360.0) + 360.0) % 360.0;
+            return (float)bearing;
+        }
+
+        // For Classic180: apply IsFlipped (inner=direct reading, outer=supplementary)
+        if (obj.IsFlipped)
+            angleDeg = 180.0 - angleDeg;
+
+        return (float)Math.Clamp(angleDeg, 0.0, 180.0);
+    }
+
+    /// <summary>
+    /// Renders the angle readout inside the protractor (Practice Mode only).
+    /// Called inside canvas.Save()/Restore() scope from DrawProtractor — origin is at protractor center.
+    /// Per RESEARCH.md Pattern 4 (shared.jsx measuring prop).
+    /// </summary>
+    private void DrawReadout(SKCanvas canvas, float measuredAngleDeg, float radiusPx)
+    {
+        if (measuredAngleDeg < 0.5f) return;  // nothing meaningful to show
+
+        float arcRadius = Math.Max(30f, radiusPx * 0.25f);  // inner arc at 25% of outer radius
+        var ovalSmall   = new SKRect(-arcRadius, -arcRadius, arcRadius, arcRadius);
+
+        // Arc from 0 (baseline = right in local space) sweeping CCW by -measuredAngleDeg
+        // (negative sweep = CCW in SkiaSharp screen space = upward into the protractor body)
+        canvas.DrawArc(ovalSmall, 0f, -measuredAngleDeg, false, _readoutArcPaint);
+
+        // Label at midpoint of the arc
+        float midAngleRad = (-measuredAngleDeg / 2f) * MathF.PI / 180f;
+        float textR       = arcRadius + 14f;
+        float tx          = MathF.Cos(midAngleRad) * textR;
+        float ty          = MathF.Sin(midAngleRad) * textR + _readoutFont.Size * 0.35f;
+
+        canvas.DrawText($"{(int)MathF.Round(measuredAngleDeg)}°", tx, ty, SKTextAlign.Center, _readoutFont, _readoutTextPaint);
+    }
+
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
+        _mainVm.PropertyChanged -= OnMainVmPropertyChanged;
         _normalPaint.Dispose();
         _selectedPaint.Dispose();
         _dotNormalPaint.Dispose();
@@ -198,5 +423,12 @@ public sealed class GeometryLayerViewModel : IDisposable
         _subDotPaint.Dispose();
         _subDotInactivePaint.Dispose();
         _subRingActivePaint.Dispose();
+        _tickMinorPaint.Dispose();
+        _tickMajorPaint.Dispose();
+        _labelPaint.Dispose();
+        _labelFont.Dispose();
+        _readoutArcPaint.Dispose();
+        _readoutTextPaint.Dispose();
+        _readoutFont.Dispose();
     }
 }
