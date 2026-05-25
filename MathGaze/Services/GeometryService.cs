@@ -52,6 +52,11 @@ public sealed class GeometryService : IGeometryService
                 c.CenterXPt += dxPt;
                 c.CenterYPt += dyPt;
                 break;
+            case ProtractorObject p:
+                // D-10: nudge moves the protractor center in PDF-space (same as all other objects)
+                p.CenterXPt += dxPt;
+                p.CenterYPt += dyPt;
+                break;
         }
     }
 

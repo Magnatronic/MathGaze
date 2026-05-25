@@ -219,6 +219,14 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
     {
         if (_coordinateMapper is null) return;
         if (_toolVm.DrawState != DrawState.AnchorPlaced) return;
+
+        // Protractor ghost: semi-transparent protractor arc at cursor (before click 2)
+        if (_toolVm.ActiveTool == ToolMode.Protractor)
+        {
+            DrawGhostProtractor(canvas, _toolVm.GhostCursorPx);
+            return;
+        }
+
         if (_toolVm.AnchorPt is null) return;
 
         var anchorPx    = _coordinateMapper.PageToScreen(_toolVm.AnchorPt.Value.xPt, _toolVm.AnchorPt.Value.yPt);
@@ -301,6 +309,53 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
                 canvas.DrawCircle(ringCenter, 5f, snapDotPaint);
             }
         }
+    }
+
+    /// <summary>
+    /// Draws a semi-transparent protractor arc at the cursor position during placement (click 2).
+    /// Gives the student a preview of what will be placed at the intersection.
+    /// Uses the proxy-point radius pattern (same as ProtractorObject.HitTest) because
+    /// CoordinateMapper.Scale is private — screen radius derived via PageToScreen offset.
+    /// T-03-07 mitigated: radiusPx &lt; 20f guard prevents degenerate render.
+    /// </summary>
+    private void DrawGhostProtractor(SKCanvas canvas, SKPoint centerPx)
+    {
+        if (_coordinateMapper is null) return;
+
+        // Derive screen radius from DefaultRadiusPt using proxy-point offset (Scale is private)
+        var edgeScreen = _coordinateMapper.PageToScreen(ProtractorObject.DefaultRadiusPt, 0);
+        var originScreen = _coordinateMapper.PageToScreen(0, 0);
+        float radiusPx = edgeScreen.X - originScreen.X;
+        if (radiusPx < 20f) return; // too small to be useful
+
+        using var ghostArcPaint = new SKPaint
+        {
+            Style       = SKPaintStyle.Stroke,
+            Color       = new SKColor(0x3B, 0x6F, 0xD4, 128), // cobalt at 50% alpha
+            StrokeWidth = 2f,
+            IsAntialias = true,
+        };
+
+        // Draw a simple semicircle arc to represent the protractor ghost
+        var oval = new SKRect(
+            centerPx.X - radiusPx, centerPx.Y - radiusPx,
+            centerPx.X + radiusPx, centerPx.Y + radiusPx);
+        canvas.DrawArc(oval, -180f, 180f, false, ghostArcPaint);
+
+        // Baseline
+        canvas.DrawLine(
+            centerPx.X - radiusPx, centerPx.Y,
+            centerPx.X + radiusPx, centerPx.Y,
+            ghostArcPaint);
+
+        // Center dot
+        using var ghostDotPaint = new SKPaint
+        {
+            Style       = SKPaintStyle.Fill,
+            Color       = new SKColor(0x3B, 0x6F, 0xD4, 128),
+            IsAntialias = true,
+        };
+        canvas.DrawCircle(centerPx, 4f, ghostDotPaint);
     }
 
     private void EnsureCoordinateMapper()
