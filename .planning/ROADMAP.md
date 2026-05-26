@@ -86,17 +86,21 @@ Plans:
 **UI hint**: yes
 
 ### Phase 4: Answer Layer
-**Goal**: Users can record answers (typed labels, multiple-choice selections) and their work persists automatically across sessions
+**Goal**: Users can place clipboard-pasted text labels on the PDF and their work persists automatically across sessions via JSON sidecar
 **Depends on**: Phase 3
 **Requirements**: TEXT-01, TEXT-02, ANS-01, ANS-02, ANS-03, SYS-02, SYS-03
 **Success Criteria** (what must be TRUE):
-  1. User can click a location on the canvas to place a text box; Grid 3 can type into it via standard Windows text input with no in-app keyboard
-  2. A selected text box can be repositioned using nudge controls in the right rail
-  3. User can click an answer option region to select it; the region shows a visual tick; user can change or toggle the selection
-  4. User can lock a selected answer to prevent accidental changes
-  5. Every change is auto-saved to a JSON sidecar file alongside the PDF with no manual save step required
-  6. Opening the same PDF again restores all geometry objects, text boxes, and answer selections from the previous session
-**Plans**: TBD
+  1. User can activate Text tool, copy text in Grid 3, click canvas to place a text label at that PDF-space position
+  2. Empty-clipboard click shows toast "Copy text first, then click to place" and places nothing
+  3. A selected text label can be repositioned using nudge controls in the right rail (standard nudge block)
+  4. Every geometry change is auto-saved to {pdfPath}.mathgaze.json with no manual save required
+  5. Opening the same PDF again restores all geometry objects and text labels silently (no prompt)
+  6. Note: ANS-01/02/03 (MCQ answer selection) are deferred to v2 per user decision D-08
+**Plans**: 3 plans
+Plans:
+- [ ] 04-01-PLAN.md — TextObject model + GeometryObject.Id init-only + JsonDerivedType annotations + GeometryService NudgeObject TextObject case
+- [ ] 04-02-PLAN.md — Text tool UX: ToolMode.Text, clipboard placement, SkiaSharp Consolas rendering, RightRail TextObject support
+- [ ] 04-03-PLAN.md — Session persistence: ISessionService, SessionService (auto-save on ObjectsChanged), restore on PDF open, page-nav save (D-14)
 **UI hint**: yes
 
 ## Progress
@@ -109,4 +113,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 2/5 | In Progress|  |
 | 2. Geometry Core | 13/13 | Complete | 2026-05-25 |
 | 3. Protractor | 4/4 | Complete   | 2026-05-25 |
-| 4. Answer Layer | 0/TBD | Not started | - |
+| 4. Answer Layer | 0/3 | Not started | - |
