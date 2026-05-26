@@ -157,7 +157,30 @@ public partial class ToolViewModel : ObservableObject
                 // Must hit a DIFFERENT LineObject
                 var hit = GeometryHitTester.TryHitObject(screenPx, _geometryService.Objects, mapper);
                 if (hit is not LineObject line2) break;               // not a line — ignore
-                if (line2.Id == AnchorLine!.Id) break;                // same line — ignore
+                if (line2.Id == AnchorLine!.Id)
+                {
+                    // Same line clicked twice — place protractor at the nearest endpoint.
+                    // Baseline aligns to the line direction; arc faces upward on screen.
+                    var ep1Screen = mapper.PageToScreen(AnchorLine.X1Pt, AnchorLine.Y1Pt);
+                    var ep2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
+
+                    double d1sq = Math.Pow(screenPx.X - ep1Screen.X, 2) + Math.Pow(screenPx.Y - ep1Screen.Y, 2);
+                    double d2sq = Math.Pow(screenPx.X - ep2Screen.X, 2) + Math.Pow(screenPx.Y - ep2Screen.Y, 2);
+                    double centerXPt = d1sq <= d2sq ? AnchorLine.X1Pt : AnchorLine.X2Pt;
+                    double centerYPt = d1sq <= d2sq ? AnchorLine.Y1Pt : AnchorLine.Y2Pt;
+
+                    double sameLineAngle = Math.Atan2(ep2Screen.Y - ep1Screen.Y, ep2Screen.X - ep1Screen.X) * 180.0 / Math.PI;
+                    // Arc lives at -Y in local space; flip baseline so arc faces upward on screen.
+                    if (Math.Cos(sameLineAngle * Math.PI / 180.0) < 0)
+                        sameLineAngle += 180.0;
+
+                    var sameLine = new ProtractorObject(centerXPt, centerYPt, sameLineAngle, AnchorLine.Id, AnchorLine.Id);
+                    _geometryService.ExecuteCommand(new PlaceObjectCommand(sameLine));
+                    _geometryService.SetSelected(sameLine.Id);
+                    ResetDrawState();
+                    StatusMessage = "Protractor placed";
+                    break;
+                }
 
                 // Compute intersection in PDF-point space
                 if (!GeometryMath.TryLineIntersectPt(AnchorLine, line2, out var interPt))
@@ -170,10 +193,16 @@ public partial class ToolViewModel : ObservableObject
                     break;
                 }
 
-                // Clamp to page bounds (D-03) — 20pt margin so protractor is partially visible
-                double margin  = 20.0;
-                double clampedX = Math.Clamp(interPt.xPt, margin, mapper.PageWidthPt - margin);
-                double clampedY = Math.Clamp(interPt.yPt, margin, mapper.PageHeightPt - margin);
+                // Reject if intersection falls outside page bounds — catches near-parallel lines
+                // whose mathematical crossing is far off-screen (would look like a random placement).
+                const double margin = 20.0;
+                if (interPt.xPt < -margin || interPt.xPt > mapper.PageWidthPt + margin ||
+                    interPt.yPt < -margin || interPt.yPt > mapper.PageHeightPt + margin)
+                {
+                    StatusMessage = "Lines don't intersect on this page — extend lines to create a crossing";
+                    GhostChanged?.Invoke(this, EventArgs.Empty);
+                    break;
+                }
 
                 // Gap 1: BaselineAngleDeg = screen-space angle of Line 1 (flat diameter lies along Line 1)
                 var p1Screen = mapper.PageToScreen(AnchorLine.X1Pt, AnchorLine.Y1Pt);
@@ -209,7 +238,7 @@ public partial class ToolViewModel : ObservableObject
                 double baselineAngleDeg = line1AngleDeg;
 
                 var protractor = new ProtractorObject(
-                    clampedX, clampedY,
+                    interPt.xPt, interPt.yPt,
                     baselineAngleDeg,
                     AnchorLine.Id, line2.Id);
 
