@@ -8,7 +8,7 @@ using SkiaSharp;
 
 namespace MathGaze.ViewModels;
 
-public enum ToolMode { Select, Point, Line, Circle, Protractor }
+public enum ToolMode { Select, Point, Line, Circle, Protractor, Text }
 public enum DrawState { Idle, AnchorPlaced }
 
 /// <summary>
@@ -51,6 +51,7 @@ public partial class ToolViewModel : ObservableObject
     [RelayCommand] private void ActivateLine()      { ResetDrawState(); ActiveTool = ToolMode.Line;      StatusMessage = "Click to place start point"; }
     [RelayCommand] private void ActivateCircle()    { ResetDrawState(); ActiveTool = ToolMode.Circle;    StatusMessage = "Click to place centre"; }
     [RelayCommand] private void ActivateProtractor(){ ResetDrawState(); ActiveTool = ToolMode.Protractor; StatusMessage = "Click a line (baseline)"; }
+    [RelayCommand] private void ActivateText()      { ResetDrawState(); ActiveTool = ToolMode.Text;       StatusMessage = "Copy text, then click canvas"; }
 
     private void ResetDrawState()
     {
@@ -246,6 +247,30 @@ public partial class ToolViewModel : ObservableObject
                 _geometryService.SetSelected(protractor.Id);
                 ResetDrawState();
                 StatusMessage = "Protractor placed";
+                break;
+            }
+
+            case (ToolMode.Text, DrawState.Idle):
+            {
+                // Clipboard MUST be accessed on STA (UI) thread.
+                // HandleCanvasClick is called from PdfCanvas.xaml.cs MouseDown — always on UI thread.
+                // DO NOT move this into async/Task.Run — COMException (Pitfall 4 in RESEARCH.md).
+                bool hasText = System.Windows.Clipboard.ContainsText();
+                if (!hasText)
+                {
+                    StatusMessage = "Copy text first, then click to place";
+                    break;
+                }
+                string clipText = System.Windows.Clipboard.GetText();
+                if (string.IsNullOrWhiteSpace(clipText))
+                {
+                    StatusMessage = "Copy text first, then click to place";
+                    break;
+                }
+                var (xPt, yPt) = mapper.ScreenToPage(screenPx);
+                _geometryService.ExecuteCommand(
+                    new PlaceObjectCommand(new TextObject(clipText, xPt, yPt)));
+                StatusMessage = "Text placed";
                 break;
             }
         }
