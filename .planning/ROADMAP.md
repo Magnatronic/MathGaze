@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 1: Foundation** - Deployment validation spike + WPF shell + PDF rendering + CoordinateMapper
 - [x] **Phase 2: Geometry Core** - All geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo) — gap closure in progress (completed 2026-05-03)
 - [x] **Phase 3: Protractor** - 2-click protractor placement, controls, and Practice/Exam mode infrastructure (completed 2026-05-25)
-- [ ] **Phase 4: Answer Layer** - Text boxes, MCQ selection, auto-save, and session resume
+- [x] **Phase 4: Answer Layer** - Text boxes, MCQ selection, auto-save, and session resume (completed 2026-05-27)
 
 ## Phase Details
 
@@ -100,7 +100,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md — TextObject model + GeometryObject.Id init-only + JsonDerivedType annotations + GeometryService NudgeObject TextObject case
 - [x] 04-02-PLAN.md — Text tool UX: ToolMode.Text, clipboard placement, SkiaSharp Consolas rendering, RightRail TextObject support
-- [ ] 04-03-PLAN.md — Session persistence: ISessionService, SessionService (auto-save on ObjectsChanged), restore on PDF open, page-nav save (D-14)
+- [x] 04-03-PLAN.md — Session persistence: ISessionService, SessionService (auto-save on ObjectsChanged), restore on PDF open, page-nav save (D-14)
 **UI hint**: yes
 
 ## Progress
@@ -113,4 +113,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 2/5 | In Progress|  |
 | 2. Geometry Core | 13/13 | Complete | 2026-05-25 |
 | 3. Protractor | 4/4 | Complete   | 2026-05-25 |
-| 4. Answer Layer | 2/3 | In Progress|  |
+| 4. Answer Layer | 3/3 | Complete   | 2026-05-27 |

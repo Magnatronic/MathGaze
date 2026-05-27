@@ -38,9 +38,9 @@
 
 ### Multiple Choice Answers
 
-- [ ] **ANS-01**: User can click an answer option region to select it (region highlighted with visual tick indicator)
-- [ ] **ANS-02**: User can toggle selection to change their answer
-- [ ] **ANS-03**: User can lock a selected answer to prevent accidental change
+- [x] **ANS-01**: User can click an answer option region to select it (region highlighted with visual tick indicator)
+- [x] **ANS-02**: User can toggle selection to change their answer
+- [x] **ANS-03**: User can lock a selected answer to prevent accidental change
 
 ### System
 
@@ -120,9 +120,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROT-06 | Phase 3 | Complete |
 | TEXT-01 | Phase 4 | Complete |
 | TEXT-02 | Phase 4 | Complete |
-| ANS-01 | Phase 4 | Pending |
-| ANS-02 | Phase 4 | Pending |
-| ANS-03 | Phase 4 | Pending |
+| ANS-01 | Phase 4 | Complete |
+| ANS-02 | Phase 4 | Complete |
+| ANS-03 | Phase 4 | Complete |
 | SYS-01 | Phase 2 | Complete |
 | SYS-02 | Phase 4 | Complete |
 | SYS-03 | Phase 4 | Complete |
