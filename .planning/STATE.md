@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-answer-layer-01-PLAN.md
-last_updated: "2026-05-27T06:14:44.261Z"
+stopped_at: Completed 04-answer-layer-02-PLAN.md
+last_updated: "2026-05-27T06:18:33.640Z"
 last_activity: 2026-05-27
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 25
-  completed_plans: 23
-  percent: 92
+  completed_plans: 24
+  percent: 96
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-29)
 ## Current Position
 
 Phase: 04 (answer-layer) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-05-27
 
@@ -66,6 +66,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03-protractor P03 | 2 | 2 tasks | 2 files |
 | Phase 03-protractor P04 | 10 | 1 tasks | 1 files |
 | Phase 04-answer-layer P01 | 3 | 1 tasks | 4 files |
+| Phase 04-answer-layer P02 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,8 @@ Recent decisions affecting current work:
 - [Phase 03-protractor]: IsPracticeMode guard in DrawProtractor (not in ProtractorObject model) — D-14 enforced in renderer; model stays mode-agnostic
 - [Phase 04-answer-layer]: GeometryObject.Id changed to { get; init; } enabling JSON round-trip; five [JsonDerivedType] attributes on GeometryObject base for polymorphic sidecar serialization
 - [Phase 04-answer-layer]: TextObject.Draw throws NotSupportedException (not NotImplementedException) — rendering lives in GeometryLayerViewModel, model is data-only
+- [Phase 04-answer-layer]: Clipboard read kept synchronous on STA thread inside HandleCanvasClick — no async/Task.Run wrapper; COMException would result if moved off STA (Pitfall 4 / T-04-06)
+- [Phase 04-answer-layer]: DrawTextLabel baseline placed at PageToScreen(XPt, YPt); selection rect uses _textFont.MeasureText ink bounds + 4px padding — gaze-friendly cobalt highlight
 
 ### Pending Todos
 
@@ -141,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-27T06:14:44.258Z
-Stopped at: Completed 04-answer-layer-01-PLAN.md
+Last session: 2026-05-27T06:18:33.637Z
+Stopped at: Completed 04-answer-layer-02-PLAN.md
 Resume file: None
