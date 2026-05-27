@@ -38,9 +38,9 @@
 
 ### Multiple Choice Answers
 
-- [x] **ANS-01**: User can click an answer option region to select it (region highlighted with visual tick indicator)
-- [x] **ANS-02**: User can toggle selection to change their answer
-- [x] **ANS-03**: User can lock a selected answer to prevent accidental change
+- [ ] **ANS-01**: User can click an answer option region to select it (region highlighted with visual tick indicator) *(deferred to v2 — D-08)*
+- [ ] **ANS-02**: User can toggle selection to change their answer *(deferred to v2 — D-08)*
+- [ ] **ANS-03**: User can lock a selected answer to prevent accidental change *(deferred to v2 — D-08)*
 
 ### System
 
@@ -120,9 +120,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROT-06 | Phase 3 | Complete |
 | TEXT-01 | Phase 4 | Complete |
 | TEXT-02 | Phase 4 | Complete |
-| ANS-01 | Phase 4 | Complete |
-| ANS-02 | Phase 4 | Complete |
-| ANS-03 | Phase 4 | Complete |
+| ANS-01 | Phase 4 | Deferred (v2) |
+| ANS-02 | Phase 4 | Deferred (v2) |
+| ANS-03 | Phase 4 | Deferred (v2) |
 | SYS-01 | Phase 2 | Complete |
 | SYS-02 | Phase 4 | Complete |
 | SYS-03 | Phase 4 | Complete |
@@ -136,4 +136,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-04-29*
-*Last updated: 2026-04-29 after roadmap creation*
+*Last updated: 2026-05-27 — ANS-01/02/03 corrected to Deferred (v2) per D-08; Phase 4 complete*
