@@ -33,8 +33,8 @@
 
 ### Text
 
-- [ ] **TEXT-01**: User can place a text box at a clicked location on the canvas; Grid 3 can type into it via standard Windows text input
-- [ ] **TEXT-02**: A selected text box responds to nudge controls for repositioning
+- [x] **TEXT-01**: User can place a text box at a clicked location on the canvas; Grid 3 can type into it via standard Windows text input
+- [x] **TEXT-02**: A selected text box responds to nudge controls for repositioning
 
 ### Multiple Choice Answers
 
@@ -45,8 +45,8 @@
 ### System
 
 - [x] **SYS-01**: User can undo any action and redo previously undone actions
-- [ ] **SYS-02**: Work is auto-saved to a JSON sidecar file alongside the PDF after every change (no manual save required)
-- [ ] **SYS-03**: User can resume a previous session by opening the same PDF — all geometry objects restore
+- [x] **SYS-02**: Work is auto-saved to a JSON sidecar file alongside the PDF after every change (no manual save required)
+- [x] **SYS-03**: User can resume a previous session by opening the same PDF — all geometry objects restore
 - [x] **SYS-04**: User can toggle between Practice Mode (live angle readout shown) and Exam Mode (angle readout hidden) via a chip in the top bar
 - [x] **SYS-05**: The current mode indicator (Practice / Exam) is permanently visible in the top bar at all times
 
@@ -118,14 +118,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROT-04 | Phase 3 | Pending |
 | PROT-05 | Phase 3 | Complete |
 | PROT-06 | Phase 3 | Complete |
-| TEXT-01 | Phase 4 | Pending |
-| TEXT-02 | Phase 4 | Pending |
+| TEXT-01 | Phase 4 | Complete |
+| TEXT-02 | Phase 4 | Complete |
 | ANS-01 | Phase 4 | Pending |
 | ANS-02 | Phase 4 | Pending |
 | ANS-03 | Phase 4 | Pending |
 | SYS-01 | Phase 2 | Complete |
-| SYS-02 | Phase 4 | Pending |
-| SYS-03 | Phase 4 | Pending |
+| SYS-02 | Phase 4 | Complete |
+| SYS-03 | Phase 4 | Complete |
 | SYS-04 | Phase 3 | Complete |
 | SYS-05 | Phase 3 | Complete |
 

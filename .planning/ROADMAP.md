@@ -98,7 +98,7 @@ Plans:
   6. Note: ANS-01/02/03 (MCQ answer selection) are deferred to v2 per user decision D-08
 **Plans**: 3 plans
 Plans:
-- [ ] 04-01-PLAN.md — TextObject model + GeometryObject.Id init-only + JsonDerivedType annotations + GeometryService NudgeObject TextObject case
+- [x] 04-01-PLAN.md — TextObject model + GeometryObject.Id init-only + JsonDerivedType annotations + GeometryService NudgeObject TextObject case
 - [ ] 04-02-PLAN.md — Text tool UX: ToolMode.Text, clipboard placement, SkiaSharp Consolas rendering, RightRail TextObject support
 - [ ] 04-03-PLAN.md — Session persistence: ISessionService, SessionService (auto-save on ObjectsChanged), restore on PDF open, page-nav save (D-14)
 **UI hint**: yes
@@ -113,4 +113,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Foundation | 2/5 | In Progress|  |
 | 2. Geometry Core | 13/13 | Complete | 2026-05-25 |
 | 3. Protractor | 4/4 | Complete   | 2026-05-25 |
-| 4. Answer Layer | 0/3 | Not started | - |
+| 4. Answer Layer | 1/3 | In Progress|  |
