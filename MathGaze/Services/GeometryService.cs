@@ -57,6 +57,11 @@ public sealed class GeometryService : IGeometryService
                 p.CenterXPt += dxPt;
                 p.CenterYPt += dyPt;
                 break;
+            case TextObject t:
+                // D-04: XPt/YPt are the nudge-able coordinates for text labels
+                t.XPt += dxPt;
+                t.YPt += dyPt;
+                break;
         }
     }
 
