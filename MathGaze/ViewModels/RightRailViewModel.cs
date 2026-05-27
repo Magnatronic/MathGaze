@@ -50,6 +50,7 @@ public sealed partial class RightRailViewModel : ObservableObject
             LineObject       => "Line",
             CircleObject     => "Circle",
             ProtractorObject => "Protractor",
+            TextObject       => "Text",        // D-06: no special rail controls needed
             _                => string.Empty,
         };
 

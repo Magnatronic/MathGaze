@@ -144,6 +144,28 @@ public sealed class GeometryLayerViewModel : IDisposable
     // SKFont for Practice Mode readout text — 14pt, modern SkiaSharp 3.x API
     private readonly SKFont _readoutFont = new(SKTypeface.Default, 14f);
 
+    // Text label paint — T.ink colour (0x1A1A2E), slightly transparent, fill
+    private readonly SKPaint _textPaint = new()
+    {
+        Style       = SKPaintStyle.Fill,
+        Color       = new SKColor(0x1A, 0x1A, 0x2E, 220),  // BrushInk
+        IsAntialias = true,
+    };
+
+    // Text label selection border — accent cobalt stroke, 1.5px
+    private readonly SKPaint _textSelectedBorderPaint = new()
+    {
+        Style       = SKPaintStyle.Stroke,
+        Color       = new SKColor(0x3B, 0x6F, 0xD4, 255),  // BrushAccent
+        StrokeWidth = 1.5f,
+        IsAntialias = true,
+    };
+
+    // SKFont for text labels — Consolas (T.mono) 14pt with null fallback to system default
+    // Phase 3 established: use SKFont-based API only (SKPaint.TextSize is CS0618 deprecated)
+    private readonly SKFont _textFont = new(
+        SKTypeface.FromFamilyName("Consolas") ?? SKTypeface.Default, 14f);
+
     public GeometryLayerViewModel(IGeometryService geometryService, MainViewModel mainViewModel)
     {
         _geometryService = geometryService;
@@ -218,6 +240,10 @@ public sealed class GeometryLayerViewModel : IDisposable
             case ProtractorObject prot:
                 DrawProtractor(canvas, prot, mapper, selected);
                 break;
+
+            case TextObject text:
+                DrawTextLabel(canvas, text, mapper, selected);
+                break;
         }
     }
 
@@ -258,6 +284,34 @@ public sealed class GeometryLayerViewModel : IDisposable
         {
             // Active ring: 14px radius around the active sub-point (per design reference)
             canvas.DrawCircle(center, 14f, _subRingActivePaint);
+        }
+    }
+
+    /// <summary>
+    /// Render a text label at its PDF-space position.
+    /// Uses SKFont-based DrawText overload (Phase 3 pattern — avoids CS0618 on SKPaint.TextSize).
+    /// Baseline is placed at PageToScreen(XPt, YPt); selected state draws a cobalt bounding rect.
+    /// </summary>
+    private void DrawTextLabel(SKCanvas canvas, TextObject text, CoordinateMapper mapper, bool selected)
+    {
+        if (string.IsNullOrEmpty(text.ContentText)) return;
+
+        var drawPx = mapper.PageToScreen(text.XPt, text.YPt);
+
+        // Render text — baseline at drawPx
+        canvas.DrawText(text.ContentText, drawPx.X, drawPx.Y,
+            SKTextAlign.Left, _textFont, _textPaint);
+
+        // Selection bounding rect: ink bounds + 4px padding on all sides
+        if (selected)
+        {
+            float advance = _textFont.MeasureText(text.ContentText, out SKRect bounds);
+            var selRect = new SKRect(
+                drawPx.X + bounds.Left   - 4f,
+                drawPx.Y + bounds.Top    - 4f,
+                drawPx.X + bounds.Left   + advance + 4f,
+                drawPx.Y + bounds.Bottom + 4f);
+            canvas.DrawRect(selRect, _textSelectedBorderPaint);
         }
     }
 
@@ -468,5 +522,8 @@ public sealed class GeometryLayerViewModel : IDisposable
         _readoutArcPaint.Dispose();
         _readoutTextPaint.Dispose();
         _readoutFont.Dispose();
+        _textPaint.Dispose();
+        _textSelectedBorderPaint.Dispose();
+        _textFont.Dispose();
     }
 }
