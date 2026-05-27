@@ -17,16 +17,27 @@ public partial class MainViewModel : ObservableObject
     private readonly IPdfService        _pdfService;
     private readonly IFileDialogService _fileDialogService;
     private readonly IGeometryService   _geometryService;
+    private readonly ISessionService    _sessionService;
     private PdfCanvasViewModel?         _pdfCanvasVm;
+
+    // Tracks the file path of the currently open PDF so page-nav save (D-14) and
+    // CloseFile can reference it without re-scanning the dialog result.
+    private string? _currentPdfPath;
+
+    // Tracks the page number of the page we are LEAVING during navigation, so
+    // TrySaveAsync can record the correct page index before CurrentPage is updated.
+    private int _lastSavedPage = 1;
 
     public MainViewModel(
         IPdfService pdfService,
         IFileDialogService fileDialogService,
-        IGeometryService geometryService)
+        IGeometryService geometryService,
+        ISessionService sessionService)
     {
         _pdfService        = pdfService;
         _fileDialogService = fileDialogService;
         _geometryService   = geometryService;
+        _sessionService    = sessionService;
     }
 
     /// <summary>
@@ -132,6 +143,13 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnCurrentPageChanged(int value)
     {
+        // D-14: Save the PAGE WE ARE LEAVING before clearing its objects.
+        // _lastSavedPage holds the old page number; value is the new page.
+        // Fire-and-forget async void is acceptable: save failure is silent.
+        if (_currentPdfPath is not null)
+            _ = _sessionService.TrySaveAsync(_currentPdfPath, pageOverride: _lastSavedPage);
+        _lastSavedPage = value;
+
         // GAP-13 fix: each page has an independent geometry canvas.
         // Reset clears all objects and undo/redo stacks when the user navigates pages.
         // Also called in OpenFileAsync (GAP-10) — two calls on PDF open is harmless (Reset is idempotent).
@@ -258,7 +276,32 @@ public partial class MainViewModel : ObservableObject
             IsPdfOpen     = true;
             ScrollOffsetY = 0;
             _geometryService.Reset();
+
+            // D-13: Register new PDF path AFTER Reset so SessionService knows where to save.
+            // Setting _currentPdfPath here (on UI thread) ensures OnCurrentPageChanged (which
+            // fires synchronously when CurrentPage = 1 above) uses the correct path.
+            _sessionService.SetPdfPath(filePath);
+            _currentPdfPath = filePath;
+            _lastSavedPage  = 1;
         });
+
+        // D-13: Silently restore from sidecar if it exists (no prompt; corrupt = open clean).
+        // TotalPages is now known so we can safely clamp restored.CurrentPage.
+        var restored = await _sessionService.TryLoadAsync(filePath).ConfigureAwait(false);
+        if (restored is not null)
+        {
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                foreach (var obj in restored.Objects)
+                    _geometryService.AddObject(obj);   // AddObject does NOT raise ObjectsChanged (Pitfall 3 safe)
+                _geometryService.ObjectsChanged_ForceRaise();  // single repaint after all objects loaded
+
+                // Navigate to saved page — clamp to valid range
+                int savedPage = Math.Max(1, Math.Min(restored.CurrentPage, TotalPages));
+                _lastSavedPage = savedPage;
+                CurrentPage    = savedPage;
+            });
+        }
 
         // Trigger initial render
         if (_pdfCanvasVm is not null)
@@ -271,6 +314,11 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanCloseFile))]
     private void CloseFile()
     {
+        // D-13: Clear PDF path so SessionService stops saving after close
+        _sessionService.SetPdfPath(null);
+        _currentPdfPath = null;
+        _lastSavedPage  = 1;
+
         _pdfService.CloseDocument();
         FileName       = string.Empty;
         TotalPages     = 0;

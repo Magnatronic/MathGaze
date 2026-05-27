@@ -24,6 +24,16 @@ public partial class App : Application
                 services.AddSingleton<IGeometryService, GeometryService>();
                 services.AddSingleton<UndoService>();  // UndoService is internal to GeometryService but registered for future injection if needed
 
+                // Session persistence (SYS-02, SYS-03)
+                // Func<int> breaks the circular dependency: SessionService needs CurrentPage from
+                // MainViewModel, but MainViewModel depends on ISessionService. The lambda resolves
+                // MainViewModel lazily (after all singletons are registered), avoiding a constructor
+                // dependency cycle.
+                services.AddSingleton<ISessionService>(sp =>
+                    new SessionService(
+                        sp.GetRequiredService<IGeometryService>(),
+                        () => sp.GetRequiredService<MainViewModel>().CurrentPage));
+
                 // ViewModels
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<GeometryLayerViewModel>();
