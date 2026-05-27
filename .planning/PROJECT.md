@@ -26,28 +26,28 @@ A student can complete a GCSE geometry question — measuring angles, drawing li
 - [x] User can delete a selected object
 - [x] User can undo and redo any action (Validated in Phase 2: Geometry Core)
 
-### Active
+#### Protractor (Validated in Phase 3: Protractor)
+- [x] User can activate Protractor mode, click two lines, and have the protractor auto-placed at their intersection with baseline aligned to the first line
+- [x] User can rotate the placed protractor ±1° and ±5° via right-rail controls
+- [x] User can flip the protractor between inner and outer scale
+- [x] Protractor displays a live angle readout in Practice Mode; Exam Mode hides it
+- [x] 180° classic style and 360° full-circle style both available
 
-#### Protractor
-- [ ] User can activate Protractor mode, click two lines, and have the protractor auto-placed at their intersection with baseline aligned to the first line
-- [ ] User can rotate the placed protractor ±1° and ±5° via right-rail controls
-- [ ] User can flip the protractor between inner and outer scale
-- [ ] User can lock the protractor position to prevent accidental movement
-- [ ] Protractor displays a live angle readout in Practice Mode
+#### Text & Session (Validated in Phase 4: Answer Layer)
+- [x] User can place a clipboard-pasted text label on the canvas using the Text tool
+- [x] A selected text label responds to nudge controls for repositioning
+- [x] Work is auto-saved to a JSON sidecar file alongside the PDF after every change
+- [x] User can resume a previously saved session by opening the same PDF — all geometry restores silently
 
-#### Transformations
-- [ ] User can select a line + shape and apply Reflection via a contextual button (verb, not a tool)
+### Active (v2 scope)
 
-#### Text & Answers
-- [ ] User can place a text box and type via Grid 3 (no in-app keyboard)
+#### Multiple Choice Answers (Deferred — D-08)
 - [ ] User can click to select a multiple-choice answer (highlighted with visual tick)
 - [ ] User can toggle or change their answer selection
 - [ ] User can lock an answer to prevent accidental change
 
-#### System
-- [ ] Work is auto-saved to a JSON sidecar file alongside the PDF
-- [ ] User can resume a previously saved session
-- [ ] Practice Mode shows live measurements; an Exam Mode toggle hides them (top bar, always visible)
+#### Transformations
+- [ ] User can select a line + shape and apply Reflection via a contextual button (verb, not a tool)
 
 ### Out of Scope
 
@@ -114,4 +114,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-05 — Phase 02 complete: all geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo) shipped across 13 plans including 8 UAT gap-closure plans. 29/29 automated truths verified; 7 items pending human re-test. Phase 03 (Protractor) is next.*
+*Last updated: 2026-05-27 — Phase 04 (Answer Layer) complete: Text tool (clipboard → canvas label), JSON sidecar auto-save, and session restore across 3 plans. ANS-01/02/03 (MCQ) deferred to v2 per D-08. All 4 milestone phases executed; 75/75 automated tests pass. Pending: 6 human UAT items (text placement, sidecar round-trip, corrupt-sidecar resilience).*
