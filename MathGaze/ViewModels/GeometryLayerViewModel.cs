@@ -145,9 +145,9 @@ public sealed class GeometryLayerViewModel : IDisposable
     private readonly SKFont _textFont = new(
         SKTypeface.FromFamilyName("Consolas") ?? SKTypeface.Default, 14f);
 
-    // DPI scale tracking — updated at the top of Draw() when dpiScale changes.
-    // _lastDpiScale = 0 forces a first-run update of all paint/font sizes.
-    private double _lastDpiScale = 0.0;
+    // Scale tracking — updated at the top of Draw() when the combined scale (dpiScale * ZoomFactor) changes.
+    // _lastScale = 0 forces a first-run update of all paint/font sizes.
+    private double _lastScale = 0.0;
 
     // Cached DPI scale as float for use inside DrawObject / DrawSubPointDot / DrawTextLabel / DrawProtractor.
     // Set at the top of Draw() so all private helpers read a consistent value for this frame.
@@ -166,10 +166,10 @@ public sealed class GeometryLayerViewModel : IDisposable
     {
         if (mapper is null) return;
 
-        // Update paint/font sizes when DPI changes (first call forces update via _lastDpiScale=0).
-        if (Math.Abs(dpiScale - _lastDpiScale) > 0.001)
+        // Update paint/font sizes when combined scale changes (first call forces update via _lastScale=0).
+        if (Math.Abs(dpiScale - _lastScale) > 0.001)
         {
-            _lastDpiScale = dpiScale;
+            _lastScale = dpiScale;
             float s = (float)dpiScale;
             _normalPaint.StrokeWidth             = 2.5f * s;
             _selectedPaint.StrokeWidth           = 2.5f * s;
