@@ -114,7 +114,7 @@ Plans:
   3. All existing right-rail protractor controls (rotate ±1°/±5°, flip, style, readout) work identically on a two-point-placed protractor
 **Plans**: 1 plan
 Plans:
-- [ ] 05-01-PLAN.md — Two-point protractor placement: ToolViewModel state machine extension, ghost preview vertex anchor, readout suppression for Guid.Empty protractors
+- [x] 05-01-PLAN.md — Two-point protractor placement: ToolViewModel state machine extension, ghost preview vertex anchor, readout suppression for Guid.Empty protractors
 **UI hint**: yes
 
 ## Progress
