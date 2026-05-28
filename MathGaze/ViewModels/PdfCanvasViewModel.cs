@@ -213,7 +213,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         canvas.DrawBitmap(_pageBitmap, destRect);
 
         // Draw committed geometry objects (vector layer above PDF bitmap, below ghost preview)
-        _geometryLayer.Draw(canvas, _coordinateMapper);
+        _geometryLayer.Draw(canvas, _coordinateMapper, _dpiScale);
 
         // Draw ghost preview (dashed line/circle between click 1 and click 2) — D-01/D-02
         DrawGhostPreview(canvas);
@@ -238,12 +238,14 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         var anchorPx    = _coordinateMapper.PageToScreen(_toolVm.AnchorPt.Value.xPt, _toolVm.AnchorPt.Value.yPt);
         var ghostCursor = _toolVm.GhostCursorPx;
 
+        float ds = (float)_dpiScale;
+
         // Ghost dashed line/arc paint (D-01)
         using var ghostPaint = new SKPaint
         {
             Style       = SKPaintStyle.Stroke,
             Color       = new SKColor(0x3B, 0x6F, 0xD4, 180), // BrushAccent + 70% alpha
-            StrokeWidth = 2f,
+            StrokeWidth = 2f * ds,
             IsAntialias = true,
             PathEffect  = SKPathEffect.CreateDash(new float[] { 8f, 5f }, 0f),
         };
@@ -259,13 +261,13 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         {
             Style       = SKPaintStyle.Stroke,
             Color       = new SKColor(0x3B, 0x6F, 0xD4, 200),
-            StrokeWidth = 2f,
+            StrokeWidth = 2f * ds,
             IsAntialias = true,
         };
 
         // Draw anchor dot + ring (D-01)
-        canvas.DrawCircle(anchorPx, 5f, anchorPaint);
-        canvas.DrawCircle(anchorPx, 12f, ringPaint);
+        canvas.DrawCircle(anchorPx, 5f * ds, anchorPaint);
+        canvas.DrawCircle(anchorPx, 12f * ds, ringPaint);
 
         if (_toolVm.ActiveTool == ToolMode.Line)
         {
@@ -295,13 +297,13 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
                 Color       = isSnapped
                     ? new SKColor(0x3B, 0x6F, 0xD4, 200)   // full cobalt ring when snapped
                     : new SKColor(0x3B, 0x6F, 0xD4, 100),   // lighter ring when free-cursor
-                StrokeWidth = 2f,
+                StrokeWidth = 2f * ds,
                 IsAntialias = true,
                 PathEffect  = isSnapped
                     ? SKPathEffect.CreateDash(new float[] { 3f, 3f }, 0f)
                     : null,                                  // solid ring when free-cursor
             };
-            canvas.DrawCircle(ringCenter, 18f, snapRingPaint);
+            canvas.DrawCircle(ringCenter, 18f * ds, snapRingPaint);
 
             // Only draw the filled snap dot at the snapped position (not at free cursor)
             if (isSnapped)
@@ -312,7 +314,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
                     Color       = new SKColor(0x3B, 0x6F, 0xD4, 255),
                     IsAntialias = true,
                 };
-                canvas.DrawCircle(ringCenter, 5f, snapDotPaint);
+                canvas.DrawCircle(ringCenter, 5f * ds, snapDotPaint);
             }
         }
     }
@@ -362,11 +364,13 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
             return; // no anchor context — nothing to preview
         }
 
+        float dps = (float)_dpiScale;
+
         using var ghostArcPaint = new SKPaint
         {
             Style       = SKPaintStyle.Stroke,
             Color       = new SKColor(0x3B, 0x6F, 0xD4, 128), // cobalt at 50% alpha
-            StrokeWidth = 2f,
+            StrokeWidth = 2f * dps,
             IsAntialias = true,
         };
 
@@ -387,7 +391,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
             {
                 Style       = SKPaintStyle.Stroke,
                 Color       = new SKColor(0x3B, 0x6F, 0xD4, 100), // cobalt at ~40% alpha
-                StrokeWidth = 1.5f,
+                StrokeWidth = 1.5f * dps,
                 IsAntialias = true,
                 PathEffect  = SKPathEffect.CreateDash(new float[] { 6f, 4f }, 0f),
             };
@@ -401,7 +405,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
             Color       = new SKColor(0x3B, 0x6F, 0xD4, 128),
             IsAntialias = true,
         };
-        canvas.DrawCircle(ghostCenterPx, 4f, ghostDotPaint);
+        canvas.DrawCircle(ghostCenterPx, 4f * dps, ghostDotPaint);
     }
 
     private void EnsureCoordinateMapper()

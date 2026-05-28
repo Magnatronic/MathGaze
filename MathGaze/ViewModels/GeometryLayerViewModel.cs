@@ -145,6 +145,14 @@ public sealed class GeometryLayerViewModel : IDisposable
     private readonly SKFont _textFont = new(
         SKTypeface.FromFamilyName("Consolas") ?? SKTypeface.Default, 14f);
 
+    // DPI scale tracking — updated at the top of Draw() when dpiScale changes.
+    // _lastDpiScale = 0 forces a first-run update of all paint/font sizes.
+    private double _lastDpiScale = 0.0;
+
+    // Cached DPI scale as float for use inside DrawObject / DrawSubPointDot / DrawTextLabel / DrawProtractor.
+    // Set at the top of Draw() so all private helpers read a consistent value for this frame.
+    private float _currentDpiScaleF = 1.0f;
+
     public GeometryLayerViewModel(IGeometryService geometryService)
     {
         _geometryService = geometryService;
@@ -154,9 +162,28 @@ public sealed class GeometryLayerViewModel : IDisposable
     /// Draw all committed geometry objects. Called from PdfCanvasViewModel.Paint()
     /// after canvas.DrawBitmap() and before DrawGhostPreview().
     /// </summary>
-    public void Draw(SKCanvas canvas, CoordinateMapper? mapper)
+    public void Draw(SKCanvas canvas, CoordinateMapper? mapper, double dpiScale = 1.0)
     {
         if (mapper is null) return;
+
+        // Update paint/font sizes when DPI changes (first call forces update via _lastDpiScale=0).
+        if (Math.Abs(dpiScale - _lastDpiScale) > 0.001)
+        {
+            _lastDpiScale = dpiScale;
+            float s = (float)dpiScale;
+            _normalPaint.StrokeWidth             = 2.5f * s;
+            _selectedPaint.StrokeWidth           = 2.5f * s;
+            _subRingActivePaint.StrokeWidth      = 2.5f * s;
+            _tickMajorPaint.StrokeWidth          = 1.5f * s;
+            _tickMinorPaint.StrokeWidth          = 1.0f * s;
+            _textSelectedBorderPaint.StrokeWidth = 1.5f * s;
+            // SKFont.Size is a read-write property in SkiaSharp 3.x — no reallocation needed.
+            _labelFont.Size      = 16f * s;
+            _innerLabelFont.Size = 11f * s;
+            _textFont.Size       = 14f * s;
+        }
+
+        _currentDpiScaleF = (float)dpiScale;
 
         var objects = _geometryService.Objects;
 
@@ -186,9 +213,9 @@ public sealed class GeometryLayerViewModel : IDisposable
             case PointObject pt:
                 var ptPx = mapper.PageToScreen(pt.XPt, pt.YPt);
                 // Outer ring (stroke)
-                canvas.DrawCircle(ptPx, 8f, strokePaint);
+                canvas.DrawCircle(ptPx, 8f * _currentDpiScaleF, strokePaint);
                 // Centre dot (fill)
-                canvas.DrawCircle(ptPx, 4f, dotPaint);
+                canvas.DrawCircle(ptPx, 4f * _currentDpiScaleF, dotPaint);
                 break;
 
             case LineObject line:
@@ -204,7 +231,7 @@ public sealed class GeometryLayerViewModel : IDisposable
                 if (radiusPx > 0f)
                     canvas.DrawCircle(centerPx, radiusPx, strokePaint);
                 // Small center dot
-                canvas.DrawCircle(centerPx, 4f, dotPaint);
+                canvas.DrawCircle(centerPx, 4f * _currentDpiScaleF, dotPaint);
                 break;
 
             case ProtractorObject prot:
@@ -247,13 +274,13 @@ public sealed class GeometryLayerViewModel : IDisposable
 
     private void DrawSubPointDot(SKCanvas canvas, SKPoint center, bool isActive)
     {
-        // Filled dot: 8px radius
-        canvas.DrawCircle(center, 8f, isActive ? _subDotPaint : _subDotInactivePaint);
+        // Filled dot: 8px radius (scaled by DPI)
+        canvas.DrawCircle(center, 8f * _currentDpiScaleF, isActive ? _subDotPaint : _subDotInactivePaint);
 
         if (isActive)
         {
             // Active ring: 14px radius around the active sub-point (per design reference)
-            canvas.DrawCircle(center, 14f, _subRingActivePaint);
+            canvas.DrawCircle(center, 14f * _currentDpiScaleF, _subRingActivePaint);
         }
     }
 
@@ -276,11 +303,12 @@ public sealed class GeometryLayerViewModel : IDisposable
         if (selected)
         {
             float advance = _textFont.MeasureText(text.ContentText, out SKRect bounds);
+            float pad = 4f * _currentDpiScaleF;
             var selRect = new SKRect(
-                drawPx.X + bounds.Left   - 4f,
-                drawPx.Y + bounds.Top    - 4f,
-                drawPx.X + bounds.Left   + advance + 4f,
-                drawPx.Y + bounds.Bottom + 4f);
+                drawPx.X + bounds.Left   - pad,
+                drawPx.Y + bounds.Top    - pad,
+                drawPx.X + bounds.Left   + advance + pad,
+                drawPx.Y + bounds.Bottom + pad);
             canvas.DrawRect(selRect, _textSelectedBorderPaint);
         }
     }
@@ -331,7 +359,7 @@ public sealed class GeometryLayerViewModel : IDisposable
 
             bool isMajor = (a % 10 == 0);
             bool isMid   = (!isMajor && a % 5 == 0);
-            float tickLen = isMajor ? 24f : isMid ? 13f : 5f;
+            float tickLen = (isMajor ? 24f : isMid ? 13f : 5f) * _currentDpiScaleF;
 
             float r1 = radiusPx - tickLen;
             float r2 = radiusPx;
@@ -341,10 +369,11 @@ public sealed class GeometryLayerViewModel : IDisposable
 
         // 4. Numeric labels every 10° — dual scale (outer 0→180, inner 180→0)
         // Real protractors show both directions so students can read from either end.
-        float outerLabelR = radiusPx - 32f;   // clear the 24px major tick + 8px gap
-        float innerLabelR = radiusPx - 58f;   // further inward so dual scales don't overlap at 16pt
-        if (outerLabelR < 8f) outerLabelR = 8f;
-        if (innerLabelR < 8f) innerLabelR = 8f;
+        float outerLabelR = radiusPx - 32f * _currentDpiScaleF;   // clear the major tick + gap
+        float innerLabelR = radiusPx - 58f * _currentDpiScaleF;   // further inward so dual scales don't overlap
+        float labelClamp  = 8f * _currentDpiScaleF;
+        if (outerLabelR < labelClamp) outerLabelR = labelClamp;
+        if (innerLabelR < labelClamp) innerLabelR = labelClamp;
 
         for (int a = 0; a <= arcDeg; a += 10)
         {
@@ -372,11 +401,12 @@ public sealed class GeometryLayerViewModel : IDisposable
         }
 
         // 5. Center crosshair (small cross at origin)
-        canvas.DrawCircle(0, 0, 4f, bodyPaint);
-        canvas.DrawLine(-8f, 0, -3f, 0, bodyPaint);
-        canvas.DrawLine( 3f, 0,  8f, 0, bodyPaint);
-        canvas.DrawLine(0, -8f, 0, -3f, bodyPaint);
-        canvas.DrawLine(0,  3f, 0,  8f, bodyPaint);
+        float cs = _currentDpiScaleF;
+        canvas.DrawCircle(0, 0, 4f * cs, bodyPaint);
+        canvas.DrawLine(-8f * cs, 0, -3f * cs, 0, bodyPaint);
+        canvas.DrawLine( 3f * cs, 0,  8f * cs, 0, bodyPaint);
+        canvas.DrawLine(0, -8f * cs, 0, -3f * cs, bodyPaint);
+        canvas.DrawLine(0,  3f * cs, 0,  8f * cs, bodyPaint);
 
         canvas.Restore();
     }
