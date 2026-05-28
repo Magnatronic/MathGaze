@@ -12,8 +12,6 @@
     <SolidColorBrush x:Key="BrushAccent"      Color="#3B6FD4"/>
     <SolidColorBrush x:Key="BrushAccentSoft"  Color="#EEF2FB"/>
     <SolidColorBrush x:Key="BrushAccentInk"   Color="#2A4FA0"/>
-    <SolidColorBrush x:Key="BrushExam"        Color="#D94F2A"/>
-    <SolidColorBrush x:Key="BrushPractice"    Color="#2CA870"/>
     <SolidColorBrush x:Key="BrushTransparent" Color="Transparent"/>
 
     <!-- ── Typography ── -->

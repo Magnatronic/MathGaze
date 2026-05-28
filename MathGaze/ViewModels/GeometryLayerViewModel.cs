@@ -20,7 +20,6 @@ namespace MathGaze.ViewModels;
 public sealed class GeometryLayerViewModel : IDisposable
 {
     private readonly IGeometryService _geometryService;
-    private readonly MainViewModel    _mainVm;
     private bool _disposed;
 
     // ── Cached paints (created once — never per-frame) ───────────────────────
@@ -124,26 +123,6 @@ public sealed class GeometryLayerViewModel : IDisposable
     // SKFont for inner scale labels — 11pt
     private readonly SKFont _innerLabelFont = new(SKTypeface.Default, 11f);
 
-    // Practice Mode readout arc paint
-    private readonly SKPaint _readoutArcPaint = new()
-    {
-        Style       = SKPaintStyle.Stroke,
-        Color       = new SKColor(0x3B, 0x6F, 0xD4, 200),   // BrushAccent cobalt
-        StrokeWidth = 2f,
-        IsAntialias = true,
-    };
-
-    // Practice Mode readout text paint
-    private readonly SKPaint _readoutTextPaint = new()
-    {
-        Style       = SKPaintStyle.Fill,
-        Color       = new SKColor(0x3B, 0x6F, 0xD4, 255),
-        IsAntialias = true,
-    };
-
-    // SKFont for Practice Mode readout text — 14pt, modern SkiaSharp 3.x API
-    private readonly SKFont _readoutFont = new(SKTypeface.Default, 14f);
-
     // Text label paint — T.ink colour (0x1A1A2E), slightly transparent, fill
     private readonly SKPaint _textPaint = new()
     {
@@ -166,18 +145,9 @@ public sealed class GeometryLayerViewModel : IDisposable
     private readonly SKFont _textFont = new(
         SKTypeface.FromFamilyName("Consolas") ?? SKTypeface.Default, 14f);
 
-    public GeometryLayerViewModel(IGeometryService geometryService, MainViewModel mainViewModel)
+    public GeometryLayerViewModel(IGeometryService geometryService)
     {
         _geometryService = geometryService;
-        _mainVm          = mainViewModel;
-        // Subscribe to IsPracticeMode changes so canvas repaints when mode toggles
-        _mainVm.PropertyChanged += OnMainVmPropertyChanged;
-    }
-
-    private void OnMainVmPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName == nameof(MainViewModel.IsPracticeMode))
-            _geometryService.ObjectsChanged_ForceRaise();
     }
 
     /// <summary>
@@ -408,108 +378,13 @@ public sealed class GeometryLayerViewModel : IDisposable
         canvas.DrawLine(0, -8f, 0, -3f, bodyPaint);
         canvas.DrawLine(0,  3f, 0,  8f, bodyPaint);
 
-        // 6. Practice Mode readout (D-14: only when IsPracticeMode = true)
-        // PROT-07: Suppress readout for two-point-placed protractors (Line1Id == Guid.Empty).
-        // ComputeMeasuredAngle returns 0f for Guid.Empty (no source lines to measure between),
-        // which would misleadingly show "0°". Hiding the readout is more honest — the student
-        // uses the scale marks and rotation controls to read the angle manually.
-        if (_mainVm.IsPracticeMode && obj.Line1Id != Guid.Empty)
-        {
-            float measuredAngleDeg = ComputeMeasuredAngle(obj);
-            DrawReadout(canvas, measuredAngleDeg, radiusPx, obj.IsFlipped);
-        }
-
         canvas.Restore();
-    }
-
-    /// <summary>
-    /// Computes the angle the student would read off the protractor at its current orientation.
-    /// This is the angle between line 1 (baseline) and line 2, as seen from the protractor's perspective.
-    ///
-    /// Per D-11: the readout = angle where the second arm crosses the protractor scale.
-    /// Per RESEARCH.md §Open Questions Q3: show 0–180° (acute/obtuse); use IsFlipped for inner/outer reading.
-    /// </summary>
-    private float ComputeMeasuredAngle(ProtractorObject obj)
-    {
-        // Find the two source lines by ID
-        var line1 = _geometryService.Objects.FirstOrDefault(o => o.Id == obj.Line1Id) as LineObject;
-        var line2 = _geometryService.Objects.FirstOrDefault(o => o.Id == obj.Line2Id) as LineObject;
-
-        if (line1 is null || line2 is null) return 0f;
-
-        if (obj.Style == ProtractorStyle.Full360)
-        {
-            double bearing = ((obj.RotationOffsetDeg % 360.0) + 360.0) % 360.0;
-            return (float)bearing;
-        }
-
-        // Use screen-space direction so the result is independent of draw direction.
-        // PDF Y increases upward; screen Y increases downward — flip dy.
-        double dx2_s = line2.X2Pt - line2.X1Pt;
-        double dy2_s = -(line2.Y2Pt - line2.Y1Pt);
-
-        // Rotate Line 2 into the protractor's local frame.
-        double bRad  = obj.BaselineAngleDeg * Math.PI / 180.0;
-        double cosB  = Math.Cos(-bRad), sinB = Math.Sin(-bRad);
-        double localDx = dx2_s * cosB - dy2_s * sinB;
-        double localDy = dx2_s * sinB + dy2_s * cosB;
-
-        // Arc occupies negative-Y of local space. If Line 2 points the other way, flip it.
-        if (localDy > 0) { localDx = -localDx; localDy = -localDy; }
-
-        // Natural reading = angle from right-end baseline (+X) going CCW into arc.
-        double localAngle   = Math.Atan2(localDy, localDx) * 180.0 / Math.PI;
-        double naturalAngle = -localAngle;   // [-180,0] → [0,180]
-
-        if (obj.IsFlipped) naturalAngle = 180.0 - naturalAngle;
-
-        return (float)Math.Clamp(naturalAngle, 0.0, 180.0);
-    }
-
-    /// <summary>
-    /// Renders the angle readout inside the protractor (Practice Mode only).
-    /// Called inside canvas.Save()/Restore() scope from DrawProtractor — origin is at protractor center.
-    /// Per RESEARCH.md Pattern 4 (shared.jsx measuring prop).
-    /// </summary>
-    private void DrawReadout(SKCanvas canvas, float measuredAngleDeg, float radiusPx, bool isFlipped = false)
-    {
-        if (measuredAngleDeg < 0.5f) return;  // nothing meaningful to show
-
-        float arcRadius = Math.Max(30f, radiusPx * 0.25f);  // inner arc at 25% of outer radius
-        var ovalSmall   = new SKRect(-arcRadius, -arcRadius, arcRadius, arcRadius);
-
-        // When IsFlipped, the outer scale's 0° is at the left end of the baseline (-180° in local space).
-        // Draw arc starting from -180°, sweeping CW (positive in Skia) by measuredAngleDeg.
-        // When not flipped, start from 0° sweeping CCW (negative in Skia) as before.
-        float arcStartDeg, arcSweepDeg, midAngleRad;
-        if (isFlipped)
-        {
-            arcStartDeg  = -180f;
-            arcSweepDeg  = measuredAngleDeg;          // positive = CW in Skia
-            midAngleRad  = (-180f + measuredAngleDeg / 2f) * MathF.PI / 180f;
-        }
-        else
-        {
-            arcStartDeg  = 0f;
-            arcSweepDeg  = -measuredAngleDeg;         // negative = CCW in Skia
-            midAngleRad  = (-measuredAngleDeg / 2f) * MathF.PI / 180f;
-        }
-
-        canvas.DrawArc(ovalSmall, arcStartDeg, arcSweepDeg, false, _readoutArcPaint);
-
-        // Label at midpoint of the arc
-        float textR = arcRadius + 14f;
-        float tx    = MathF.Cos(midAngleRad) * textR;
-        float ty    = MathF.Sin(midAngleRad) * textR + _readoutFont.Size * 0.35f;
-
-        canvas.DrawText($"{(int)MathF.Round(measuredAngleDeg)}°", tx, ty, SKTextAlign.Center, _readoutFont, _readoutTextPaint);
     }
 
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
-        _mainVm.PropertyChanged -= OnMainVmPropertyChanged;
         _normalPaint.Dispose();
         _selectedPaint.Dispose();
         _dotNormalPaint.Dispose();
@@ -523,9 +398,6 @@ public sealed class GeometryLayerViewModel : IDisposable
         _labelFont.Dispose();
         _innerLabelPaint.Dispose();
         _innerLabelFont.Dispose();
-        _readoutArcPaint.Dispose();
-        _readoutTextPaint.Dispose();
-        _readoutFont.Dispose();
         _textPaint.Dispose();
         _textSelectedBorderPaint.Dispose();
         _textFont.Dispose();

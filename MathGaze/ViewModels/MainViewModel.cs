@@ -28,6 +28,12 @@ public partial class MainViewModel : ObservableObject
     // TrySaveAsync can record the correct page index before CurrentPage is updated.
     private int _lastSavedPage = 1;
 
+    // In-memory per-page object cache (Bug 2 fix).
+    // Key = 1-based page number. Value = snapshot of geometry objects on that page.
+    // Populated in OnCurrentPageChanged when leaving a page; restored when returning.
+    // Cleared on CloseFile and OpenFileAsync so it never bleeds across documents.
+    private readonly Dictionary<int, List<Core.Geometry.GeometryObject>> _pageObjectCache = new();
+
     public MainViewModel(
         IPdfService pdfService,
         IFileDialogService fileDialogService,
@@ -56,13 +62,6 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private string _fileName = string.Empty;
-
-    // ── Mode ────────────────────────────────────────────────────────────────────
-    [ObservableProperty]
-    private bool _isPracticeMode = true;
-
-    [RelayCommand]
-    private void ToggleMode() => IsPracticeMode = !IsPracticeMode;
 
     // ── Zoom ────────────────────────────────────────────────────────────────────
     private static readonly double[] ZoomSteps =
@@ -143,17 +142,36 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnCurrentPageChanged(int value)
     {
-        // D-14: Save the PAGE WE ARE LEAVING before clearing its objects.
-        // _lastSavedPage holds the old page number; value is the new page.
-        // Fire-and-forget async void is acceptable: save failure is silent.
-        if (_currentPdfPath is not null)
-            _ = _sessionService.TrySaveAsync(_currentPdfPath, pageOverride: _lastSavedPage);
+        // Capture departing page objects into SessionService's all-pages store BEFORE Reset().
+        // This is what makes cross-page sidecar persistence work: SyncPage records what was
+        // on this page so TrySaveAsync (triggered by Reset's ObjectsChanged) can write all pages.
+        if (_lastSavedPage > 0)
+            _sessionService.SyncPage(_lastSavedPage, _geometryService.Objects.ToList());
+
+        // Bug 2 fix: cache the objects from the page we are LEAVING so we can restore
+        // them when the user navigates back within the same session.
+        // Only cache when a document is open (IsPdfOpen) and _lastSavedPage is valid (> 0).
+        // ToList() snapshots the current references — same live instances stored in cache.
+        if (IsPdfOpen && _lastSavedPage > 0)
+            _pageObjectCache[_lastSavedPage] = _geometryService.Objects.ToList();
+
         _lastSavedPage = value;
 
         // GAP-13 fix: each page has an independent geometry canvas.
         // Reset clears all objects and undo/redo stacks when the user navigates pages.
         // Also called in OpenFileAsync (GAP-10) — two calls on PDF open is harmless (Reset is idempotent).
         _geometryService.Reset();
+
+        // Bug 2 fix: restore objects for the page we are ARRIVING at, if cached.
+        // AddObject does not raise ObjectsChanged (safe per Pitfall 3 / SessionService pattern).
+        // A single ForceRaise after all objects are loaded triggers one repaint.
+        if (_pageObjectCache.TryGetValue(value, out var cachedObjects))
+        {
+            foreach (var obj in cachedObjects)
+                _geometryService.AddObject(obj);
+            _geometryService.ObjectsChanged_ForceRaise();
+        }
+
         OnPropertyChanged(nameof(PageLabel));
         PreviousPageCommand.NotifyCanExecuteChanged();
         NextPageCommand.NotifyCanExecuteChanged();
@@ -275,6 +293,7 @@ public partial class MainViewModel : ObservableObject
             CurrentPage   = 1;
             IsPdfOpen     = true;
             ScrollOffsetY = 0;
+            _pageObjectCache.Clear();  // Bug 2 fix: discard any cached pages from previous document
             _geometryService.Reset();
 
             // D-13: Register new PDF path AFTER Reset so SessionService knows where to save.
@@ -292,12 +311,28 @@ public partial class MainViewModel : ObservableObject
         {
             await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                foreach (var obj in restored.Objects)
-                    _geometryService.AddObject(obj);   // AddObject does NOT raise ObjectsChanged (Pitfall 3 safe)
-                _geometryService.ObjectsChanged_ForceRaise();  // single repaint after all objects loaded
-
-                // Navigate to saved page — clamp to valid range
                 int savedPage = Math.Max(1, Math.Min(restored.CurrentPage, TotalPages));
+
+                // Restore all pages: populate the page cache AND tell SessionService about every
+                // page so future saves include objects from pages not yet visited this session.
+                foreach (var (page, objects) in restored.Pages)
+                {
+                    _pageObjectCache[page] = objects;
+                    _sessionService.SyncPage(page, objects);
+                }
+
+                // Load the current page's objects into GeometryService now.
+                // OnCurrentPageChanged (fired by CurrentPage = savedPage below) will:
+                //   1. Re-cache them via _pageObjectCache[savedPage] = ...
+                //   2. Reset() geometry
+                //   3. Restore from _pageObjectCache[savedPage] — completing the round-trip.
+                if (restored.Pages.TryGetValue(savedPage, out var currentPageObjs))
+                {
+                    foreach (var obj in currentPageObjs)
+                        _geometryService.AddObject(obj);
+                    _geometryService.ObjectsChanged_ForceRaise();
+                }
+
                 _lastSavedPage = savedPage;
                 CurrentPage    = savedPage;
             });
@@ -318,6 +353,7 @@ public partial class MainViewModel : ObservableObject
         _sessionService.SetPdfPath(null);
         _currentPdfPath = null;
         _lastSavedPage  = 1;
+        _pageObjectCache.Clear();  // Bug 2 fix: discard cached pages for the closed document
 
         _pdfService.CloseDocument();
         FileName       = string.Empty;
