@@ -409,7 +409,11 @@ public sealed class GeometryLayerViewModel : IDisposable
         canvas.DrawLine(0,  3f, 0,  8f, bodyPaint);
 
         // 6. Practice Mode readout (D-14: only when IsPracticeMode = true)
-        if (_mainVm.IsPracticeMode)
+        // PROT-07: Suppress readout for two-point-placed protractors (Line1Id == Guid.Empty).
+        // ComputeMeasuredAngle returns 0f for Guid.Empty (no source lines to measure between),
+        // which would misleadingly show "0°". Hiding the readout is more honest — the student
+        // uses the scale marks and rotation controls to read the angle manually.
+        if (_mainVm.IsPracticeMode && obj.Line1Id != Guid.Empty)
         {
             float measuredAngleDeg = ComputeMeasuredAngle(obj);
             DrawReadout(canvas, measuredAngleDeg, radiusPx, obj.IsFlipped);
