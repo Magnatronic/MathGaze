@@ -50,7 +50,7 @@ public partial class ToolViewModel : ObservableObject
     [RelayCommand] private void ActivatePoint()     { ResetDrawState(); ActiveTool = ToolMode.Point;     StatusMessage = "Click to place a point"; }
     [RelayCommand] private void ActivateLine()      { ResetDrawState(); ActiveTool = ToolMode.Line;      StatusMessage = "Click to place start point"; }
     [RelayCommand] private void ActivateCircle()    { ResetDrawState(); ActiveTool = ToolMode.Circle;    StatusMessage = "Click to place centre"; }
-    [RelayCommand] private void ActivateProtractor(){ ResetDrawState(); ActiveTool = ToolMode.Protractor; StatusMessage = "Click a line (baseline)"; }
+    [RelayCommand] private void ActivateProtractor(){ ResetDrawState(); ActiveTool = ToolMode.Protractor; StatusMessage = "Click vertex (or a line)"; }
     [RelayCommand] private void ActivateText()      { ResetDrawState(); ActiveTool = ToolMode.Text;       StatusMessage = "Copy text, then click canvas"; }
 
     private void ResetDrawState()
@@ -140,113 +140,144 @@ public partial class ToolViewModel : ObservableObject
 
             case (ToolMode.Protractor, DrawState.Idle):
             {
-                // Must hit a LineObject specifically (not any geometry object)
                 var hit = GeometryHitTester.TryHitObject(screenPx, _geometryService.Objects, mapper);
-                if (hit is not LineObject line1) break;  // ignore clicks that don't land on a line
-
-                AnchorLine    = line1;
-                DrawState     = DrawState.AnchorPlaced;
-                StatusMessage = "Click 2nd line";
-                // Gap 3: highlight the anchor line so the student can see it is selected
-                _geometryService.SetSelected(line1.Id);
+                if (hit is LineObject line1)
+                {
+                    // === EXISTING two-line path ===
+                    AnchorLine    = line1;
+                    DrawState     = DrawState.AnchorPlaced;
+                    StatusMessage = "Click 2nd line";
+                    _geometryService.SetSelected(line1.Id);
+                }
+                else
+                {
+                    // === NEW two-point path: vertex click on empty canvas ===
+                    var (xPt, yPt) = mapper.ScreenToPage(screenPx);
+                    AnchorPt  = (xPt, yPt);
+                    // AnchorLine stays null (set by ResetDrawState) — this is the discriminator
+                    DrawState = DrawState.AnchorPlaced;
+                    StatusMessage = "Click to set baseline direction";
+                }
                 GhostChanged?.Invoke(this, EventArgs.Empty);
                 break;
             }
 
             case (ToolMode.Protractor, DrawState.AnchorPlaced):
             {
-                // Must hit a DIFFERENT LineObject
-                var hit = GeometryHitTester.TryHitObject(screenPx, _geometryService.Objects, mapper);
-                if (hit is not LineObject line2) break;               // not a line — ignore
-                if (line2.Id == AnchorLine!.Id)
+                if (AnchorLine is not null)
                 {
-                    // Same line clicked twice — place protractor at the nearest endpoint.
-                    // Baseline aligns to the line direction; arc faces upward on screen.
-                    var ep1Screen = mapper.PageToScreen(AnchorLine.X1Pt, AnchorLine.Y1Pt);
-                    var ep2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
+                    // === EXISTING two-line path ===
+                    var hit = GeometryHitTester.TryHitObject(screenPx, _geometryService.Objects, mapper);
+                    if (hit is not LineObject line2) break;               // not a line — ignore
+                    if (line2.Id == AnchorLine!.Id)
+                    {
+                        // Same line clicked twice — place protractor at the nearest endpoint.
+                        // Baseline aligns to the line direction; arc faces upward on screen.
+                        var ep1Screen = mapper.PageToScreen(AnchorLine.X1Pt, AnchorLine.Y1Pt);
+                        var ep2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
 
-                    double d1sq = Math.Pow(screenPx.X - ep1Screen.X, 2) + Math.Pow(screenPx.Y - ep1Screen.Y, 2);
-                    double d2sq = Math.Pow(screenPx.X - ep2Screen.X, 2) + Math.Pow(screenPx.Y - ep2Screen.Y, 2);
-                    double centerXPt = d1sq <= d2sq ? AnchorLine.X1Pt : AnchorLine.X2Pt;
-                    double centerYPt = d1sq <= d2sq ? AnchorLine.Y1Pt : AnchorLine.Y2Pt;
+                        double d1sq = Math.Pow(screenPx.X - ep1Screen.X, 2) + Math.Pow(screenPx.Y - ep1Screen.Y, 2);
+                        double d2sq = Math.Pow(screenPx.X - ep2Screen.X, 2) + Math.Pow(screenPx.Y - ep2Screen.Y, 2);
+                        double centerXPt = d1sq <= d2sq ? AnchorLine.X1Pt : AnchorLine.X2Pt;
+                        double centerYPt = d1sq <= d2sq ? AnchorLine.Y1Pt : AnchorLine.Y2Pt;
 
-                    double sameLineAngle = Math.Atan2(ep2Screen.Y - ep1Screen.Y, ep2Screen.X - ep1Screen.X) * 180.0 / Math.PI;
-                    // Arc lives at -Y in local space; flip baseline so arc faces upward on screen.
-                    if (Math.Cos(sameLineAngle * Math.PI / 180.0) < 0)
-                        sameLineAngle += 180.0;
+                        double sameLineAngle = Math.Atan2(ep2Screen.Y - ep1Screen.Y, ep2Screen.X - ep1Screen.X) * 180.0 / Math.PI;
+                        // Arc lives at -Y in local space; flip baseline so arc faces upward on screen.
+                        if (Math.Cos(sameLineAngle * Math.PI / 180.0) < 0)
+                            sameLineAngle += 180.0;
 
-                    var sameLine = new ProtractorObject(centerXPt, centerYPt, sameLineAngle, AnchorLine.Id, AnchorLine.Id);
-                    _geometryService.ExecuteCommand(new PlaceObjectCommand(sameLine));
-                    _geometryService.SetSelected(sameLine.Id);
+                        var sameLine = new ProtractorObject(centerXPt, centerYPt, sameLineAngle, AnchorLine.Id, AnchorLine.Id);
+                        _geometryService.ExecuteCommand(new PlaceObjectCommand(sameLine));
+                        _geometryService.SetSelected(sameLine.Id);
+                        ResetDrawState();
+                        StatusMessage = "Protractor placed";
+                        break;
+                    }
+
+                    // Compute intersection in PDF-point space
+                    if (!GeometryMath.TryLineIntersectPt(AnchorLine, line2, out var interPt))
+                    {
+                        // Parallel lines (D-02)
+                        StatusMessage = "Lines are parallel — pick two non-parallel lines";
+                        AnchorLine    = null;
+                        DrawState     = DrawState.Idle;
+                        GhostChanged?.Invoke(this, EventArgs.Empty);
+                        break;
+                    }
+
+                    // Reject if intersection falls outside page bounds — catches near-parallel lines
+                    // whose mathematical crossing is far off-screen (would look like a random placement).
+                    const double margin = 20.0;
+                    if (interPt.xPt < -margin || interPt.xPt > mapper.PageWidthPt + margin ||
+                        interPt.yPt < -margin || interPt.yPt > mapper.PageHeightPt + margin)
+                    {
+                        StatusMessage = "Lines don't intersect on this page — extend lines to create a crossing";
+                        GhostChanged?.Invoke(this, EventArgs.Empty);
+                        break;
+                    }
+
+                    // Gap 1: BaselineAngleDeg = screen-space angle of Line 1 (flat diameter lies along Line 1)
+                    var p1Screen = mapper.PageToScreen(AnchorLine.X1Pt, AnchorLine.Y1Pt);
+                    var p2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
+                    double line1AngleDeg = Math.Atan2(p2Screen.Y - p1Screen.Y, p2Screen.X - p1Screen.X) * 180.0 / Math.PI;
+
+                    // Flip baseline 180° if Line 2's click falls on the positive-Y (flat/baseline) side
+                    // of the protractor in local canvas space, so the arc always faces toward Line 2.
+                    // All vectors must be in SCREEN space (Y down) because line1AngleDeg is screen-space.
+                    // Using PDF-space coords here would invert Y and fire the flip in the wrong direction.
+                    // Use the student's click point on Line 2 as the direction indicator.
+                    // screenPx is already available as the HandleCanvasClick parameter.
+                    var intPtScreen = mapper.PageToScreen(interPt.xPt, interPt.yPt);
+                    double dxScreen = screenPx.X - intPtScreen.X;
+                    double dyScreen = screenPx.Y - intPtScreen.Y;
+
+                    // Degenerate case: click within 5px of intersection — fall back to Line 2's P1→P2 direction.
+                    if (Math.Sqrt(dxScreen * dxScreen + dyScreen * dyScreen) < 5.0)
+                    {
+                        var p1s = mapper.PageToScreen(line2.X1Pt, line2.Y1Pt);
+                        var p2s = mapper.PageToScreen(line2.X2Pt, line2.Y2Pt);
+                        dxScreen = p2s.X - p1s.X;
+                        dyScreen = p2s.Y - p1s.Y;
+                    }
+
+                    double rad    = line1AngleDeg * Math.PI / 180.0;
+                    double localX =  dxScreen * Math.Cos(-rad) - dyScreen * Math.Sin(-rad);
+                    double localY =  dxScreen * Math.Sin(-rad) + dyScreen * Math.Cos(-rad);
+                    // Arc occupies negative-Y of local space; flip baseline if Line 2 click is on positive-Y side.
+                    if (localY > 0)
+                        line1AngleDeg += 180.0;
+
+                    double baselineAngleDeg = line1AngleDeg;
+
+                    var protractor = new ProtractorObject(
+                        interPt.xPt, interPt.yPt,
+                        baselineAngleDeg,
+                        AnchorLine.Id, line2.Id);
+
+                    _geometryService.ExecuteCommand(new PlaceObjectCommand(protractor));
+                    _geometryService.SetSelected(protractor.Id);
                     ResetDrawState();
                     StatusMessage = "Protractor placed";
-                    break;
                 }
-
-                // Compute intersection in PDF-point space
-                if (!GeometryMath.TryLineIntersectPt(AnchorLine, line2, out var interPt))
+                else
                 {
-                    // Parallel lines (D-02)
-                    StatusMessage = "Lines are parallel — pick two non-parallel lines";
-                    AnchorLine    = null;
-                    DrawState     = DrawState.Idle;
-                    GhostChanged?.Invoke(this, EventArgs.Empty);
-                    break;
+                    // === NEW two-point path ===
+                    // AnchorPt holds the vertex (set in click 1 above)
+                    var anchorScreen = mapper.PageToScreen(AnchorPt!.Value.xPt, AnchorPt!.Value.yPt);
+                    double baselineAngleDeg = Math.Atan2(
+                        screenPx.Y - anchorScreen.Y,
+                        screenPx.X - anchorScreen.X) * 180.0 / Math.PI;
+
+                    var protractor = new ProtractorObject(
+                        AnchorPt.Value.xPt, AnchorPt.Value.yPt,
+                        baselineAngleDeg,
+                        Guid.Empty, Guid.Empty);  // no source lines; suppresses Practice Mode readout
+
+                    _geometryService.ExecuteCommand(new PlaceObjectCommand(protractor));
+                    _geometryService.SetSelected(protractor.Id);
+                    ResetDrawState();
+                    StatusMessage = "Protractor placed";
                 }
-
-                // Reject if intersection falls outside page bounds — catches near-parallel lines
-                // whose mathematical crossing is far off-screen (would look like a random placement).
-                const double margin = 20.0;
-                if (interPt.xPt < -margin || interPt.xPt > mapper.PageWidthPt + margin ||
-                    interPt.yPt < -margin || interPt.yPt > mapper.PageHeightPt + margin)
-                {
-                    StatusMessage = "Lines don't intersect on this page — extend lines to create a crossing";
-                    GhostChanged?.Invoke(this, EventArgs.Empty);
-                    break;
-                }
-
-                // Gap 1: BaselineAngleDeg = screen-space angle of Line 1 (flat diameter lies along Line 1)
-                var p1Screen = mapper.PageToScreen(AnchorLine.X1Pt, AnchorLine.Y1Pt);
-                var p2Screen = mapper.PageToScreen(AnchorLine.X2Pt, AnchorLine.Y2Pt);
-                double line1AngleDeg = Math.Atan2(p2Screen.Y - p1Screen.Y, p2Screen.X - p1Screen.X) * 180.0 / Math.PI;
-
-                // Flip baseline 180° if Line 2's click falls on the positive-Y (flat/baseline) side
-                // of the protractor in local canvas space, so the arc always faces toward Line 2.
-                // All vectors must be in SCREEN space (Y down) because line1AngleDeg is screen-space.
-                // Using PDF-space coords here would invert Y and fire the flip in the wrong direction.
-                // Use the student's click point on Line 2 as the direction indicator.
-                // screenPx is already available as the HandleCanvasClick parameter.
-                var intPtScreen = mapper.PageToScreen(interPt.xPt, interPt.yPt);
-                double dxScreen = screenPx.X - intPtScreen.X;
-                double dyScreen = screenPx.Y - intPtScreen.Y;
-
-                // Degenerate case: click within 5px of intersection — fall back to Line 2's P1→P2 direction.
-                if (Math.Sqrt(dxScreen * dxScreen + dyScreen * dyScreen) < 5.0)
-                {
-                    var p1s = mapper.PageToScreen(line2.X1Pt, line2.Y1Pt);
-                    var p2s = mapper.PageToScreen(line2.X2Pt, line2.Y2Pt);
-                    dxScreen = p2s.X - p1s.X;
-                    dyScreen = p2s.Y - p1s.Y;
-                }
-
-                double rad    = line1AngleDeg * Math.PI / 180.0;
-                double localX =  dxScreen * Math.Cos(-rad) - dyScreen * Math.Sin(-rad);
-                double localY =  dxScreen * Math.Sin(-rad) + dyScreen * Math.Cos(-rad);
-                // Arc occupies negative-Y of local space; flip baseline if Line 2 click is on positive-Y side.
-                if (localY > 0)
-                    line1AngleDeg += 180.0;
-
-                double baselineAngleDeg = line1AngleDeg;
-
-                var protractor = new ProtractorObject(
-                    interPt.xPt, interPt.yPt,
-                    baselineAngleDeg,
-                    AnchorLine.Id, line2.Id);
-
-                _geometryService.ExecuteCommand(new PlaceObjectCommand(protractor));
-                _geometryService.SetSelected(protractor.Id);
-                ResetDrawState();
-                StatusMessage = "Protractor placed";
                 break;
             }
 
@@ -292,7 +323,9 @@ public partial class ToolViewModel : ObservableObject
             {
                 // Protractor: no snap during placement; ghost tracks cursor freely
                 LastSnap = null;
-                StatusMessage = "Click 2nd line";
+                StatusMessage = AnchorLine is null
+                    ? "Click to set baseline direction"
+                    : "Click 2nd line";
             }
             else
             {

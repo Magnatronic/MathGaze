@@ -328,16 +328,32 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         var edgeScreen   = _coordinateMapper.PageToScreen(ProtractorObject.DefaultRadiusPt, 0);
         var originScreen = _coordinateMapper.PageToScreen(0, 0);
         float radiusPx   = edgeScreen.X - originScreen.X;
-        if (radiusPx < 20f) return; // too small to be useful
+        if (radiusPx < 20f) return;
 
-        // Gap 5: compute anchor line angle in screen space so ghost aligns with Line 1
-        float ghostRotDeg = 0f;
+        float ghostRotDeg;
+        SKPoint ghostCenterPx;
+
         var anchorLine = _toolVm.AnchorLine;
         if (anchorLine is not null)
         {
+            // === EXISTING two-line path: ghost follows cursor, baseline aligns to Line 1 ===
+            ghostCenterPx = centerPx;
             var sp1 = _coordinateMapper.PageToScreen(anchorLine.X1Pt, anchorLine.Y1Pt);
             var sp2 = _coordinateMapper.PageToScreen(anchorLine.X2Pt, anchorLine.Y2Pt);
             ghostRotDeg = (float)(Math.Atan2(sp2.Y - sp1.Y, sp2.X - sp1.X) * 180.0 / Math.PI);
+        }
+        else if (_toolVm.AnchorPt.HasValue)
+        {
+            // === NEW two-point path: ghost anchored at vertex, rotates toward cursor ===
+            var anchorPt = _toolVm.AnchorPt.Value;
+            ghostCenterPx = _coordinateMapper.PageToScreen(anchorPt.xPt, anchorPt.yPt);
+            ghostRotDeg   = (float)(Math.Atan2(
+                centerPx.Y - ghostCenterPx.Y,
+                centerPx.X - ghostCenterPx.X) * 180.0 / Math.PI);
+        }
+        else
+        {
+            return; // no anchor context — nothing to preview
         }
 
         using var ghostArcPaint = new SKPaint
@@ -348,27 +364,38 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
             IsAntialias = true,
         };
 
-        // Draw rotated semicircle arc + baseline aligned with Line 1
         canvas.Save();
-        canvas.Translate(centerPx.X, centerPx.Y);
+        canvas.Translate(ghostCenterPx.X, ghostCenterPx.Y);
         canvas.RotateDegrees(ghostRotDeg);
 
         var oval = new SKRect(-radiusPx, -radiusPx, radiusPx, radiusPx);
         canvas.DrawArc(oval, -180f, 180f, false, ghostArcPaint);
-
-        // Baseline
         canvas.DrawLine(-radiusPx, 0f, radiusPx, 0f, ghostArcPaint);
 
         canvas.Restore();
 
-        // Center dot (drawn in canvas space, not rotated)
+        // In two-point mode: draw a dashed arm line from vertex to cursor to show baseline direction
+        if (anchorLine is null && _toolVm.AnchorPt.HasValue)
+        {
+            using var armLinePaint = new SKPaint
+            {
+                Style       = SKPaintStyle.Stroke,
+                Color       = new SKColor(0x3B, 0x6F, 0xD4, 100), // cobalt at ~40% alpha
+                StrokeWidth = 1.5f,
+                IsAntialias = true,
+                PathEffect  = SKPathEffect.CreateDash(new float[] { 6f, 4f }, 0f),
+            };
+            canvas.DrawLine(ghostCenterPx, centerPx, armLinePaint);
+        }
+
+        // Center dot
         using var ghostDotPaint = new SKPaint
         {
             Style       = SKPaintStyle.Fill,
             Color       = new SKColor(0x3B, 0x6F, 0xD4, 128),
             IsAntialias = true,
         };
-        canvas.DrawCircle(centerPx, 4f, ghostDotPaint);
+        canvas.DrawCircle(ghostCenterPx, 4f, ghostDotPaint);
     }
 
     private void EnsureCoordinateMapper()
