@@ -15,9 +15,19 @@
 
                 <!-- Select -->
                 <Button x:Name="SelectButton"
-                        Style="{StaticResource ToolTileStyle}" Margin="0,0,0,4"
+                        Margin="0,0,0,4"
                         ToolTip="Select tool"
                         Command="{Binding ActivateSelectCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ToolTileStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveTool}" Value="Select">
+                                    <Setter Property="Background"  Value="{StaticResource BrushAccentSoft}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="24" Height="24" Margin="0,0,10,0">
                             <Canvas Width="24" Height="24">
@@ -31,9 +41,19 @@
 
                 <!-- Point -->
                 <Button x:Name="PointButton"
-                        Style="{StaticResource ToolTileStyle}" Margin="0,0,0,4"
+                        Margin="0,0,0,4"
                         ToolTip="Point tool"
                         Command="{Binding ActivatePointCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ToolTileStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveTool}" Value="Point">
+                                    <Setter Property="Background"  Value="{StaticResource BrushAccentSoft}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="24" Height="24" Margin="0,0,10,0">
                             <Canvas Width="24" Height="24">
@@ -50,9 +70,19 @@
 
                 <!-- Line -->
                 <Button x:Name="LineButton"
-                        Style="{StaticResource ToolTileStyle}" Margin="0,0,0,4"
+                        Margin="0,0,0,4"
                         ToolTip="Line tool"
                         Command="{Binding ActivateLineCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ToolTileStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveTool}" Value="Line">
+                                    <Setter Property="Background"  Value="{StaticResource BrushAccentSoft}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="24" Height="24" Margin="0,0,10,0">
                             <Canvas Width="24" Height="24">
@@ -72,9 +102,19 @@
 
                 <!-- Circle -->
                 <Button x:Name="CircleButton"
-                        Style="{StaticResource ToolTileStyle}" Margin="0,0,0,4"
+                        Margin="0,0,0,4"
                         ToolTip="Circle tool"
                         Command="{Binding ActivateCircleCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ToolTileStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveTool}" Value="Circle">
+                                    <Setter Property="Background"  Value="{StaticResource BrushAccentSoft}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="24" Height="24" Margin="0,0,10,0">
                             <Canvas Width="24" Height="24">
@@ -91,9 +131,19 @@
 
                 <!-- Protractor -->
                 <Button x:Name="ProtractorButton"
-                        Style="{StaticResource ToolTileStyle}" Margin="0,0,0,4"
+                        Margin="0,0,0,4"
                         ToolTip="Protractor tool"
                         Command="{Binding ActivateProtractorCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ToolTileStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveTool}" Value="Protractor">
+                                    <Setter Property="Background"  Value="{StaticResource BrushAccentSoft}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="24" Height="24" Margin="0,0,10,0">
                             <Canvas Width="24" Height="24">
@@ -116,9 +166,19 @@
                 </Button>
 
                 <!-- Text -->
-                <Button Style="{StaticResource ToolTileStyle}" Margin="0,0,0,4"
+                <Button Margin="0,0,0,4"
                         ToolTip="Text tool"
                         Command="{Binding ActivateTextCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource ToolTileStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActiveTool}" Value="Text">
+                                    <Setter Property="Background"  Value="{StaticResource BrushAccentSoft}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                     <StackPanel Orientation="Horizontal">
                         <Viewbox Width="24" Height="24" Margin="0,0,10,0">
                             <Canvas Width="24" Height="24">
