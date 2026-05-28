@@ -16,6 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Geometry Core** - All geometry tools (Point, Line, Circle, Snap, Select, Nudge, Delete, Undo) — gap closure in progress (completed 2026-05-03)
 - [x] **Phase 3: Protractor** - 2-click protractor placement, controls, and Practice/Exam mode infrastructure (completed 2026-05-25)
 - [x] **Phase 4: Answer Layer** - Text boxes, MCQ selection, auto-save, and session resume (completed 2026-05-27)
+- [ ] **Phase 5: Angle Measurement** - Two-point protractor placement so students can measure pre-drawn angles on exam papers without drawing lines first
 
 ## Phase Details
 
@@ -103,6 +104,19 @@ Plans:
 - [x] 04-03-PLAN.md — Session persistence: ISessionService, SessionService (auto-save on ObjectsChanged), restore on PDF open, page-nav save (D-14)
 **UI hint**: yes
 
+### Phase 5: Angle Measurement
+**Goal**: Students can measure pre-drawn angles on exam papers by placing the protractor via two clicks (vertex + arm direction) — no drawn lines required
+**Depends on**: Phase 4
+**Requirements**: PROT-07
+**Success Criteria** (what must be TRUE):
+  1. User activates Protractor mode, clicks a point on the canvas (protractor centres at that point), clicks a second point (baseline aligns toward it) — protractor placed with no drawn lines involved
+  2. The two-point path coexists with the existing two-line path — clicking two existing lines still auto-places at their intersection as before
+  3. All existing right-rail protractor controls (rotate ±1°/±5°, flip, style, readout) work identically on a two-point-placed protractor
+**Plans**: 1 plan
+Plans:
+- [ ] 05-01-PLAN.md — Two-point protractor placement: ToolViewModel state machine extension, ghost preview vertex anchor, readout suppression for Guid.Empty protractors
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
@@ -114,3 +128,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 2. Geometry Core | 13/13 | Complete | 2026-05-25 |
 | 3. Protractor | 4/4 | Complete   | 2026-05-25 |
 | 4. Answer Layer | 3/3 | Complete   | 2026-05-27 |
+| 5. Angle Measurement | 0/1 | Planned | |
