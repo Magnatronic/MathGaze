@@ -83,7 +83,23 @@ public partial class MainViewModel : ObservableObject
     {
         _isFitPageMode = false;         // user has taken manual control of zoom
         var next = ZoomSteps.FirstOrDefault(z => z > ZoomFactor + 0.001);
-        if (next > 0) ZoomFactor = next;
+        if (next <= 0) return;
+
+        // Cap at the zoom where page width exactly fills the canvas width (no H-overflow)
+        if (IsPdfOpen && _pdfCanvasVm is not null)
+        {
+            var (widthPt, _) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
+            double dpiScale = _pdfCanvasVm.DpiScale;
+            int canvasW = _pdfCanvasVm.CanvasWidthPx;
+            if (canvasW > 0 && widthPt > 0)
+            {
+                double maxZoom = canvasW / (widthPt * dpiScale * 96.0 / 72.0);
+                next = Math.Min(next, maxZoom);
+            }
+        }
+
+        if (next > ZoomFactor + 0.001)
+            ZoomFactor = next;
     }
 
     [RelayCommand]
@@ -127,8 +143,10 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        // Compute zoom that makes page height == canvas height (at 96 DPI baseline)
-        double zoom = canvasHeightPx / (heightPt * 96.0 / 72.0);
+        double dpiScale = _pdfCanvasVm?.DpiScale ?? 1.0;
+        // Physical canvas px = heightPt * (96/72) * dpiScale * zoom
+        // Solve for zoom: zoom = canvasHeightPx / (heightPt * (96/72) * dpiScale)
+        double zoom = canvasHeightPx / (heightPt * (96.0 / 72.0) * dpiScale);
         // Clamp to valid range
         zoom = Math.Clamp(zoom, ZoomSteps[0], ZoomSteps[^1]);
         ZoomFactor = zoom;
@@ -248,7 +266,8 @@ public partial class MainViewModel : ObservableObject
     {
         if (!IsPdfOpen) return;
         var (_, heightPt) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
-        double pageHeightPx = heightPt * (ZoomFactor * 96.0 / 72.0);
+        double dpiScale = _pdfCanvasVm?.DpiScale ?? 1.0;
+        double pageHeightPx = heightPt * (ZoomFactor * dpiScale * 96.0 / 72.0);
         double canvasH = _pdfCanvasVm?.CanvasHeightPx ?? 0;
         double maxScroll = Math.Max(0, pageHeightPx - canvasH);
         ScrollOffsetY = Math.Min(ScrollOffsetY, maxScroll);
@@ -266,7 +285,8 @@ public partial class MainViewModel : ObservableObject
         {
             if (!IsPdfOpen) return 0;
             var (_, heightPt) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
-            double pageHeightPx = heightPt * (ZoomFactor * 96.0 / 72.0);
+            double dpiScale = _pdfCanvasVm?.DpiScale ?? 1.0;
+            double pageHeightPx = heightPt * (ZoomFactor * dpiScale * 96.0 / 72.0);
             double canvasH = _pdfCanvasVm?.CanvasHeightPx ?? 0;
             double maxScroll = Math.Max(0, pageHeightPx - canvasH);
             if (maxScroll <= 0) return 0;

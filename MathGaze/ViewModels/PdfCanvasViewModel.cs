@@ -88,6 +88,12 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
     /// <summary>Last-known canvas height in physical pixels. Used by MainViewModel for fit-page and scroll clamping.</summary>
     public int CanvasHeightPx => _canvasHeightPx;
 
+    /// <summary>Last-known DPI scale from VisualTreeHelper. Exposed so MainViewModel can use it for fit-page / scroll math.</summary>
+    public double DpiScale => _dpiScale;
+
+    /// <summary>Last-known canvas width in physical pixels. Exposed so MainViewModel can cap ZoomIn to page-width zoom.</summary>
+    public int CanvasWidthPx => _canvasWidthPx;
+
     /// <summary>StatusMessage from the active tool — exposed so PdfCanvas.xaml.cs can update the WPF status toast.</summary>
     public string ToolVmStatusMessage => _toolVm.StatusMessage;
 
