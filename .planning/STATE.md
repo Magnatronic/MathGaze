@@ -147,9 +147,10 @@ None yet.
 | 260525-vf7 | Fix two protractor angle bugs: flip check uses click point; flipped readout arc starts at -180° | 2026-05-25 | d1ae3eb | [260525-vf7-fix-two-protractor-angle-bugs-1-in-toolv](.planning/quick/260525-vf7-fix-two-protractor-angle-bugs-1-in-toolv/) |
 | 260526-9xc | Two protractor fixes: reject off-page intersection; same-line click places at nearest endpoint | 2026-05-26 | c2f2c60 | [260526-9xc-two-protractor-fixes-reject-off-page-int](.planning/quick/260526-9xc-two-protractor-fixes-reject-off-page-int/) |
 | 260528-sj5 | Highlight active tool button; remove Practice Mode angle readout | 2026-05-28 | 0dc4539 | [260528-sj5-highlight-active-tool-button-and-remove-](.planning/quick/260528-sj5-highlight-active-tool-button-and-remove-/) |
+| 260528-u67 | Fix DPI scaling: fit-page zoom, scroll clamping, ZoomIn cap, geometry sizes | 2026-05-28 | c9e5d13 | [260528-u67-fix-dpi-scaling-fit-page-scroll-and-geom](.planning/quick/260528-u67-fix-dpi-scaling-fit-page-scroll-and-geom/) |
 
 ## Session Continuity
 
 Last session: 2026-05-28
-Stopped at: Completed quick task 260528-sj5 — highlight active tool button, remove Practice Mode
+Stopped at: Completed quick task 260528-u67 — fix DPI scaling for fit-page, scroll, and geometry sizes
 Resume file: None
