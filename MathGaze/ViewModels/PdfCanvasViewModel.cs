@@ -213,7 +213,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         canvas.DrawBitmap(_pageBitmap, destRect);
 
         // Draw committed geometry objects (vector layer above PDF bitmap, below ghost preview)
-        _geometryLayer.Draw(canvas, _coordinateMapper, _dpiScale);
+        _geometryLayer.Draw(canvas, _coordinateMapper, _dpiScale * _mainVm.ZoomFactor);
 
         // Draw ghost preview (dashed line/circle between click 1 and click 2) — D-01/D-02
         DrawGhostPreview(canvas);
@@ -238,7 +238,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
         var anchorPx    = _coordinateMapper.PageToScreen(_toolVm.AnchorPt.Value.xPt, _toolVm.AnchorPt.Value.yPt);
         var ghostCursor = _toolVm.GhostCursorPx;
 
-        float ds = (float)_dpiScale;
+        float ds = (float)(_dpiScale * _mainVm.ZoomFactor);
 
         // Ghost dashed line/arc paint (D-01)
         using var ghostPaint = new SKPaint
@@ -364,7 +364,7 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
             return; // no anchor context — nothing to preview
         }
 
-        float dps = (float)_dpiScale;
+        float dps = (float)(_dpiScale * _mainVm.ZoomFactor);
 
         using var ghostArcPaint = new SKPaint
         {
