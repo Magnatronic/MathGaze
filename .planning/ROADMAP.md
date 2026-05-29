@@ -123,10 +123,10 @@ Plans:
 **Goal:** Student clicks "Export PDF" in the top bar; the app saves a 200 DPI image-based PDF alongside the source PDF with all geometry annotations baked in — ready for printing or submission with no file picker required.
 **Requirements**: EXAM-V2-02, DOC-CLEANUP
 **Depends on:** Phase 5
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 06-01-PLAN.md — PdfExportService (SKDocument 200 DPI multi-page render), DrawObjects overload, GetAllPages accessor, ExportPdfCommand, Export PDF top-bar button, immediate toast feedback
+- [x] 06-01-PLAN.md — PdfExportService (SKDocument 200 DPI multi-page render), DrawObjects overload, GetAllPages accessor, ExportPdfCommand, Export PDF top-bar button, immediate toast feedback
 - [ ] 06-02-PLAN.md — Documentation cleanup: REQUIREMENTS.md (SYS-04/SYS-05/PROT-06 removed, EXAM-V2-02 promoted), ROADMAP.md Phase 3/6 updates, 03-CONTEXT.md Practice/Exam decision annotations
 
 ## Progress
@@ -141,4 +141,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Protractor | 4/4 | Complete   | 2026-05-25 |
 | 4. Answer Layer | 3/3 | Complete   | 2026-05-27 |
 | 5. Angle Measurement | 1/1 | Complete | 2026-05-29 |
-| 6. PDF Export | 0/2 | In Progress | |
+| 6. PDF Export | 1/2 | In Progress|  |

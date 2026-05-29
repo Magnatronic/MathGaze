@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 6 context gathered
-last_updated: "2026-05-29T06:09:18.513Z"
-last_activity: 2026-05-28
+stopped_at: Completed 06-01-PLAN.md — awaiting human verify checkpoint (Task 3)
+last_updated: "2026-05-29T06:48:59.331Z"
+last_activity: 2026-05-29
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 26
-  completed_plans: 26
-  percent: 100
+  total_plans: 28
+  completed_plans: 27
+  percent: 96
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-29)
 
 **Core value:** A student can complete a GCSE geometry question using only their eyes, without the app reducing the cognitive challenge of the maths itself.
-**Current focus:** Phase 05 — angle-measurement
+**Current focus:** Phase 06 — pdf-export-save-annotated-exam-paper-with-geometry-overlay-a
 
 ## Current Position
 
-Phase: 05
-Plan: Not started
-Status: Executing Phase 05
-Last activity: 2026-05-28
+Phase: 06 (pdf-export-save-annotated-exam-paper-with-geometry-overlay-a) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-05-29
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-answer-layer P01 | 3 | 1 tasks | 4 files |
 | Phase 04-answer-layer P02 | 5 | 2 tasks | 4 files |
 | Phase 04-answer-layer P03 | 8 | 2 tasks | 4 files |
+| Phase 06 P01 | 25 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,9 @@ Recent decisions affecting current work:
 - [Phase 04-answer-layer]: Func<int> lambda injected into SessionService breaks circular DI dependency with MainViewModel — lazy resolution via App.xaml.cs factory
 - [Phase 04-answer-layer]: pageOverride parameter on TrySaveAsync lets OnCurrentPageChanged record the old page before Reset so sidecar is not written with new page + empty objects
 - [Phase 04-answer-layer]: ANS-01/02/03 deferred to v2 per D-08 — no AnswerObject, AnswerMode, or MCQ code in Phase 4
+- [Phase 06]: ToolViewModel injected into MainViewModel for StatusMessage access in ExportPdfAsync (not via PdfCanvasViewModel forwarding)
+- [Phase 06]: SKDocument.CreatePdf used for image-based PDF export at 200 DPI — no new NuGet dependency
+- [Phase 06]: DrawObjects saves/restores _lastScale and _currentDpiScaleF to prevent export scale corrupting screen render
 
 ### Roadmap Evolution
 
@@ -156,6 +160,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-29T06:09:18.508Z
-Stopped at: Phase 6 context gathered
-Resume file: .planning/phases/06-pdf-export-save-annotated-exam-paper-with-geometry-overlay-a/06-CONTEXT.md
+Last session: 2026-05-29T06:48:59.327Z
+Stopped at: Completed 06-01-PLAN.md — awaiting human verify checkpoint (Task 3)
+Resume file: None
