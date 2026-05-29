@@ -126,6 +126,10 @@ Recent decisions affecting current work:
 - [Phase 04-answer-layer]: pageOverride parameter on TrySaveAsync lets OnCurrentPageChanged record the old page before Reset so sidecar is not written with new page + empty objects
 - [Phase 04-answer-layer]: ANS-01/02/03 deferred to v2 per D-08 — no AnswerObject, AnswerMode, or MCQ code in Phase 4
 
+### Roadmap Evolution
+
+- Phase 6 added: PDF Export — save annotated exam paper with geometry overlay as PDF for printing and submission
+
 ### Pending Todos
 
 None yet.
