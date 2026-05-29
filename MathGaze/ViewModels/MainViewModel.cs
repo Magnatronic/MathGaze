@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MathGaze.Services;
 using System.IO;
+using System.Linq;
 
 namespace MathGaze.ViewModels;
 
@@ -18,6 +19,8 @@ public partial class MainViewModel : ObservableObject
     private readonly IFileDialogService _fileDialogService;
     private readonly IGeometryService   _geometryService;
     private readonly ISessionService    _sessionService;
+    private readonly IExportService     _exportService;
+    private readonly ToolViewModel      _toolVm;
     private PdfCanvasViewModel?         _pdfCanvasVm;
 
     // Tracks the file path of the currently open PDF so page-nav save (D-14) and
@@ -38,12 +41,16 @@ public partial class MainViewModel : ObservableObject
         IPdfService pdfService,
         IFileDialogService fileDialogService,
         IGeometryService geometryService,
-        ISessionService sessionService)
+        ISessionService sessionService,
+        IExportService exportService,
+        ToolViewModel toolViewModel)
     {
         _pdfService        = pdfService;
         _fileDialogService = fileDialogService;
         _geometryService   = geometryService;
         _sessionService    = sessionService;
+        _exportService     = exportService;
+        _toolVm            = toolViewModel;
     }
 
     /// <summary>
@@ -58,6 +65,7 @@ public partial class MainViewModel : ObservableObject
     // ── File state ──────────────────────────────────────────────────────────────
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CloseFileCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ExportPdfCommand))]
     private bool _isPdfOpen;
 
     [ObservableProperty]
@@ -387,4 +395,24 @@ public partial class MainViewModel : ObservableObject
         _pdfCanvasVm?.ClearCanvas();
     }
     private bool CanCloseFile() => IsPdfOpen;
+
+    // ── Export command ──────────────────────────────────────────────────────────
+    [RelayCommand(CanExecute = nameof(CanExportPdf))]
+    private async Task ExportPdfAsync()
+    {
+        if (_currentPdfPath is null) return;
+        // Flush current page's in-memory objects into session store before export
+        _sessionService.SyncPage(CurrentPage, _geometryService.Objects.ToList());
+        string outputPath = Services.PdfExportService.BuildAnnotatedPath(_currentPdfPath);
+        bool ok = await _exportService.ExportAsync(_currentPdfPath, outputPath).ConfigureAwait(false);
+        // Show toast immediately (not on next MouseMove) via ToastRequested event
+        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+        {
+            _toolVm.StatusMessage = ok
+                ? $"Saved: {Path.GetFileName(outputPath)}"
+                : "Export failed — check folder permissions";
+            _pdfCanvasVm?.RequestToastUpdate();
+        });
+    }
+    private bool CanExportPdf() => IsPdfOpen;
 }

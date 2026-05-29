@@ -42,6 +42,13 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
     /// </summary>
     public event EventHandler? InvalidationRequested;
 
+    /// <summary>
+    /// Raised when an immediate toast must be shown without waiting for the next MouseMove.
+    /// PdfCanvas.xaml.cs subscribes and calls UpdateStatusToast directly.
+    /// Used by MainViewModel.ExportPdfAsync to show export success/failure immediately.
+    /// </summary>
+    public event EventHandler? ToastRequested;
+
     public PdfCanvasViewModel(
         IPdfService pdfService,
         MainViewModel mainViewModel,
@@ -96,6 +103,13 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
 
     /// <summary>StatusMessage from the active tool — exposed so PdfCanvas.xaml.cs can update the WPF status toast.</summary>
     public string ToolVmStatusMessage => _toolVm.StatusMessage;
+
+    /// <summary>
+    /// Called by MainViewModel after setting ToolVm.StatusMessage to force an immediate
+    /// toast display without waiting for the next MouseMove event.
+    /// </summary>
+    public void RequestToastUpdate()
+        => ToastRequested?.Invoke(this, EventArgs.Empty);
 
     /// <summary>
     /// D-11: wire real DPI from VisualTreeHelper.GetDpi(this).PixelsPerDip.

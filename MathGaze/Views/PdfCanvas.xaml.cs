@@ -50,19 +50,29 @@ public partial class PdfCanvas : UserControl
     {
         // Unsubscribe from old ViewModel
         if (_vm is not null)
+        {
             _vm.InvalidationRequested -= OnInvalidationRequested;
+            _vm.ToastRequested        -= OnToastRequested;
+        }
 
         _vm = newVm;
 
         if (_vm is null) return;
 
         _vm.InvalidationRequested += OnInvalidationRequested;
+        _vm.ToastRequested        += OnToastRequested;
 
         // Report canvas size to the new ViewModel if the UserControl is already laid out.
         // SizeChanged fires during layout (before Loaded) when _vm is still null, so we
         // must push the size here once the ViewModel is available.
         if (ActualWidth > 0 && ActualHeight > 0)
             ReportCanvasSize();
+    }
+
+    private void OnToastRequested(object? sender, EventArgs e)
+    {
+        if (_vm is null) return;
+        UpdateStatusToast(_vm.ToolVmStatusMessage);
     }
 
     private void OnCanvasSizeChanged(object? sender, SizeChangedEventArgs e)

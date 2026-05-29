@@ -24,6 +24,8 @@ public partial class App : Application
                 services.AddSingleton<IGeometryService, GeometryService>();
                 services.AddSingleton<UndoService>();  // UndoService is internal to GeometryService but registered for future injection if needed
 
+                services.AddSingleton<IExportService, PdfExportService>();
+
                 // Session persistence (SYS-02, SYS-03)
                 // Func<int> breaks the circular dependency: SessionService needs CurrentPage from
                 // MainViewModel, but MainViewModel depends on ISessionService. The lambda resolves

@@ -79,6 +79,32 @@
                 </StackPanel>
             </Border>
 
+            <!-- 3. Export PDF button — D-07: top bar, ≥56×56px gaze floor -->
+            <Border DockPanel.Dock="Left" VerticalAlignment="Center"
+                    Background="{StaticResource BrushSurface2}"
+                    BorderBrush="{StaticResource BrushBorder}" BorderThickness="1"
+                    CornerRadius="8" Margin="0,0,10,0">
+                <Button Width="56" Height="56"
+                        Style="{StaticResource IconButtonStyle}"
+                        ToolTip="Export annotated PDF"
+                        Command="{Binding ExportPdfCommand}">
+                    <!-- PDF + down-arrow icon: document outline with a downward arrow -->
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Viewbox Width="20" Height="20" Margin="0,0,0,2">
+                            <Canvas Width="24" Height="24">
+                                <!-- Arrow down -->
+                                <Path Stroke="{StaticResource BrushInk2}" StrokeThickness="1.8"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                      Data="M12 3v12M7 11l5 5 5-5M5 19h14"/>
+                            </Canvas>
+                        </Viewbox>
+                        <TextBlock Text="PDF" FontSize="9" FontWeight="SemiBold"
+                                   Foreground="{StaticResource BrushInk2}"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Border>
+
             <!-- Settings button (right-docked) -->
             <Button DockPanel.Dock="Right" Width="40" Height="40"
                     Style="{StaticResource IconButtonStyle}"
