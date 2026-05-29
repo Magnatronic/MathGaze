@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Protractor** - 2-click protractor placement, controls, and Practice/Exam mode infrastructure (completed 2026-05-25)
 - [x] **Phase 4: Answer Layer** - Text boxes, MCQ selection, auto-save, and session resume (completed 2026-05-27)
 - [ ] **Phase 5: Angle Measurement** - Two-point protractor placement so students can measure pre-drawn angles on exam papers without drawing lines first
+- [ ] **Phase 6: PDF Export** - Save annotated exam paper with geometry overlay as PDF for printing and submission
 
 ## Phase Details
 
@@ -70,14 +71,14 @@ Plans:
 ### Phase 3: Protractor
 **Goal**: Users can measure angles on the PDF using a protractor driven entirely by two clicks on existing lines, with measurement visibility controlled by Practice/Exam mode
 **Depends on**: Phase 2
-**Requirements**: PROT-01, PROT-02, PROT-03, PROT-04, PROT-05, PROT-06, SYS-04, SYS-05
+**Requirements**: PROT-01, PROT-02, PROT-03, PROT-04, PROT-05, ~~PROT-06~~ (removed), ~~SYS-04~~ (removed), ~~SYS-05~~ (removed)
 **Success Criteria** (what must be TRUE):
   1. User activates Protractor mode, clicks two lines, and the protractor appears at their intersection with its baseline aligned to the first line — no separate placement step
   2. User can rotate the placed protractor ±1° and ±5° using right-rail buttons
   3. User can flip the protractor between inner scale (0°→180°) and outer scale (180°→0°)
   4. User can lock the protractor to prevent accidental movement
   5. User can switch between 180° classic style and 360° full-circle style (required for bearings)
-  6. In Practice Mode the protractor shows a live angle readout; toggling to Exam Mode hides the numeric value immediately; the mode chip is always visible in the top bar
+  6. ~~In Practice Mode the protractor shows a live angle readout; toggling to Exam Mode hides the numeric value immediately; the mode chip is always visible in the top bar~~ *(Practice/Exam mode removed — quick task 260528-sj5, commit 0dc4539. Protractor renders arc and scale marks only.)*
 **Plans**: 4 plans
 Plans:
 - [x] 03-01-PLAN.md — ProtractorObject model (D-06 fields, DefaultRadiusPt=108) + 3 commands (Rotate/Flip/Style) + GeometryMath.TryLineIntersectPt
@@ -117,10 +118,21 @@ Plans:
 - [x] 05-01-PLAN.md — Two-point protractor placement: ToolViewModel state machine extension, ghost preview vertex anchor, readout suppression for Guid.Empty protractors
 **UI hint**: yes
 
+### Phase 6: PDF Export — save annotated exam paper with geometry overlay as PDF for printing and submission
+
+**Goal:** Student clicks "Export PDF" in the top bar; the app saves a 200 DPI image-based PDF alongside the source PDF with all geometry annotations baked in — ready for printing or submission with no file picker required.
+**Requirements**: EXAM-V2-02, DOC-CLEANUP
+**Depends on:** Phase 5
+**Plans:** 2 plans
+
+Plans:
+- [ ] 06-01-PLAN.md — PdfExportService (SKDocument 200 DPI multi-page render), DrawObjects overload, GetAllPages accessor, ExportPdfCommand, Export PDF top-bar button, immediate toast feedback
+- [ ] 06-02-PLAN.md — Documentation cleanup: REQUIREMENTS.md (SYS-04/SYS-05/PROT-06 removed, EXAM-V2-02 promoted), ROADMAP.md Phase 3/6 updates, 03-CONTEXT.md Practice/Exam decision annotations
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -128,14 +140,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 2. Geometry Core | 13/13 | Complete | 2026-05-25 |
 | 3. Protractor | 4/4 | Complete   | 2026-05-25 |
 | 4. Answer Layer | 3/3 | Complete   | 2026-05-27 |
-| 5. Angle Measurement | 0/1 | Planned | |
-
-### Phase 6: PDF Export — save annotated exam paper with geometry overlay as PDF for printing and submission
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 5
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd-plan-phase 6 to break down)
+| 5. Angle Measurement | 1/1 | Complete | 2026-05-29 |
+| 6. PDF Export | 0/2 | In Progress | |
