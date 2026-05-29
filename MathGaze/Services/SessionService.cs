@@ -13,7 +13,8 @@ namespace MathGaze.Services;
 public sealed class SidecarModel
 {
     public int CurrentPage { get; set; }
-    public List<GeometryObject> Objects { get; set; } = new();
+    /// <summary>All pages keyed by 1-based page number. Replaces the old flat Objects list.</summary>
+    public Dictionary<int, List<GeometryObject>> Pages { get; set; } = new();
 }
 
 /// <summary>
@@ -36,6 +37,11 @@ public sealed class SessionService : ISessionService, IDisposable
     private string? _pdfPath;
     private bool _disposed;
 
+    // Full per-page store keyed by 1-based page number.
+    // SyncPage() populates it from MainViewModel before each Reset().
+    // OnObjectsChanged() updates the active page's entry on every geometry change.
+    private readonly Dictionary<int, List<GeometryObject>> _allPages = new();
+
     // Compact JSON — no WriteIndented (sidecar files are small, indentation wastes bytes)
     private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = false };
 
@@ -47,7 +53,14 @@ public sealed class SessionService : ISessionService, IDisposable
         _geometryService.ObjectsChanged += OnObjectsChanged;
     }
 
-    public void SetPdfPath(string? pdfPath) => _pdfPath = pdfPath;
+    public void SetPdfPath(string? pdfPath)
+    {
+        _pdfPath = pdfPath;
+        if (pdfPath is null) _allPages.Clear();
+    }
+
+    public void SyncPage(int pageNumber, IList<GeometryObject> objects)
+        => _allPages[pageNumber] = objects.ToList();
 
     // ── Save ────────────────────────────────────────────────────────────────────
 
@@ -58,33 +71,28 @@ public sealed class SessionService : ISessionService, IDisposable
     private async void OnObjectsChanged(object? sender, EventArgs e)
     {
         if (_pdfPath is null) return;
+        // Update the active page's entry before saving so the sidecar always reflects current state.
+        _allPages[_getCurrentPage()] = _geometryService.Objects.ToList();
         await TrySaveAsync(_pdfPath).ConfigureAwait(false);
     }
 
-    public async Task TrySaveAsync(string pdfPath, int? pageOverride = null)
+    public async Task TrySaveAsync(string pdfPath)
     {
         string sidecarPath = pdfPath + ".mathgaze.json";
         try
         {
-            // Snapshot objects + page atomically (list copy avoids mid-save mutation)
             var model = new SidecarModel
             {
-                CurrentPage = pageOverride ?? _getCurrentPage(),
-                Objects     = _geometryService.Objects.ToList(),
+                CurrentPage = _getCurrentPage(),
+                Pages       = new Dictionary<int, List<GeometryObject>>(_allPages),
             };
-
-            // Clear IsSelected before saving — selection is transient UI state (RESEARCH.md Anti-Patterns)
-            foreach (var obj in model.Objects)
-                obj.IsSelected = false;
 
             string json = JsonSerializer.Serialize(model, _jsonOptions);
             await File.WriteAllTextAsync(sidecarPath, json).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            // Pitfall 6: school machines may have read-only PDF directories.
-            // Swallow silently — no crash, no error dialog.
-            // Debug builds may log here if a logger is added in future.
+            // School machines may have read-only PDF directories — swallow silently.
         }
     }
 
@@ -105,6 +113,13 @@ public sealed class SessionService : ISessionService, IDisposable
             return null;
         }
     }
+
+    // ── Export ──────────────────────────────────────────────────────────────────
+
+    public IReadOnlyDictionary<int, IReadOnlyList<GeometryObject>> GetAllPages()
+        => _allPages.ToDictionary(
+            kvp => kvp.Key,
+            kvp => (IReadOnlyList<GeometryObject>)kvp.Value.AsReadOnly());
 
     // ── Dispose ─────────────────────────────────────────────────────────────────
 

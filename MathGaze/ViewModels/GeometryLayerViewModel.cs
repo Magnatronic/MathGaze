@@ -149,6 +149,11 @@ public sealed class GeometryLayerViewModel : IDisposable
     // _lastScale = 0 forces a first-run update of all paint/font sizes.
     private double _lastScale = 0.0;
 
+    // Tracks the dpiScale used in the most recent live Draw() call.
+    // DrawObjects() saves/restores _lastScale and _currentDpiScaleF around the export draw so
+    // the next live Draw() correctly reapplies the screen scale (not the export scale).
+    private double _lastScreenDpiScale = 0.0;
+
     // Cached DPI scale as float for use inside DrawObject / DrawSubPointDot / DrawTextLabel / DrawProtractor.
     // Set at the top of Draw() so all private helpers read a consistent value for this frame.
     private float _currentDpiScaleF = 1.0f;
@@ -165,6 +170,9 @@ public sealed class GeometryLayerViewModel : IDisposable
     public void Draw(SKCanvas canvas, CoordinateMapper? mapper, double dpiScale = 1.0)
     {
         if (mapper is null) return;
+
+        // Track screen dpiScale so DrawObjects can restore it after export.
+        _lastScreenDpiScale = dpiScale;
 
         // Update paint/font sizes when combined scale changes (first call forces update via _lastScale=0).
         if (Math.Abs(dpiScale - _lastScale) > 0.001)
@@ -201,6 +209,49 @@ public sealed class GeometryLayerViewModel : IDisposable
             DrawObject(canvas, obj, mapper, selected: true);
             DrawSubPointTargets(canvas, obj, mapper);
         }
+    }
+
+    /// <summary>
+    /// Export overload: draws an explicit object list (not _geometryService.Objects) at the given
+    /// export scale. All objects are drawn in unselected style — selection chrome is UI-only.
+    /// Saves and restores _lastScale and _currentDpiScaleF so the next live Draw() correctly
+    /// reapplies the screen dpiScale.
+    /// </summary>
+    public void DrawObjects(
+        SKCanvas canvas,
+        CoordinateMapper mapper,
+        IReadOnlyList<GeometryObject> objects,
+        double dpiScale = 1.0)
+    {
+        // Save screen-render state
+        double savedLastScale = _lastScale;
+        float  savedDpiScaleF = _currentDpiScaleF;
+
+        // Force paint update for export scale
+        _lastScale = 0;  // reset so the update block fires
+        if (Math.Abs(dpiScale - _lastScale) > 0.001)
+        {
+            _lastScale = dpiScale;
+            float s = (float)dpiScale;
+            _normalPaint.StrokeWidth             = 2.5f * s;
+            _selectedPaint.StrokeWidth           = 2.5f * s;
+            _subRingActivePaint.StrokeWidth      = 2.5f * s;
+            _tickMajorPaint.StrokeWidth          = 1.5f * s;
+            _tickMinorPaint.StrokeWidth          = 1.0f * s;
+            _textSelectedBorderPaint.StrokeWidth = 1.5f * s;
+            _labelFont.Size      = 16f * s;
+            _innerLabelFont.Size = 11f * s;
+            _textFont.Size       = 14f * s;
+        }
+        _currentDpiScaleF = (float)dpiScale;
+
+        // Draw all objects as unselected (no selection chrome for export)
+        foreach (var obj in objects)
+            DrawObject(canvas, obj, mapper, selected: false);
+
+        // Restore screen-render state so next live Draw() reapplies screen scale
+        _lastScale        = savedLastScale;
+        _currentDpiScaleF = savedDpiScaleF;
     }
 
     private void DrawObject(SKCanvas canvas, GeometryObject obj, CoordinateMapper mapper, bool selected)

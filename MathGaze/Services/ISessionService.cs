@@ -12,16 +12,27 @@ public interface ISessionService
     void SetPdfPath(string? pdfPath);
 
     /// <summary>
-    /// Save all geometry objects + current page number to the sidecar.
-    /// Silently swallows IOException/UnauthorizedAccessException (school machine read-only dir).
-    /// Optional pageOverride: pass the page number you want recorded (used when navigating away
-    /// from a page — CurrentPage has already moved to the new page but we want to record the old one).
+    /// Record the objects for a specific page into the in-memory all-pages store.
+    /// Call before navigating away from a page (before GeometryService.Reset()) so the
+    /// departing page's objects are captured before geometry is cleared.
     /// </summary>
-    Task TrySaveAsync(string pdfPath, int? pageOverride = null);
+    void SyncPage(int pageNumber, IList<Core.Geometry.GeometryObject> objects);
+
+    /// <summary>
+    /// Save all pages + current page number to the sidecar.
+    /// Silently swallows IOException/UnauthorizedAccessException (school machine read-only dir).
+    /// </summary>
+    Task TrySaveAsync(string pdfPath);
 
     /// <summary>
     /// Load sidecar for pdfPath. Returns null if sidecar missing or corrupt (open clean).
-    /// Caller is responsible for calling AddObject + ObjectsChanged_ForceRaise.
+    /// Caller is responsible for restoring objects and populating _pageObjectCache.
     /// </summary>
     Task<SidecarModel?> TryLoadAsync(string pdfPath);
+
+    /// <summary>
+    /// Returns a snapshot of all pages' geometry objects, keyed by 1-based page number.
+    /// Used by PdfExportService to draw annotations across all pages.
+    /// </summary>
+    IReadOnlyDictionary<int, IReadOnlyList<Core.Geometry.GeometryObject>> GetAllPages();
 }
