@@ -249,8 +249,10 @@ public sealed class GeometryLayerViewModel : IDisposable
         foreach (var obj in objects)
             DrawObject(canvas, obj, mapper, selected: false);
 
-        // Restore screen-render state so next live Draw() reapplies screen scale
-        _lastScale        = savedLastScale;
+        // Restore screen-render state. Set _lastScale=0 (not savedLastScale) so the guard
+        // in Draw() always fires on the next frame and re-applies the screen DPI scale to all
+        // paint objects — which are currently at export scale and must be corrected.
+        _lastScale        = 0;
         _currentDpiScaleF = savedDpiScaleF;
     }
 
