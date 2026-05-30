@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-05-30T09:17:46.781Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-05-30T09:23:33.716Z"
 last_activity: 2026-05-30
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 32
-  completed_plans: 29
-  percent: 91
+  completed_plans: 30
+  percent: 94
 ---
 
 # Project State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-29)
 ## Current Position
 
 Phase: 07 (ui-improvements) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-05-30
 
@@ -73,6 +73,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 06 P01 | 25 | 2 tasks | 10 files |
 | Phase 06 P02 | 10 | 2 tasks | 2 files |
 | Phase 07-ui-improvements P01 | 15 | 2 tasks | 6 files |
+| Phase 07-ui-improvements P02 | 20 | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,7 @@ Recent decisions affecting current work:
 - [Phase 06]: DrawObjects saves/restores _lastScale and _currentDpiScaleF to prevent export scale corrupting screen render
 - [Phase 06]: SYS-04/SYS-05/PROT-06 marked Removed in REQUIREMENTS.md referencing commit 0dc4539; EXAM-V2-02 promoted to Phase 6 Complete; DOC-CLEANUP added
 - [Phase 07-ui-improvements]: ToolTileStyle style-level setters (BorderBrush, Foreground) kept as StaticResource — only ControlTemplate trigger brush refs converted to DynamicResource for theme swap
+- [Phase 07-ui-improvements]: Used UserPreferences.cs (JSON in %APPDATA%\MathGaze\) instead of Properties.Settings.Default — ApplicationSettingsBase requires System.Configuration.ConfigurationManager NuGet not present in this .NET 9 SDK-style project
 
 ### Roadmap Evolution
 
@@ -166,6 +168,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-30T09:17:46.778Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-05-30T09:23:33.713Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
