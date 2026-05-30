@@ -12,6 +12,15 @@ namespace MathGaze.Core.Geometry;
 public abstract class GeometryObject
 {
     public Guid Id { get; init; } = Guid.NewGuid();
+
+    /// <summary>
+    /// Transient UI state — never persisted to the sidecar.
+    /// [JsonIgnore] prevents IsSelected from being written to or read from the JSON sidecar,
+    /// which means TrySaveAsync does NOT need to clear it on the live objects before serialising.
+    /// Without this attribute, the save loop mutated the same object references that live in
+    /// GeometryService._objects, silently clearing selection on every ObjectsChanged event.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool IsSelected { get; set; }
 
     public abstract void Draw(SKCanvas canvas, CoordinateMapper mapper, SKPaint paint);
