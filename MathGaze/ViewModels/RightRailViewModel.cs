@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MathGaze.Core.Commands;
 using MathGaze.Core.Geometry;
 using MathGaze.Services;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace MathGaze.ViewModels;
@@ -35,6 +36,15 @@ public sealed partial class RightRailViewModel : ObservableObject
     [ObservableProperty] private bool   _hasDrawingInProgress;
     [ObservableProperty] private bool   _hasSelectionPanel;
     [ObservableProperty] private string _drawingInstructionText = string.Empty;
+
+    // ── Object list panel state (D-18) ────────────────────────────────────────
+    [ObservableProperty] private bool _hasObjectList;
+
+    /// <summary>
+    /// Flat list of all objects on current page, rebuilt on every ObjectsChanged.
+    /// One item per geometry object, ordered by placement (oldest first = document order).
+    /// </summary>
+    public ObservableCollection<ObjectListItem> ObjectList { get; } = new();
 
     /// <summary>
     /// Exposes ToolViewModel.CancelDrawCommand so the DrawingGuidePanel Cancel button
@@ -69,6 +79,9 @@ public sealed partial class RightRailViewModel : ObservableObject
     {
         HasDrawingInProgress = _toolVm.HasDrawingInProgress;
         HasSelectionPanel    = HasSelection && !HasDrawingInProgress;
+        HasObjectList        = _toolVm.ActiveTool == ToolMode.Select
+                            && !HasSelection
+                            && !HasDrawingInProgress;
         DrawingInstructionText = (_toolVm.ActiveTool, _toolVm.DrawState) switch
         {
             (ToolMode.Line,       DrawState.AnchorPlaced) => "Line in progress\nClick 2nd point",
@@ -133,7 +146,40 @@ public sealed partial class RightRailViewModel : ObservableObject
             IsStyleFull    = false;
         }
 
-        // Sync drawing state after selection changes
+        // Rebuild object list (D-18, D-20)
+        var pageObjects = _geometryService.Objects;
+        ObjectList.Clear();
+        int lineCount = 0, circleCount = 0, pointCount = 0, protCount = 0, textCount = 0;
+        foreach (var geoObj in pageObjects)
+        {
+            string typeName = geoObj switch
+            {
+                PointObject      => "Point",
+                LineObject       => "Line",
+                CircleObject     => "Circle",
+                ProtractorObject => "Protractor",
+                TextObject       => "Text",
+                _                => "Object",
+            };
+            int idx = geoObj switch
+            {
+                PointObject      => ++pointCount,
+                LineObject       => ++lineCount,
+                CircleObject     => ++circleCount,
+                ProtractorObject => ++protCount,
+                TextObject       => ++textCount,
+                _                => 0,
+            };
+            var capturedId = geoObj.Id;  // Capture Id in local for RelayCommand lambda closure (D-19)
+            ObjectList.Add(new ObjectListItem
+            {
+                DisplayName   = $"{typeName} {idx}",
+                TypeLabel     = typeName,
+                SelectCommand = new RelayCommand(() => _geometryService.SetSelected(capturedId)),
+            });
+        }
+
+        // Sync drawing state after selection changes (also recomputes HasObjectList)
         UpdateDrawingState();
     }
 
@@ -283,4 +329,15 @@ public sealed partial class RightRailViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanRedoExec))]
     private void Redo() => _geometryService.Redo();
     private bool CanRedoExec() => _geometryService.CanRedo;
+}
+
+/// <summary>
+/// Display record for the object list panel (D-18). One item per geometry object.
+/// SelectCommand selects that object — equivalent to clicking it on canvas.
+/// </summary>
+public sealed class ObjectListItem
+{
+    public string        DisplayName   { get; init; } = string.Empty;
+    public string        TypeLabel     { get; init; } = string.Empty;
+    public IRelayCommand SelectCommand { get; init; } = null!;
 }

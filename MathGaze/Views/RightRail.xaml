@@ -62,32 +62,83 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── NOTHING SELECTED (shown when HasDrawingInProgress=false AND HasSelection=false) ── -->
-                <Grid Visibility="{Binding HasSelection, Converter={StaticResource BoolToInverseVisibilityConverter}}">
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding HasDrawingInProgress}" Value="True">
+                <!-- ── OBJECT LIST PANEL (Select tool + nothing selected, D-18) ────────── -->
+                <Border Visibility="{Binding HasObjectList, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Margin="0,0,0,8">
+                    <StackPanel>
+                        <!-- Empty state: dashed box when no objects exist (D-20) -->
+                        <Grid>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
                                     <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-                    <Rectangle RadiusX="10" RadiusY="10"
-                               Stroke="{DynamicResource BrushBorder}" StrokeThickness="1.5"
-                               StrokeDashArray="4,4" Fill="Transparent"
-                               Height="80"/>
-                    <StackPanel Margin="10,14">
-                        <TextBlock Text="NOTHING SELECTED"
-                                   FontSize="9" FontWeight="Bold"
-                                   Foreground="{DynamicResource BrushInk3}"
-                                   Margin="0,0,0,4"/>
-                        <TextBlock Text="Click an object to select it."
-                                   FontSize="11" Foreground="{DynamicResource BrushInk2}"
-                                   TextWrapping="Wrap" LineHeight="15"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ObjectList.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                            <Rectangle RadiusX="10" RadiusY="10"
+                                       Stroke="{DynamicResource BrushBorder}" StrokeThickness="1.5"
+                                       StrokeDashArray="4,4" Fill="Transparent"
+                                       Height="80"/>
+                            <StackPanel Margin="10,14">
+                                <TextBlock Text="NO OBJECTS"
+                                           FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource BrushInk3}"
+                                           Margin="0,0,0,4"/>
+                                <TextBlock Text="No objects on this page."
+                                           FontSize="11" Foreground="{DynamicResource BrushInk2}"
+                                           TextWrapping="Wrap" LineHeight="15"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Object list (only when objects exist) -->
+                        <ItemsControl ItemsSource="{Binding ObjectList}">
+                            <ItemsControl.Style>
+                                <Style TargetType="ItemsControl">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ObjectList.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ItemsControl.Style>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Each row: >=44px tall, full-width tap target (D-18, D-19) -->
+                                    <Button Height="48"
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Style="{StaticResource RailButtonStyle}"
+                                            Command="{Binding SelectCommand}"
+                                            Margin="0,0,0,3"
+                                            ToolTip="{Binding DisplayName}">
+                                        <StackPanel Orientation="Horizontal" Margin="8,0">
+                                            <!-- Type label chip -->
+                                            <Border Background="{DynamicResource BrushAccentSoft}"
+                                                    BorderBrush="{DynamicResource BrushAccent}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="4"
+                                                    Padding="4,2"
+                                                    Margin="0,0,8,0">
+                                                <TextBlock Text="{Binding TypeLabel}"
+                                                           FontSize="9" FontWeight="Bold"
+                                                           Foreground="{DynamicResource BrushAccentInk}"/>
+                                            </Border>
+                                            <!-- Display name -->
+                                            <TextBlock Text="{Binding DisplayName}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource BrushInk}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
-                </Grid>
+                </Border>
 
                 <!-- ── SELECTION PANEL (shown when HasSelectionPanel = true) ──────── -->
                 <StackPanel Visibility="{Binding HasSelectionPanel, Converter={StaticResource BoolToVisibilityConverter}}">
