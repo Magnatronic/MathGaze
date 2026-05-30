@@ -29,7 +29,8 @@
 - [x] **PROT-03**: User can flip the protractor between inner scale (0°→180° left-to-right) and outer scale (180°→0°)
 - [ ] **PROT-04**: User can lock the protractor position to prevent accidental nudge
 - [x] **PROT-05**: User can choose between 180° classic style and 360° full-circle style (required for bearings questions)
-- [x] **PROT-06**: In Practice Mode, protractor shows a live angle readout; in Exam Mode, no numeric value is displayed
+- ~~[x] **PROT-06**: In Practice Mode, protractor shows a live angle readout; in Exam Mode, no numeric value is displayed~~ *(Removed — quick task 260528-sj5, commit 0dc4539. Protractor renders arc and scale marks only; no numeric readout.)*
+- [ ] **PROT-07**: User can place a protractor via two-point click (click vertex → click a point on one arm) without needing pre-drawn lines, for measuring angles already drawn on exam papers
 
 ### Text
 
@@ -47,8 +48,9 @@
 - [x] **SYS-01**: User can undo any action and redo previously undone actions
 - [x] **SYS-02**: Work is auto-saved to a JSON sidecar file alongside the PDF after every change (no manual save required)
 - [x] **SYS-03**: User can resume a previous session by opening the same PDF — all geometry objects restore
-- [x] **SYS-04**: User can toggle between Practice Mode (live angle readout shown) and Exam Mode (angle readout hidden) via a chip in the top bar
-- [x] **SYS-05**: The current mode indicator (Practice / Exam) is permanently visible in the top bar at all times
+- ~~[x] **SYS-04**: User can toggle between Practice Mode (live angle readout shown) and Exam Mode (angle readout hidden) via a chip in the top bar~~ *(Removed — quick task 260528-sj5, commit 0dc4539. Practice/Exam mode and live angle readout removed from codebase.)*
+- ~~[x] **SYS-05**: The current mode indicator (Practice / Exam) is permanently visible in the top bar at all times~~ *(Removed — quick task 260528-sj5, commit 0dc4539.)*
+- [x] **DOC-CLEANUP**: Documentation updated to reflect removal of Practice/Exam mode (SYS-04, SYS-05, PROT-06) and addition of PDF export (EXAM-V2-02) *(Phase 6)*
 
 ## v2 Requirements
 
@@ -74,7 +76,7 @@
 ### Exam Compliance
 
 - **EXAM-V2-01**: Full JCQ-compliant Exam Mode lockdown — verify against current AARA guidance before implementing
-- **EXAM-V2-02**: Export annotated PDF for submission
+- [x] **EXAM-V2-02**: Export annotated PDF for submission *(Delivered in Phase 6)*
 
 ### UX
 
@@ -126,14 +128,20 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SYS-01 | Phase 2 | Complete |
 | SYS-02 | Phase 4 | Complete |
 | SYS-03 | Phase 4 | Complete |
-| SYS-04 | Phase 3 | Complete |
-| SYS-05 | Phase 3 | Complete |
+| SYS-04 | Phase 3 | Removed (commit 0dc4539) |
+| SYS-05 | Phase 3 | Removed (commit 0dc4539) |
+| PROT-06 | Phase 3 | Removed (commit 0dc4539) |
+| PROT-07 | Phase 5 | Pending |
+| EXAM-V2-02 | Phase 6 | Complete |
+| DOC-CLEANUP | Phase 6 | Complete |
 
 **Coverage:**
-- v1 requirements: 27 total
-- Mapped to phases: 27
+- v1 requirements: 28 total (3 removed: SYS-04, SYS-05, PROT-06)
+- Mapped to phases: 28
 - Unmapped: 0 ✓
+- v2 requirements promoted to active: EXAM-V2-02 (Phase 6)
+- New requirements added: DOC-CLEANUP (Phase 6)
 
 ---
 *Requirements defined: 2026-04-29*
-*Last updated: 2026-05-27 — ANS-01/02/03 corrected to Deferred (v2) per D-08; Phase 4 complete*
+*Last updated: 2026-05-29 — SYS-04/SYS-05/PROT-06 marked Removed (commit 0dc4539); EXAM-V2-02 promoted to Phase 6 Complete; DOC-CLEANUP added Phase 6*
