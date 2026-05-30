@@ -94,49 +94,54 @@
                         </Grid>
 
                         <!-- Object list (only when objects exist) -->
-                        <ItemsControl ItemsSource="{Binding ObjectList}">
-                            <ItemsControl.Style>
-                                <Style TargetType="ItemsControl">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ObjectList.Count}" Value="0">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ItemsControl.Style>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <!-- Each row: >=44px tall, full-width tap target (D-18, D-19) -->
-                                    <Button Height="48"
-                                            HorizontalAlignment="Stretch"
-                                            HorizontalContentAlignment="Left"
-                                            Style="{StaticResource RailButtonStyle}"
-                                            Command="{Binding SelectCommand}"
-                                            Margin="0,0,0,3"
-                                            ToolTip="{Binding DisplayName}">
-                                        <StackPanel Orientation="Horizontal" Margin="8,0">
-                                            <!-- Type label chip -->
-                                            <Border Background="{DynamicResource BrushAccentSoft}"
-                                                    BorderBrush="{DynamicResource BrushAccent}"
-                                                    BorderThickness="1"
-                                                    CornerRadius="4"
-                                                    Padding="4,2"
-                                                    Margin="0,0,8,0">
-                                                <TextBlock Text="{Binding TypeLabel}"
-                                                           FontSize="9" FontWeight="Bold"
-                                                           Foreground="{DynamicResource BrushAccentInk}"/>
-                                            </Border>
-                                            <!-- Display name -->
-                                            <TextBlock Text="{Binding DisplayName}"
-                                                       FontSize="11"
-                                                       Foreground="{DynamicResource BrushInk}"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <ScrollViewer VerticalScrollBarVisibility="Hidden"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      MaxHeight="260"
+                                      CanContentScroll="False">
+                            <ItemsControl ItemsSource="{Binding ObjectList}">
+                                <ItemsControl.Style>
+                                    <Style TargetType="ItemsControl">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ObjectList.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ItemsControl.Style>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- Each row: >=44px tall, full-width tap target (D-18, D-19) -->
+                                        <Button Height="48"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Left"
+                                                Style="{StaticResource RailButtonStyle}"
+                                                Command="{Binding SelectCommand}"
+                                                Margin="0,0,0,3"
+                                                ToolTip="{Binding DisplayName}">
+                                            <StackPanel Orientation="Horizontal" Margin="8,0">
+                                                <!-- Type label chip -->
+                                                <Border Background="{DynamicResource BrushAccentSoft}"
+                                                        BorderBrush="{DynamicResource BrushAccent}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="4"
+                                                        Padding="4,2"
+                                                        Margin="0,0,8,0">
+                                                    <TextBlock Text="{Binding TypeLabel}"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource BrushAccentInk}"/>
+                                                </Border>
+                                                <!-- Display name -->
+                                                <TextBlock Text="{Binding DisplayName}"
+                                                           FontSize="11"
+                                                           Foreground="{DynamicResource BrushInk}"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
                     </StackPanel>
                 </Border>
 
