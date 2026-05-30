@@ -16,3 +16,7 @@ publish/
 # NuGet
 *.nupkg
 packages/
+
+# Test/sample PDF files and generated sidecar files — not source code
+*.pdf
+*.mathgaze.json

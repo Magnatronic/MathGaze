@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>MathGaze — Design Exploration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  html, body, #root { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="shared.jsx"></script>
+<script type="text/babel" src="direction-splitrails.jsx"></script>
+<script type="text/babel" src="additional-screens.jsx"></script>
+<script type="text/babel">
+/* ------------------------------------------------------------ */
+/*  Tweakable defaults (persisted via Tweaks toggle)             */
+/* ------------------------------------------------------------ */
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "theme": "dark",
+  "accent": "cobalt",
+  "density": "comfortable",
+  "mode": "exam",
+  "protractorStyle": "classic"
+}/*EDITMODE-END*/;
+
+/* ------------------------------------------------------------ */
+/*  Root app — design canvas with 4 directions + extra screens   */
+/* ------------------------------------------------------------ */
+const ART_W = 1200;
+const ART_H = 750;
+
+function DirectionLabel({ n, title, description }) {
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+        <div style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: 'rgba(60,50,40,0.5)', fontWeight: 600 }}>STATE {n}</div>
+        <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(40,30,20,0.9)', letterSpacing: -0.3 }}>{title}</div>
+      </div>
+      <div style={{ fontSize: 12, color: 'rgba(60,50,40,0.65)', marginTop: 4, maxWidth: ART_W, lineHeight: 1.5 }}>{description}</div>
+    </div>
+  );
+}
+
+function TweaksPanel({ state, setState, visible, onClose }) {
+  if (!visible) return null;
+  const Row = ({ label, children }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
+      <div style={{ fontSize: 10, letterSpacing: 1.2, textTransform: 'uppercase', fontWeight: 700, color: '#8a8e98' }}>{label}</div>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>{children}</div>
+    </div>
+  );
+  const Btn = ({ label, active, onClick, swatch }) => (
+    <button onClick={onClick} style={{
+      padding: '7px 12px', borderRadius: 7, fontSize: 12, fontWeight: 600,
+      background: active ? '#1a1d24' : '#fff',
+      color: active ? '#fff' : '#1a1d24',
+      border: `1.5px solid ${active ? '#1a1d24' : 'rgba(20,20,25,0.14)'}`,
+      cursor: 'pointer', fontFamily: 'inherit',
+      display: 'flex', alignItems: 'center', gap: 6,
+    }}>
+      {swatch && <div style={{ width: 12, height: 12, borderRadius: 3, background: swatch }}/>}
+      {label}
+    </button>
+  );
+  return (
+    <div style={{
+      position: 'fixed', bottom: 20, right: 20, width: 320,
+      background: '#fff', borderRadius: 12, padding: 16,
+      boxShadow: '0 12px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08)',
+      border: '1px solid rgba(20,20,25,0.08)',
+      zIndex: 1000, fontFamily: 'Inter, sans-serif',
+      maxHeight: '85vh', overflowY: 'auto',
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: -0.2 }}>Tweaks</div>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#8a8e98', padding: 4, display:'flex' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <Row label="Theme">
+        <Btn label="Light" active={state.theme==='light'} onClick={()=>setState({theme:'light'})}/>
+        <Btn label="Dark" active={state.theme==='dark'} onClick={()=>setState({theme:'dark'})}/>
+      </Row>
+      <Row label="Accent">
+        {Object.entries(ACCENTS).map(([k, v]) => (
+          <Btn key={k} label={v.name} swatch={`oklch(0.58 0.17 ${v.hue})`} active={state.accent===k} onClick={()=>setState({accent:k})}/>
+        ))}
+      </Row>
+      <Row label="Density">
+        <Btn label="Comfortable" active={state.density==='comfortable'} onClick={()=>setState({density:'comfortable'})}/>
+        <Btn label="Spacious" active={state.density==='spacious'} onClick={()=>setState({density:'spacious'})}/>
+        <Btn label="XL" active={state.density==='xl'} onClick={()=>setState({density:'xl'})}/>
+      </Row>
+      <Row label="Mode">
+        <Btn label="Exam" active={state.mode==='exam'} onClick={()=>setState({mode:'exam'})}/>
+        <Btn label="Practice" active={state.mode==='practice'} onClick={()=>setState({mode:'practice'})}/>
+      </Row>
+      <Row label="Protractor style">
+        <Btn label="Classic (180°)" active={state.protractorStyle==='classic'} onClick={()=>setState({protractorStyle:'classic'})}/>
+        <Btn label="Full (360°)" active={state.protractorStyle==='full'} onClick={()=>setState({protractorStyle:'full'})}/>
+        <Btn label="Minimal" active={state.protractorStyle==='minimal'} onClick={()=>setState({protractorStyle:'minimal'})}/>
+      </Row>
+      <div style={{ fontSize: 11, color: '#8a8e98', lineHeight: 1.5, marginTop: 8, paddingTop: 12, borderTop: '1px solid rgba(20,20,25,0.08)' }}>
+        Toggle this panel with the Tweaks button in the toolbar. Changes apply to all artboards below.
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [state, setStateRaw] = React.useState(TWEAK_DEFAULTS);
+  const [tweaksOpen, setTweaksOpen] = React.useState(false);
+
+  const setState = (patch) => {
+    setStateRaw(prev => {
+      const next = { ...prev, ...patch };
+      try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: patch }, '*'); } catch(e){}
+      return next;
+    });
+  };
+
+  React.useEffect(() => {
+    const handler = (e) => {
+      if (!e.data) return;
+      if (e.data.type === '__activate_edit_mode') setTweaksOpen(true);
+      if (e.data.type === '__deactivate_edit_mode') setTweaksOpen(false);
+    };
+    window.addEventListener('message', handler);
+    try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e){}
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const T = buildTokens(state);
+
+  const directions = [
+    {
+      title: 'Empty canvas — nothing selected',
+      desc: 'Default state. Left rail shows the seven tools; right rail offers contextual tips and undo/redo. The Protractor tool is in the rail — picking it switches the canvas to two-click placement mode.',
+      comp: <SplitRails T={T} mode={state.mode} protractorStyle={state.protractorStyle} selection="empty"/>,
+    },
+    {
+      title: 'Protractor tool active — first line picked, prompt for second',
+      desc: 'Workflow: pick Protractor in the left rail → click line 1 (BD here, highlighted in accent) → the canvas prompts for the second line. The right rail confirms what was picked and shows what comes next.',
+      comp: <SplitRails T={T} mode={state.mode} protractorStyle={state.protractorStyle} selection="oneLine"/>,
+    },
+    {
+      title: 'Protractor placed — auto-aligned, ready to refine',
+      desc: 'After the second line is clicked, the protractor lands on the intersection with its baseline along the first line. Right rail switches to protractor verbs: scale (180°/360°), nudge centre, rotate ±1°/±5°, flip, lock, remove.',
+      comp: <SplitRails T={T} mode={state.mode} protractorStyle={state.protractorStyle} selection="protractor"/>,
+    },
+  ];
+
+  const extraScreens = [
+    { label: 'Protractor placement · mid-flow (Protractor tool active)', node: <ProtractorPlacing T={T}/>, w: 720, h: 540 },
+    { label: 'Reflection · line + shape selected, Reflect verb pressed', node: <ReflectionDrawing T={T}/>, w: 720, h: 540 },
+    { label: 'Multiple-choice question · option B locked (MCQ pages render this way automatically)', node: <MCQScreen T={T}/>, w: 720, h: 540 },
+    { label: 'Undo history · Edit menu in the top bar', node: <UndoHistory T={T}/>, w: 720, h: 540 },
+    { label: 'Settings · cog icon in the top bar', node: <SettingsPanel T={T}/>, w: 720, h: 540 },
+    { label: 'First run · no PDF open yet', node: <EmptyState T={T}/>, w: 720, h: 540 },
+  ];
+
+  return (
+    <>
+      <DesignCanvas>
+        {/* Header */}
+        <div style={{ padding: '0 60px 40px', maxWidth: 1400 }}>
+          <div style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: 'rgba(60,50,40,0.5)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 6 }}>MathGaze · design exploration v1</div>
+          <div style={{ fontSize: 34, fontWeight: 700, letterSpacing: -0.8, color: 'rgba(30,20,10,0.92)', marginBottom: 10 }}>Split Rails — a protractor that places itself</div>
+          <div style={{ fontSize: 14, color: 'rgba(60,50,40,0.7)', lineHeight: 1.6, maxWidth: 860 }}>
+            The Protractor is a tool, but the student never has to drag it. Pick the Protractor tool, click line 1, click line 2 — the protractor lands on the intersection, baseline auto-aligned with line 1. From there the right rail offers nudge, rotate ±1°/±5°, scale 180°/360°, flip, and remove. Seven creation tools on the left; selection-aware verbs on the right.
+          </div>
+        </div>
+
+        <DCSection title="Split Rails · the protractor flow, end-to-end" subtitle="Three states of the same screen. The right rail rewrites itself based on what is selected; the left rail and top bar stay stable.">
+          {directions.map((d, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column' }}>
+              <DCArtboard width={ART_W} height={ART_H} label={null}>
+                <div style={{ position: 'relative', width: ART_W, height: ART_H }}>
+                  {d.comp}
+                </div>
+              </DCArtboard>
+              <div style={{ marginTop: 16, width: ART_W }}>
+                <DirectionLabel n={i+1} title={d.title} description={d.desc}/>
+              </div>
+            </div>
+          ))}
+        </DCSection>
+
+        <DCSection title="Key flows & states" subtitle="Supporting screens beyond the three protractor states above. Each panel is labelled with how the student gets there.">
+          {extraScreens.map((s, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column' }}>
+              <DCArtboard width={s.w} height={s.h}>
+                <div style={{ position: 'relative', width: s.w, height: s.h }}>
+                  {s.node}
+                </div>
+              </DCArtboard>
+              <div style={{ marginTop: 10, fontSize: 12, color: 'rgba(60,50,40,0.7)', fontWeight: 500 }}>{s.label}</div>
+            </div>
+          ))}
+        </DCSection>
+
+        <DCSection title="Tools reference · what each tool does, click-by-click" subtitle="The left rail has seven creation tools. Every tool follows the same rule: click-to-commit, never drag.">
+          <DCArtboard width={1400} height={520}>
+            <div style={{ padding: '32px 40px', fontFamily: 'Inter', fontSize: 13, color: '#1a1d24', lineHeight: 1.55, height: '100%', boxSizing: 'border-box' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr 1fr', gap: '16px 28px', alignItems: 'start' }}>
+                {/* Header row */}
+                <div style={{ fontSize: 10, fontFamily: '"JetBrains Mono"', letterSpacing: 1.2, textTransform: 'uppercase', color: '#8a8e98', borderBottom: '1px solid #e5e3dc', paddingBottom: 8 }}>Tool</div>
+                <div style={{ fontSize: 10, fontFamily: '"JetBrains Mono"', letterSpacing: 1.2, textTransform: 'uppercase', color: '#8a8e98', borderBottom: '1px solid #e5e3dc', paddingBottom: 8 }}>Click sequence</div>
+                <div style={{ fontSize: 10, fontFamily: '"JetBrains Mono"', letterSpacing: 1.2, textTransform: 'uppercase', color: '#8a8e98', borderBottom: '1px solid #e5e3dc', paddingBottom: 8 }}>What it produces</div>
+
+                {/* SELECT */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: '#1f2a44', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 3l7 16 2.5-7L21 10z"/></svg>
+                  </div>
+                  <div style={{ fontWeight: 600 }}>Select</div>
+                </div>
+                <div style={{ color: '#4a4e58' }}>Click any object on the page to select it. Click empty canvas to deselect. Hold-click (extended dwell) to multi-select.</div>
+                <div style={{ color: '#4a4e58' }}>Selection — drives the right rail, which rewrites itself with verbs for whatever is selected.</div>
+
+                {/* POINT */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, border: '1.5px solid #c9c5bc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.5"/></svg>
+                  </div>
+                  <div style={{ fontWeight: 600 }}>Point</div>
+                </div>
+                <div style={{ color: '#4a4e58' }}>One click on the canvas. Snaps to nearby vertex / line endpoint / line intersection if within snap radius.</div>
+                <div style={{ color: '#4a4e58' }}>A labelled point (auto-named A, B, C…). Used as a target for Line, anchor for Text.</div>
+
+                {/* LINE */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, border: '1.5px solid #c9c5bc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="19" x2="19" y2="5"/></svg>
+                  </div>
+                  <div style={{ fontWeight: 600 }}>Line</div>
+                </div>
+                <div style={{ color: '#4a4e58' }}>Two clicks: start point → end point. Both endpoints obey snap rules. Cancel mid-draw with Esc or Select tool.</div>
+                <div style={{ color: '#4a4e58' }}>A straight segment. Most common use: drawing a reflection line, or extending a side of a shape.</div>
+
+                {/* CIRCLE */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, border: '1.5px solid #c9c5bc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="7"/></svg>
+                  </div>
+                  <div style={{ fontWeight: 600 }}>Circle</div>
+                </div>
+                <div style={{ color: '#4a4e58' }}>Two clicks: centre point → radius point. Radius point snaps to existing geometry (great for "circle through X").</div>
+                <div style={{ color: '#4a4e58' }}>A circle. Right-rail verbs include scale (±1px / ±5px) and convert-to-arc.</div>
+
+                {/* PROTRACTOR */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, border: '1.5px solid #c9c5bc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 16a9 9 0 0 1 18 0"/><path d="M3 16h18"/></svg>
+                  </div>
+                  <div style={{ fontWeight: 600 }}>Protractor</div>
+                </div>
+                <div style={{ color: '#4a4e58' }}>Two clicks: line 1 (defines the baseline / 0° ray) → line 2 (defines the other arm). The protractor lands on the lines' intersection automatically. If the lines don't intersect, an extension is computed.</div>
+                <div style={{ color: '#4a4e58' }}>A placed protractor, centred on the intersection, baseline auto-aligned with line 1. Right-rail verbs: scale 180°/360°, nudge centre, rotate ±1°/±5°, flip, lock, remove.</div>
+
+                {/* TEXT */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, border: '1.5px solid #c9c5bc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M5 6h14M12 6v14"/></svg>
+                  </div>
+                  <div style={{ fontWeight: 600 }}>Text</div>
+                </div>
+                <div style={{ color: '#4a4e58' }}>One click to drop the cursor. If clicked on/near an object, the text auto-anchors to it. Math mode (¹⁄₂, x², √, π) toggles inside the input.</div>
+                <div style={{ color: '#4a4e58' }}>A text label. Replaces a separate "Label" tool — auto-anchor handles both cases.</div>
+
+                {/* MARK */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, border: '1.5px solid #c9c5bc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" opacity="0.9"><line x1="5" y1="14" x2="19" y2="10"/></svg>
+                  </div>
+                  <div style={{ fontWeight: 600 }}>Mark</div>
+                </div>
+                <div style={{ color: '#4a4e58' }}>Two clicks: start → end of a highlight stroke. Snaps to text-line baselines so it underlines cleanly. No freehand drawing.</div>
+                <div style={{ color: '#4a4e58' }}>A semi-transparent highlight bar. Used to flag question text or working steps for the teacher.</div>
+              </div>
+
+              {/* Footer note about right-rail verbs */}
+              <div style={{ marginTop: 28, padding: '14px 16px', background: '#f4f1ea', borderRadius: 10, fontSize: 12.5, color: '#4a4e58', lineHeight: 1.55 }}>
+                <span style={{ fontWeight: 600, color: '#1a1d24' }}>Right-rail verbs (selection-aware):</span> once anything is selected, the right rail offers <b>Move</b> (nudge pad ±1 / ±5 / ±20 px in 4 directions), <b>Rotate</b> (±1° / ±5° around the active pivot), <b>Snap orientation</b> (V / H / 45° / Free), <b>Flip</b> (lines &amp; protractor), <b>Reflect</b> (only appears when a line + shape are both selected; produces the mirrored polygon — there is no separate Reflection tool), <b>Lock</b>, and <b>Remove</b>. Verbs only show when they apply to the current selection.
+              </div>
+            </div>
+          </DCArtboard>
+        </DCSection>
+
+        <DCSection title="Design notes · gaze-native patterns worth discussing" subtitle="">
+          <DCArtboard width={1400} height={420}>
+            <div style={{ padding: 40, fontFamily: 'Inter', fontSize: 14, color: '#1a1d24', lineHeight: 1.65, columnCount: 2, columnGap: 40, height: '100%' }}>
+              <div style={{ breakInside: 'avoid', marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono"', letterSpacing: 1, textTransform: 'uppercase', color: '#8a8e98', marginBottom: 4 }}>01 · Edge anchoring</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Tools live at screen edges, always.</div>
+                <div style={{ color: '#4a4e58' }}>Gaze users have the strongest hit accuracy near screen boundaries — you can "overshoot" and be caught by the edge. The page canvas is bracketed by the left tool rail and the right action rail; nothing important floats in the middle.</div>
+              </div>
+              <div style={{ breakInside: 'avoid', marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono"', letterSpacing: 1, textTransform: 'uppercase', color: '#8a8e98', marginBottom: 4 }}>02 · Nouns left, verbs right</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Tools and actions live in different rails.</div>
+                <div style={{ color: '#4a4e58' }}>The left rail picks <i>what kind of thing</i> (point, line, circle, text). The right rail rewrites itself with verbs for whatever is selected — nudge, rotate, scale, flip, lock, remove. Same place, same order, every time. The student's gaze never has to search.</div>
+              </div>
+              <div style={{ breakInside: 'avoid', marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono"', letterSpacing: 1, textTransform: 'uppercase', color: '#8a8e98', marginBottom: 4 }}>03 · Protractor places itself</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Pick the tool, click two lines, done.</div>
+                <div style={{ color: '#4a4e58' }}>The Protractor is a tool, but it never has to be dragged. Pick it from the left rail, click line 1 (defines the baseline), click line 2 — the protractor lands on the intersection, oriented along line 1. Refinement happens via right-rail verbs (nudge centre, rotate ±1°/±5°, scale 180°/360°).</div>
+              </div>
+              <div style={{ breakInside: 'avoid', marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono"', letterSpacing: 1, textTransform: 'uppercase', color: '#8a8e98', marginBottom: 4 }}>04 · Click, never drag</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>Every adjustment is a discrete click.</div>
+                <div style={{ color: '#4a4e58' }}>No slider thumbs, no drag-to-resize, no drag-to-rotate. Move = nudge ±1 / ±5 / ±20px in a chosen direction. Rotate = ±1° / ±5°. Snap-to-orientation = one tap to commit a line to vertical, horizontal or 45°. Drag is impossible with a wandering gaze; this is the single most important constraint.</div>
+              </div>
+              <div style={{ breakInside: 'avoid', marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono"', letterSpacing: 1, textTransform: 'uppercase', color: '#8a8e98', marginBottom: 4 }}>05 · Snap is visible and loud</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>If the system snapped to something, it tells you.</div>
+                <div style={{ color: '#4a4e58' }}>A dashed ring around the snapped vertex, the line drawn in accent colour, a status pill at the bottom that names the snap ("Protractor placed · centre B · aligned BD"). Gaze users can't feel a subtle magnetic tug — they need to read it.</div>
+              </div>
+              <div style={{ breakInside: 'avoid', marginBottom: 18 }}>
+                <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono"', letterSpacing: 1, textTransform: 'uppercase', color: '#8a8e98', marginBottom: 4 }}>06 · Accent = "yours"</div>
+                <div style={{ fontWeight: 600, marginBottom: 4 }}>The PDF stays black; everything the student has produced uses the accent colour.</div>
+                <div style={{ color: '#4a4e58' }}>Selected lines, the placed protractor, drawn reflection lines, locked answers — all in cobalt. One glance separates the given paper from the student's working. Mode (Exam/Practice) is shown as a coloured chip in the top bar; in exam mode the protractor hides its numeric readout, in practice it renders the angle live.</div>
+              </div>
+            </div>
+          </DCArtboard>
+        </DCSection>
+
+        <div style={{ padding: '0 60px 40px', maxWidth: 1000 }}>
+          <div style={{ fontSize: 13, color: 'rgba(60,50,40,0.6)', fontStyle: 'italic' }}>
+            Next: turn this into a working interactive prototype — clickable tool rail, real two-line protractor placement, live nudge/rotate, and the snap feedback loop on the canvas. The HANDOFF.md in the project root has the agent-ready brief.
+          </div>
+        </div>
+      </DesignCanvas>
+
+      <TweaksPanel state={state} setState={setState} visible={tweaksOpen} onClose={() => setTweaksOpen(false)}/>
+
+      {/* Floating manual toggle (in case host toggle is missed) */}
+      {!tweaksOpen && (
+        <button onClick={() => setTweaksOpen(true)} style={{
+          position: 'fixed', bottom: 20, right: 20,
+          padding: '10px 16px', borderRadius: 999,
+          background: '#1a1d24', color: '#fff', border: 'none',
+          fontFamily: 'Inter, sans-serif', fontSize: 13, fontWeight: 600,
+          cursor: 'pointer', zIndex: 1000,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+          Tweaks
+        </button>
+      )}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
