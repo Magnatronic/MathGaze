@@ -18,11 +18,11 @@
     <FontFamily x:Key="FontBody">Inter, Segoe UI, sans-serif</FontFamily>
     <FontFamily x:Key="FontMono">JetBrains Mono, Consolas, monospace</FontFamily>
 
-    <!-- ── ToolTile button style (gaze target: 84x56 logical px minimum) ── -->
-    <!-- Used by ToolRail stub buttons. No hover/focus chrome that requires drag. -->
+    <!-- ── ToolTile button style (gaze target: 84x84 logical px) ── -->
+    <!-- Used by ToolRail buttons. Icon above label, centred. -->
     <Style x:Key="ToolTileStyle" TargetType="Button">
         <Setter Property="Width"             Value="84"/>
-        <Setter Property="Height"            Value="56"/>
+        <Setter Property="Height"            Value="84"/>
         <Setter Property="Background"        Value="Transparent"/>
         <Setter Property="BorderBrush"       Value="{StaticResource BrushBorder}"/>
         <Setter Property="BorderThickness"   Value="2"/>
@@ -39,17 +39,17 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="10">
-                        <ContentPresenter HorizontalAlignment="Left"
+                        <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
-                                          Margin="12,0,0,0"/>
+                                          Margin="0"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource BrushSurface2}"/>
+                            <Setter Property="Background" Value="{DynamicResource BrushSurface2}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="{StaticResource BrushAccentSoft}"/>
-                            <Setter Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                            <Setter Property="Background" Value="{DynamicResource BrushAccentSoft}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource BrushAccent}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -57,7 +57,7 @@
         </Setter>
     </Style>
 
-    <!-- ── TopBar icon button style (36x36 minimum, no border by default) ── -->
+    <!-- ── TopBar icon button style (56x56 minimum, no border by default) ── -->
     <Style x:Key="IconButtonStyle" TargetType="Button">
         <Setter Property="MinWidth"          Value="36"/>
         <Setter Property="MinHeight"         Value="36"/>
@@ -80,10 +80,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="{StaticResource BrushSurface2}"/>
+                            <Setter Property="Background" Value="{DynamicResource BrushSurface2}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter Property="Background" Value="{StaticResource BrushAccentSoft}"/>
+                            <Setter Property="Background" Value="{DynamicResource BrushAccentSoft}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -94,10 +94,10 @@
     <!-- ── RailButton style: right rail action buttons (nudge pad, delete, undo/redo) ── -->
     <!-- Gaze-safe chrome: white surface, subtle border, no WPF default gray chrome. -->
     <Style x:Key="RailButtonStyle" TargetType="Button">
-        <Setter Property="Background"      Value="{StaticResource BrushSurface}"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource BrushBorder}"/>
+        <Setter Property="Background"      Value="{DynamicResource BrushSurface}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BrushBorder}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="Foreground"      Value="{StaticResource BrushInk}"/>
+        <Setter Property="Foreground"      Value="{DynamicResource BrushInk}"/>
         <Setter Property="FontFamily"      Value="{StaticResource FontBody}"/>
         <Setter Property="FontSize"        Value="13"/>
         <Setter Property="Cursor"          Value="Hand"/>
@@ -114,11 +114,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushSurface2}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BrushSurface2}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushAccentSoft}"/>
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BrushAccentSoft}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource BrushAccent}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.4"/>
@@ -133,10 +133,10 @@
     <!-- Base appearance matches RailButtonStyle. Active state (Tag="active") -->
     <!-- uses accent cobalt background + white text. Tag is set from RightRail.xaml DataTriggers. -->
     <Style x:Key="StepButtonStyle" TargetType="Button">
-        <Setter Property="Background"      Value="{StaticResource BrushSurface}"/>
-        <Setter Property="BorderBrush"     Value="{StaticResource BrushBorder}"/>
+        <Setter Property="Background"      Value="{DynamicResource BrushSurface}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BrushBorder}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="Foreground"      Value="{StaticResource BrushInk}"/>
+        <Setter Property="Foreground"      Value="{DynamicResource BrushInk}"/>
         <Setter Property="FontFamily"      Value="{StaticResource FontBody}"/>
         <Setter Property="FontSize"        Value="12"/>
         <Setter Property="FontWeight"      Value="SemiBold"/>
@@ -155,8 +155,8 @@
                     <ControlTemplate.Triggers>
                         <!-- 1: active state — cobalt background, white text -->
                         <Trigger Property="Tag" Value="active">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushAccent}"/>
-                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource BrushAccent}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BrushAccent}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource BrushAccent}"/>
                             <Setter Property="Foreground" Value="White"/>
                         </Trigger>
                         <!-- 2: generic hover — cream (MUST come before active+hover so active+hover wins) -->
@@ -165,7 +165,7 @@
                                 <Condition Property="IsMouseOver" Value="True"/>
                             </MultiTrigger.Conditions>
                             <MultiTrigger.Setters>
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushSurface2}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BrushSurface2}"/>
                             </MultiTrigger.Setters>
                         </MultiTrigger>
                         <!-- 3: hover-while-active — darker cobalt (LAST = highest WPF priority, wins over #2) -->
@@ -174,11 +174,11 @@
                                 <Condition Property="IsMouseOver" Value="True"/>
                                 <Condition Property="Tag" Value="active"/>
                             </MultiTrigger.Conditions>
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushAccentInk}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BrushAccentInk}"/>
                         </MultiTrigger>
                         <!-- 4: pressed -->
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BrushAccentSoft}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource BrushAccentSoft}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
