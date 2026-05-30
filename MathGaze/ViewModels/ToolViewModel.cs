@@ -110,8 +110,9 @@ public partial class ToolViewModel : ObservableObject
 
             case (ToolMode.Line, DrawState.Idle):
             {
-                // First click — exact anchor placement, no snap
-                var (xPt, yPt) = mapper.ScreenToPage(screenPx);
+                // First click — snap to existing geometry (D-22)
+                var (snappedPx, _) = snap.Snap(screenPx, _geometryService.Objects, mapper);
+                var (xPt, yPt) = mapper.ScreenToPage(snappedPx);
                 AnchorPt  = (xPt, yPt);
                 DrawState = DrawState.AnchorPlaced;
                 StatusMessage = "Click 2nd point";
@@ -134,8 +135,9 @@ public partial class ToolViewModel : ObservableObject
 
             case (ToolMode.Circle, DrawState.Idle):
             {
-                // First click — exact center placement, no snap
-                var (xPt, yPt) = mapper.ScreenToPage(screenPx);
+                // First click — snap centre to existing geometry (D-24)
+                var (snappedPx, _) = snap.Snap(screenPx, _geometryService.Objects, mapper);
+                var (xPt, yPt) = mapper.ScreenToPage(snappedPx);
                 AnchorPt  = (xPt, yPt);
                 DrawState = DrawState.AnchorPlaced;
                 StatusMessage = "Click radius point";
@@ -173,7 +175,9 @@ public partial class ToolViewModel : ObservableObject
                 else
                 {
                     // === NEW two-point path: vertex click on empty canvas ===
-                    var (xPt, yPt) = mapper.ScreenToPage(screenPx);
+                    // Snap vertex to existing geometry (D-24)
+                    var (snappedPx, _) = snap.Snap(screenPx, _geometryService.Objects, mapper);
+                    var (xPt, yPt) = mapper.ScreenToPage(snappedPx);
                     AnchorPt  = (xPt, yPt);
                     // AnchorLine stays null (set by ResetDrawState) — this is the discriminator
                     DrawState = DrawState.AnchorPlaced;
@@ -336,8 +340,6 @@ public partial class ToolViewModel : ObservableObject
     {
         GhostCursorPx = screenPx;
 
-        // Only run snap during mid-draw (AnchorPlaced) — snap ring shows where click 2 will land.
-        // During Idle, snap is disabled, so no ring needed.
         if (DrawState == DrawState.AnchorPlaced)
         {
             if (ActiveTool == ToolMode.Protractor)
@@ -356,6 +358,14 @@ public partial class ToolViewModel : ObservableObject
                     ? $"Click 2nd point · snap: {result.Label}"
                     : (ActiveTool == ToolMode.Circle ? "Click radius point" : "Click 2nd point");
             }
+        }
+        else if (DrawState == DrawState.Idle &&
+                 ActiveTool is ToolMode.Line or ToolMode.Circle)
+        {
+            // Show snap ring during Idle for drawing tools — so student sees snap feedback
+            // before placing first click (D-23 enhancement)
+            var result = snap.Snap(screenPx, _geometryService.Objects, mapper);
+            LastSnap = result;
         }
         else
         {
