@@ -54,6 +54,14 @@ public partial class MainViewModel : ObservableObject
         _exportService     = exportService;
         _toolVm            = toolViewModel;
         _settingsVm        = settingsViewModel;
+
+        _toolVm.PropertyChanged += OnToolPropertyChanged;
+    }
+
+    private void OnToolPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ToolViewModel.ActiveTool) && _settingsVm.IsSettingsPanelOpen)
+            _settingsVm.IsSettingsPanelOpen = false;
     }
 
     /// <summary>Exposed for TopBar and MainWindow DataContext binding.</summary>

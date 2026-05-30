@@ -120,22 +120,12 @@
                                                 Margin="0,0,0,3"
                                                 ToolTip="{Binding DisplayName}">
                                             <StackPanel Orientation="Horizontal" Margin="8,0">
-                                                <!-- Type label chip -->
-                                                <Border Background="{DynamicResource BrushAccentSoft}"
-                                                        BorderBrush="{DynamicResource BrushAccent}"
-                                                        BorderThickness="1"
-                                                        CornerRadius="4"
-                                                        Padding="4,2"
-                                                        Margin="0,0,8,0">
-                                                    <TextBlock Text="{Binding TypeLabel}"
-                                                               FontSize="9" FontWeight="Bold"
-                                                               Foreground="{DynamicResource BrushAccentInk}"/>
-                                                </Border>
-                                                <!-- Display name -->
+                                                <!-- Display name only — type chip removed (UAT fix: "Line Line 1" → "Line 1") -->
                                                 <TextBlock Text="{Binding DisplayName}"
                                                            FontSize="11"
                                                            Foreground="{DynamicResource BrushInk}"
-                                                           VerticalAlignment="Center"/>
+                                                           VerticalAlignment="Center"
+                                                           Margin="4,0"/>
                                             </StackPanel>
                                         </Button>
                                     </DataTemplate>
