@@ -21,6 +21,7 @@ public partial class MainViewModel : ObservableObject
     private readonly ISessionService    _sessionService;
     private readonly IExportService     _exportService;
     private readonly ToolViewModel      _toolVm;
+    private readonly SettingsViewModel  _settingsVm;
     private PdfCanvasViewModel?         _pdfCanvasVm;
 
     // Tracks the file path of the currently open PDF so page-nav save (D-14) and
@@ -43,7 +44,8 @@ public partial class MainViewModel : ObservableObject
         IGeometryService geometryService,
         ISessionService sessionService,
         IExportService exportService,
-        ToolViewModel toolViewModel)
+        ToolViewModel toolViewModel,
+        SettingsViewModel settingsViewModel)
     {
         _pdfService        = pdfService;
         _fileDialogService = fileDialogService;
@@ -51,7 +53,11 @@ public partial class MainViewModel : ObservableObject
         _sessionService    = sessionService;
         _exportService     = exportService;
         _toolVm            = toolViewModel;
+        _settingsVm        = settingsViewModel;
     }
+
+    /// <summary>Exposed for TopBar and MainWindow DataContext binding.</summary>
+    public SettingsViewModel SettingsVm => _settingsVm;
 
     /// <summary>
     /// Called from App.xaml.cs after both singletons are resolved to break the circular

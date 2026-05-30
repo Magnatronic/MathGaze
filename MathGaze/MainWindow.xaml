@@ -42,6 +42,78 @@
 
             <!-- Right rail -->
             <views:RightRail x:Name="RightRailControl" Grid.Column="2" Panel.ZIndex="2"/>
+
+            <!-- Settings panel overlay — covers right rail area (D-04) -->
+            <!-- Width matches the right rail column (148px). Z-order above right rail. -->
+            <!-- Grid 3 compatible: in-window element, no secondary HWND, no Popup. -->
+            <Border x:Name="SettingsPanelOverlay"
+                    Grid.Column="2"
+                    Panel.ZIndex="10"
+                    Background="{DynamicResource BrushSurface}"
+                    BorderBrush="{DynamicResource BrushBorder}"
+                    BorderThickness="1,0,0,0"
+                    Visibility="{Binding SettingsVm.IsSettingsPanelOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+                <DockPanel Margin="8,14,8,0">
+
+                    <!-- Header: SETTINGS label + close button -->
+                    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+                        <Button DockPanel.Dock="Right"
+                                Width="56" Height="56"
+                                Style="{StaticResource RailButtonStyle}"
+                                Command="{Binding SettingsVm.CloseSettingsCommand}"
+                                Content="&#x2715;"
+                                FontSize="16"
+                                ToolTip="Close settings"/>
+                        <TextBlock Text="SETTINGS"
+                                   FontSize="9" FontWeight="Bold"
+                                   Foreground="{DynamicResource BrushInk3}"
+                                   VerticalAlignment="Center"/>
+                    </DockPanel>
+
+                    <!-- Theme section -->
+                    <StackPanel DockPanel.Dock="Top">
+                        <TextBlock Text="THEME"
+                                   FontSize="9" FontWeight="Bold"
+                                   Foreground="{DynamicResource BrushInk3}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,8"/>
+                        <!-- Light / Dark toggle — StepButtonStyle with Tag="active" for active state -->
+                        <UniformGrid Rows="1" Columns="2" Margin="0,0,0,6">
+                            <Button Height="56"
+                                    Command="{Binding SettingsVm.SetThemeCommand}"
+                                    CommandParameter="Light"
+                                    Content="Light"
+                                    ToolTip="Switch to Light theme">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SettingsVm.IsDarkMode}" Value="False">
+                                                <Setter Property="Tag" Value="active"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Height="56"
+                                    Command="{Binding SettingsVm.SetThemeCommand}"
+                                    CommandParameter="Dark"
+                                    Content="Dark"
+                                    ToolTip="Switch to Dark theme">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SettingsVm.IsDarkMode}" Value="True">
+                                                <Setter Property="Tag" Value="active"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </UniformGrid>
+                    </StackPanel>
+
+                </DockPanel>
+            </Border>
         </Grid>
     </Grid>
 </Window>
