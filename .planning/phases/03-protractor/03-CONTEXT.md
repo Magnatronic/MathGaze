@@ -46,6 +46,9 @@ No reflection, no text boxes, no MCQ, no auto-save in this phase (Phase 4).
 - **D-10:** UDLR nudge moves the protractor center in PDF-space (same as NudgeObjectCommand for PointObject). Step sizes 1/5/20px. Rotation does not change on nudge.
 
 ### Angle readout (Practice Mode)
+
+> **REMOVAL NOTE (2026-05-28):** Practice/Exam mode and the live angle readout were removed from the codebase in quick task 260528-sj5 (commit 0dc4539). The decisions below (D-11 through D-15) document the original design intent and are preserved for historical reference. The app now renders the protractor arc and scale marks only — no mode chip, no angle readout.
+
 - **D-11:** The readout shows the angle value a student would read off a physical protractor at the current orientation — i.e., where the second arm crosses the protractor scale. This is computed from `BaselineAngleDeg + RotationOffsetDeg` and the angle between the two source lines.
 - **D-12:** Readout renders inside the protractor (arc + text, same as `shared.jsx` `measuring` prop pattern). It is NOT in the right rail.
 - **D-13:** Readout updates live on every rotation button press (each ±1°/±5° updates the value immediately).
