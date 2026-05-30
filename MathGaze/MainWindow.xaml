@@ -23,7 +23,7 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="108"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="148"/>
+                <ColumnDefinition Width="180"/>
             </Grid.ColumnDefinitions>
 
             <!-- Left tool rail — DataContext set in code-behind to ToolViewModel -->

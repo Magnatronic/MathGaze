@@ -29,12 +29,13 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Vertical">
-                        <Viewbox Width="24" Height="24" HorizontalAlignment="Center">
+                        <Viewbox Width="32" Height="32" HorizontalAlignment="Center">
                             <Canvas Width="24" Height="24">
                                 <Path Fill="{DynamicResource BrushInk}" Data="M5 3l6 16 2-7 7-2z"/>
                             </Canvas>
                         </Viewbox>
                         <TextBlock Text="Select" HorizontalAlignment="Center"
+                                   FontSize="13"
                                    Foreground="{DynamicResource BrushInk}"/>
                     </StackPanel>
                 </Button>
@@ -55,7 +56,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Vertical">
-                        <Viewbox Width="24" Height="24" HorizontalAlignment="Center">
+                        <Viewbox Width="32" Height="32" HorizontalAlignment="Center">
                             <Canvas Width="24" Height="24">
                                 <Ellipse Canvas.Left="9.5" Canvas.Top="9.5" Width="5" Height="5"
                                          Fill="{DynamicResource BrushInk}"/>
@@ -64,6 +65,7 @@
                             </Canvas>
                         </Viewbox>
                         <TextBlock Text="Point" HorizontalAlignment="Center"
+                                   FontSize="13"
                                    Foreground="{DynamicResource BrushInk}"/>
                     </StackPanel>
                 </Button>
@@ -84,7 +86,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Vertical">
-                        <Viewbox Width="24" Height="24" HorizontalAlignment="Center">
+                        <Viewbox Width="32" Height="32" HorizontalAlignment="Center">
                             <Canvas Width="24" Height="24">
                                 <Ellipse Canvas.Left="3.5" Canvas.Top="17.5" Width="3" Height="3"
                                          Fill="{DynamicResource BrushInk}"/>
@@ -96,6 +98,7 @@
                             </Canvas>
                         </Viewbox>
                         <TextBlock Text="Line" HorizontalAlignment="Center"
+                                   FontSize="13"
                                    Foreground="{DynamicResource BrushInk}"/>
                     </StackPanel>
                 </Button>
@@ -116,7 +119,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Vertical">
-                        <Viewbox Width="24" Height="24" HorizontalAlignment="Center">
+                        <Viewbox Width="32" Height="32" HorizontalAlignment="Center">
                             <Canvas Width="24" Height="24">
                                 <Ellipse Canvas.Left="4" Canvas.Top="4" Width="16" Height="16"
                                          Stroke="{DynamicResource BrushInk}" StrokeThickness="1.8" Fill="Transparent"/>
@@ -125,6 +128,7 @@
                             </Canvas>
                         </Viewbox>
                         <TextBlock Text="Circle" HorizontalAlignment="Center"
+                                   FontSize="13"
                                    Foreground="{DynamicResource BrushInk}"/>
                     </StackPanel>
                 </Button>
@@ -145,7 +149,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Vertical">
-                        <Viewbox Width="24" Height="24" HorizontalAlignment="Center">
+                        <Viewbox Width="32" Height="32" HorizontalAlignment="Center">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk}" StrokeThickness="1.8"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -161,6 +165,7 @@
                             </Canvas>
                         </Viewbox>
                         <TextBlock Text="Protractor" HorizontalAlignment="Center"
+                                   FontSize="13"
                                    Foreground="{DynamicResource BrushInk}"/>
                     </StackPanel>
                 </Button>
@@ -180,7 +185,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Vertical">
-                        <Viewbox Width="24" Height="24" HorizontalAlignment="Center">
+                        <Viewbox Width="32" Height="32" HorizontalAlignment="Center">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk}" StrokeThickness="1.8"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -188,6 +193,7 @@
                             </Canvas>
                         </Viewbox>
                         <TextBlock Text="Text" HorizontalAlignment="Center"
+                                   FontSize="13"
                                    Foreground="{DynamicResource BrushInk}"/>
                     </StackPanel>
                 </Button>
