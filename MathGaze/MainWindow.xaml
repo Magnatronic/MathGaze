@@ -6,10 +6,10 @@
         Title="MathGaze" Height="800" Width="1280"
         MinHeight="600" MinWidth="900"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource BrushBg}">
+        Background="{DynamicResource BrushBg}">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="72"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -21,7 +21,7 @@
         <!-- Content area — row 1 -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="104"/>
+                <ColumnDefinition Width="108"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="148"/>
             </Grid.ColumnDefinitions>
