@@ -6,13 +6,16 @@
 <domain>
 ## Phase Boundary
 
-Polish four specific interaction gaps for the gaze user: contextual right-rail guidance
-during multi-click drawing operations; a dark mode toggle wired to the stub gear button;
-and a single-click "clear current page" annotation reset action in the right rail.
+Improve the gaze usability of the entire UI shell based on observed interaction gaps:
+resize all interactive elements to a consistent ≥56×56px gaze target floor; redesign the
+tool rail buttons to be square with icons above labels; widen the scroll rail; add a
+contextual object list to the right rail for easier selection; add a drawing guide card
+during multi-step operations; enable first-click snapping on lines; wire the dark mode
+toggle to the gear button; and provide a "clear current page" action.
 PROT-04 (protractor lock) was explicitly excluded by user decision.
 
 The core geometry tools, PDF rendering, session persistence, and export are all complete.
-This phase tightens the feel for daily use.
+This phase makes the UI genuinely comfortable for daily gaze use.
 
 </domain>
 
@@ -55,21 +58,68 @@ This phase tightens the feel for daily use.
 - **D-10:** After clear, the canvas repaints empty. Undo restores all cleared objects in
   one step. Auto-save triggers as normal via `ObjectsChanged`.
 
+### Top bar button sizing
+- **D-12:** All interactive buttons in the top bar become **56×56px minimum**, matching the
+  existing PDF export button. This affects: Open, Close, Settings gear, Zoom −/+/Fit,
+  Previous/Next page. The top bar height must increase to accommodate (currently 60px;
+  will grow to ~72px or as needed).
+- **D-13:** The page counter text block and zoom label text block are not buttons and stay
+  as-is dimensionally, but their surrounding strip borders must grow in height to match the
+  new button heights.
+
+### Tool rail redesign
+- **D-14:** Tool buttons become **84×84px square**. Icon is centred above the label (vertical
+  stack, not horizontal row). This resolves the "Protrac" truncation — "Protractor" fits
+  on one line at the wider button width.
+- **D-15:** Tool rail width increases from 104px to accommodate 84px buttons with padding
+  (suggest ~100px inner + margins). All 6 tools remain; no scrolling needed.
+- **D-16:** "TOOLS" header label stays at top of the rail.
+
+### Scroll rail button sizing
+- **D-17:** Scroll rail buttons become **56×56px square** (currently 30px wide × 56px tall).
+  Rail width increases from 38px to ~64px (56px button + 4px each side). All 4 buttons
+  (Page Up, Scroll Up, Scroll Down, Page Down) resize.
+
+### Object list panel (Select tool, nothing selected)
+- **D-18:** When the Select tool is active and no object is selected (`HasSelection = false`),
+  the right rail shows an **object list** instead of the "NOTHING SELECTED" dashed box.
+  Each row: type icon (small, 16×16px) + auto-generated name ("Line 1", "Circle 2",
+  "Protractor 3", "Text 4" — numbered in placement order). Each row is a full-width tap
+  target ≥44px tall (gaze-friendly).
+- **D-19:** Tapping a row selects that object — equivalent to clicking it on canvas.
+  Right rail immediately switches to that object's controls (nudge block, type-specific
+  panel). This solves the hit-test precision problem for small or overlapping objects.
+- **D-20:** Object list shows only objects on the **current page**. Ordered by placement
+  (oldest first). Empty list state: show "No objects on this page" in the dashed box.
+- **D-21:** When Select tool is active but an object IS selected, the right rail shows the
+  existing selection controls as today (D-18/D-19 only apply to the nothing-selected state).
+
+### First-click snapping
+- **D-22:** When drawing a Line, the **first anchor click** (DrawState.Idle → AnchorPlaced)
+  runs the same `SnapEngine` logic as the second click — snap to existing endpoints,
+  circle centres, and line–line intersections within the snap threshold. Currently the
+  first click bypasses snap entirely ("exact placement, no snap" per ToolViewModel.cs).
+- **D-23:** The snap ghost/ring indicator already renders during cursor move for the preview;
+  committing on first click should snap the anchor to the detected snap point using the
+  same `SnapResult` the ghost is already tracking.
+- **D-24:** Circle tool first click (centre placement) should also snap — same rules.
+  Protractor two-point mode (Phase 5) first click should also snap.
+
 ### Protractor lock (PROT-04) — explicitly excluded
-- **D-11:** PROT-04 is NOT in Phase 7. User decision: not needed. REQUIREMENTS.md status
+- **D-25:** PROT-04 is NOT in Phase 7. User decision: not needed. REQUIREMENTS.md status
   remains "Pending" but is effectively deferred indefinitely.
 
 ### Claude's Discretion
 - Exact slide-over panel animation (suggest simple opacity/translate, no complex stencil)
 - "Clear page" button label and danger styling (suggest same red as Delete, labelled
   "Clear page" to distinguish from Delete)
-- Fix the "Protrac" truncation bug in the tool rail — the ProtractorButton label is cut off
-  at the rail width; adjust font size or abbreviate to "Protract." (visible in UAT screenshot)
 - Dark theme colour tokens — Claude picks appropriate background, surface, border, ink
   variants for a clean dark theme; cobalt accent unchanged
 - Settings panel layout detail (toggle style, close button placement)
 - Whether Clear Page button is styled as danger (red) or neutral (the clear action is
   undoable, so danger styling may be over-cautious — Claude's call)
+- Object list row height (≥44px suggested; can go to 56px if rail space allows)
+- Icon used per object type in the object list (reuse existing SVG paths from ToolRail)
 
 </decisions>
 
@@ -86,17 +136,19 @@ This phase tightens the feel for daily use.
   no flyouts/secondary HWNDs, Grid 3 pointer events only
 
 ### Key source files
-- `MathGaze/Views/RightRail.xaml` — existing right rail structure; add ClearPageButton above
-  undo/redo footer; add DrawingGuidePanel that shows when HasDrawingInProgress is true
-- `MathGaze/Views/ToolRail.xaml` — all 6 tool buttons; fix Protractor label truncation
-- `MathGaze/Views/TopBar.xaml` — gear button is stub; wire to open settings panel
-- `MathGaze/ViewModels/ToolViewModel.cs` — `DrawState`, `ActiveTool`, `AnchorPt`; all
-  ActivateX commands should call ResetDrawState() (D-03); add HasDrawingInProgress property
-- `MathGaze/ViewModels/RightRailViewModel.cs` — add ClearPageCommand; add
-  HasDrawingInProgress forwarding from ToolViewModel for right-rail panel switching
+- `MathGaze/Views/RightRail.xaml` — add DrawingGuidePanel (HasDrawingInProgress), ObjectListPanel
+  (Select + nothing selected), ClearPageButton above undo/redo footer
+- `MathGaze/Views/ToolRail.xaml` — redesign all 6 buttons to 84×84px icon-above-label; fix truncation
+- `MathGaze/Views/TopBar.xaml` — resize all buttons to 56×56px; wire gear to settings panel
+- `MathGaze/Views/ScrollRail.xaml` — resize 4 buttons to 56×56px; widen rail
+- `MathGaze/ViewModels/ToolViewModel.cs` — `DrawState`, `ActiveTool`, `AnchorPt`; add
+  `HasDrawingInProgress` computed property; first-click snap fix (D-22/D-23/D-24)
+- `MathGaze/ViewModels/RightRailViewModel.cs` — add ClearPageCommand, HasDrawingInProgress
+  forwarding, ObjectList (ObservableCollection of display items keyed by GeometryObject)
+- `MathGaze/Core/SnapEngine.cs` — snap logic already used on second click; wire to first click
 - `MathGaze/App.xaml` / `App.xaml.cs` — ResourceDictionary theme swapping entry point
-- `MathGaze/Services/IGeometryService.cs` / `GeometryService.cs` — add ClearPage() method
-  or handle via a new ClearPageCommand in the command pattern
+- `MathGaze/Services/IGeometryService.cs` / `GeometryService.cs` — add ClearPage() /
+  ClearPageCommand in the existing command pattern
 
 ### Prior phase context
 - `.planning/phases/02-geometry-core/02-CONTEXT.md` — D-08 (per-click undo), D-09
@@ -140,31 +192,37 @@ This phase tightens the feel for daily use.
   no external dependency
 
 ### Integration Points
-- Right rail XAML: add `DrawingGuidePanel` (DataTrigger on `HasDrawingInProgress`) and
-  `ClearPageButton` (always visible, above undo/redo row)
-- `RightRailViewModel`: new `ClearPageCommand`, `HasDrawingInProgress` property (forwarded
-  from `ToolViewModel` via event subscription or observable binding)
+- Right rail XAML: three panel states — DrawingGuidePanel (HasDrawingInProgress), ObjectListPanel
+  (Select tool + !HasSelection), existing SelectionPanel (HasSelection); ClearPageButton always
+  visible above undo/redo row
+- `RightRailViewModel`: new `ClearPageCommand`, `HasDrawingInProgress` (forwarded from
+  `ToolViewModel`), `ObjectList` ObservableCollection rebuilt on `ObjectsChanged`; each item
+  exposes display name + select command
+- `ToolViewModel`: fix first-click cases for Line, Circle, and two-point Protractor to pass
+  cursor position through `SnapEngine` before committing `AnchorPt`
 - `App.xaml`: split current brush definitions into `Themes/Light.xaml` and `Themes/Dark.xaml`;
-  `App.xaml.cs` loads the saved preference on startup and swaps on toggle
-- `MainViewModel` or new `SettingsViewModel`: `ToggleThemeCommand`, `IsDarkMode` property;
-  gear button in `TopBar.xaml` binds to this command
-- Settings panel: a `Grid` or `Border` overlay in `MainWindow.xaml` (or a separate
-  UserControl) that slides in when `IsSettingsOpen` is true
+  `App.xaml.cs` loads saved preference on startup and swaps on toggle
+- `MainViewModel` or new `SettingsViewModel`: `ToggleThemeCommand`, `IsDarkMode`; gear button
+  in `TopBar.xaml` binds to this; settings panel is a `Grid`/`Border` overlay (no `Popup`)
+- `TopBar.xaml` / `ScrollRail.xaml` / `ToolRail.xaml`: all button dimensions updated per
+  D-12 through D-17; no new ViewModel wiring needed for resizing
 
 </code_context>
 
 <specifics>
 ## Specific Ideas
 
-- The screenshot shared during discussion shows the "Protrac" truncation clearly — tool rail
-  ProtractorButton label is cut off. Fix this as part of the tool rail pass.
+- Screenshot from UAT session shows: "Protrac" label truncated in tool rail; PDF export
+  button is the right size but all other top bar buttons are visibly smaller; scroll rail
+  buttons are narrow. These are the direct observations that drove D-12 through D-17.
+- The object list solves a real daily frustration — when objects overlap or are small,
+  the student has to click precisely on the canvas. The list provides a gaze-friendly
+  alternative that requires no precision at all.
+- First-click snap is a consistency fix. The snap ring already tracks the cursor on first
+  click (ghost preview uses it); not committing it felt broken to the user.
 - Dark mode is the one setting that materially affects the student's daily experience
   (screen glare in exam rooms). No other v1 settings needed.
 - "Clear page" should feel like the Delete button — immediate, undoable — not a ceremony.
-  The undo safety net is sufficient; a confirmation dialog would be an extra click the
-  student doesn't need.
-- Clicking the active tool to cancel draw is the most natural escape hatch for a gaze user
-  who is already looking at the tool rail.
 
 </specifics>
 
