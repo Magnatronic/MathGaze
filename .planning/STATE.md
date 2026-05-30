@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Phase 7 context gathered
-last_updated: "2026-05-30T08:26:31.301Z"
+status: executing
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-05-30T09:17:46.781Z"
 last_activity: 2026-05-30
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 28
-  completed_plans: 28
-  percent: 100
+  total_plans: 32
+  completed_plans: 29
+  percent: 91
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-29)
 
 **Core value:** A student can complete a GCSE geometry question using only their eyes, without the app reducing the cognitive challenge of the maths itself.
-**Current focus:** Phase 06 — pdf-export-save-annotated-exam-paper-with-geometry-overlay-a
+**Current focus:** Phase 07 — ui-improvements
 
 ## Current Position
 
-Phase: 06
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 07 (ui-improvements) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-05-30
 
 Progress: [░░░░░░░░░░] 0%
@@ -72,6 +72,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04-answer-layer P03 | 8 | 2 tasks | 4 files |
 | Phase 06 P01 | 25 | 2 tasks | 10 files |
 | Phase 06 P02 | 10 | 2 tasks | 2 files |
+| Phase 07-ui-improvements P01 | 15 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -132,6 +133,7 @@ Recent decisions affecting current work:
 - [Phase 06]: SKDocument.CreatePdf used for image-based PDF export at 200 DPI — no new NuGet dependency
 - [Phase 06]: DrawObjects saves/restores _lastScale and _currentDpiScaleF to prevent export scale corrupting screen render
 - [Phase 06]: SYS-04/SYS-05/PROT-06 marked Removed in REQUIREMENTS.md referencing commit 0dc4539; EXAM-V2-02 promoted to Phase 6 Complete; DOC-CLEANUP added
+- [Phase 07-ui-improvements]: ToolTileStyle style-level setters (BorderBrush, Foreground) kept as StaticResource — only ControlTemplate trigger brush refs converted to DynamicResource for theme swap
 
 ### Roadmap Evolution
 
@@ -164,6 +166,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-30T08:26:31.296Z
-Stopped at: Phase 7 context gathered
-Resume file: .planning/phases/07-ui-improvements/07-CONTEXT.md
+Last session: 2026-05-30T09:17:46.778Z
+Stopped at: Completed 07-01-PLAN.md
+Resume file: None
