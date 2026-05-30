@@ -127,7 +127,7 @@ Plans:
 
 Plans:
 - [x] 06-01-PLAN.md — PdfExportService (SKDocument 200 DPI multi-page render), DrawObjects overload, GetAllPages accessor, ExportPdfCommand, Export PDF top-bar button, immediate toast feedback
-- [ ] 06-02-PLAN.md — Documentation cleanup: REQUIREMENTS.md (SYS-04/SYS-05/PROT-06 removed, EXAM-V2-02 promoted), ROADMAP.md Phase 3/6 updates, 03-CONTEXT.md Practice/Exam decision annotations
+- [x] 06-02-PLAN.md — Documentation cleanup: REQUIREMENTS.md (SYS-04/SYS-05/PROT-06 removed, EXAM-V2-02 promoted), ROADMAP.md Phase 3/6 updates, 03-CONTEXT.md Practice/Exam decision annotations
 
 ## Progress
 
