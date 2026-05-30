@@ -1,4 +1,5 @@
 using MathGaze.Core;
+using MathGaze.Properties;
 using MathGaze.Services;
 using MathGaze.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,9 +12,28 @@ public partial class App : Application
 {
     private IHost? _host;
 
+    /// <summary>
+    /// Swaps the theme ResourceDictionary at MergedDictionaries[0].
+    /// Called by SettingsViewModel on toggle and on startup.
+    /// </summary>
+    public void ApplyTheme(bool isDark)
+    {
+        var dict = new ResourceDictionary
+        {
+            Source = new Uri(
+                isDark ? "Styles/Themes/Dark.xaml" : "Styles/Themes/Light.xaml",
+                UriKind.Relative)
+        };
+        Current.Resources.MergedDictionaries[0] = dict;
+    }
+
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Apply saved theme preference before building the window
+        bool savedDark = UserPreferences.Theme == "Dark";
+        if (savedDark) ApplyTheme(true);  // Light is the default — no call needed unless Dark
 
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
@@ -37,6 +57,7 @@ public partial class App : Application
                         () => sp.GetRequiredService<MainViewModel>().CurrentPage));
 
                 // ViewModels
+                services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<MainViewModel>();
                 services.AddSingleton<GeometryLayerViewModel>();
                 services.AddSingleton<PdfCanvasViewModel>();
