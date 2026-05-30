@@ -11,9 +11,9 @@
         <Setter Property="Width"             Value="84"/>
         <Setter Property="Height"            Value="84"/>
         <Setter Property="Background"        Value="Transparent"/>
-        <Setter Property="BorderBrush"       Value="{StaticResource BrushBorder}"/>
+        <Setter Property="BorderBrush"       Value="{DynamicResource BrushBorder}"/>
         <Setter Property="BorderThickness"   Value="2"/>
-        <Setter Property="Foreground"        Value="{StaticResource BrushInk}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource BrushInk}"/>
         <Setter Property="FontFamily"        Value="{StaticResource FontBody}"/>
         <Setter Property="FontSize"          Value="12"/>
         <Setter Property="FontWeight"        Value="SemiBold"/>
@@ -51,9 +51,9 @@
         <Setter Property="Width"             Value="36"/>
         <Setter Property="Height"            Value="36"/>
         <Setter Property="Background"        Value="Transparent"/>
-        <Setter Property="BorderBrush"       Value="{StaticResource BrushBorder}"/>
+        <Setter Property="BorderBrush"       Value="{DynamicResource BrushBorder}"/>
         <Setter Property="BorderThickness"   Value="1.5"/>
-        <Setter Property="Foreground"        Value="{StaticResource BrushInk2}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource BrushInk2}"/>
         <Setter Property="Cursor"            Value="Hand"/>
         <Setter Property="FocusVisualStyle"  Value="{x:Null}"/>
         <Setter Property="Template">
