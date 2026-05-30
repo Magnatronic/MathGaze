@@ -238,6 +238,45 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
     private void DrawGhostPreview(SKCanvas canvas)
     {
         if (_coordinateMapper is null) return;
+
+        // Idle-state snap ring: show snap feedback before first click for Line and Circle tools (Gap 8).
+        // DrawState is Idle but ToolViewModel.HandleMouseMove has computed LastSnap.
+        // No anchor, no ghost line — just the snap ring to signal "snap available here".
+        if (_toolVm.DrawState == DrawState.Idle &&
+            (_toolVm.ActiveTool == ToolMode.Line || _toolVm.ActiveTool == ToolMode.Circle) &&
+            _toolVm.LastSnap.HasValue)
+        {
+            float ids = (float)(_dpiScale * _mainVm.ZoomFactor);  // idle dpi-scale (avoids name clash with outer ds)
+            bool isSnapped = _toolVm.LastSnap.Value.Label is not null;
+            var ringCenter = _toolVm.LastSnap.Value.Position;
+
+            using var idleSnapPaint = new SKPaint
+            {
+                Style       = SKPaintStyle.Stroke,
+                Color       = isSnapped
+                    ? new SKColor(0x3B, 0x6F, 0xD4, 220)   // solid cobalt ring at snap point
+                    : new SKColor(0x3B, 0x6F, 0xD4, 80),    // faint ring at cursor (no snap nearby)
+                StrokeWidth = 2f * ids,
+                IsAntialias = true,
+                PathEffect  = isSnapped
+                    ? SKPathEffect.CreateDash(new float[] { 3f, 3f }, 0f)  // dashed = snapped
+                    : null,
+            };
+            canvas.DrawCircle(ringCenter, 18f * ids, idleSnapPaint);
+
+            if (isSnapped)
+            {
+                using var idleSnapDotPaint = new SKPaint
+                {
+                    Style       = SKPaintStyle.Fill,
+                    Color       = new SKColor(0x3B, 0x6F, 0xD4, 200),
+                    IsAntialias = true,
+                };
+                canvas.DrawCircle(ringCenter, 5f * ids, idleSnapDotPaint);
+            }
+            return;  // Do not draw anchor ring — there is no anchor in Idle state
+        }
+
         if (_toolVm.DrawState != DrawState.AnchorPlaced) return;
 
         // Protractor ghost: semi-transparent protractor arc at cursor (before click 2)
