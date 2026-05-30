@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.Input;
 using MathGaze.Core.Commands;
 using MathGaze.Core.Geometry;
 using MathGaze.Services;
+using System.Linq;
 
 namespace MathGaze.ViewModels;
 
 /// <summary>
 /// Drives the right rail panel: selection-aware nudge block, delete button, undo/redo.
 /// Observes IGeometryService.ObjectsChanged to update all observable state.
+/// Observes ToolViewModel.PropertyChanged to switch the DrawingGuidePanel (D-01).
 ///
 /// Per D-07: NudgeLabel adapts to sub-selection state (endpoint A/B, centre/radius).
 /// Per D-08/D-09: all mutations go through IGeometryService.ExecuteCommand().
@@ -17,6 +19,7 @@ namespace MathGaze.ViewModels;
 public sealed partial class RightRailViewModel : ObservableObject
 {
     private readonly IGeometryService _geometryService;
+    private readonly ToolViewModel    _toolVm;
 
     // ── Nudge step sizes ─────────────────────────────────────────────────────
     public static readonly int[] StepOptions = { 1, 5, 20 };
@@ -28,16 +31,52 @@ public sealed partial class RightRailViewModel : ObservableObject
     [ObservableProperty] private bool   _isStyleClassic = true;
     [ObservableProperty] private bool   _isStyleFull    = false;
 
-    public RightRailViewModel(IGeometryService geometryService)
+    // ── Drawing guide panel state ─────────────────────────────────────────────
+    [ObservableProperty] private bool   _hasDrawingInProgress;
+    [ObservableProperty] private bool   _hasSelectionPanel;
+    [ObservableProperty] private string _drawingInstructionText = string.Empty;
+
+    /// <summary>
+    /// Exposes ToolViewModel.CancelDrawCommand so the DrawingGuidePanel Cancel button
+    /// can bind directly against the RightRailViewModel DataContext.
+    /// </summary>
+    public IRelayCommand CancelDrawCommand => _toolVm.CancelDrawCommand;
+
+    public RightRailViewModel(IGeometryService geometryService, ToolViewModel toolVm)
     {
         _geometryService = geometryService;
-        _geometryService.ObjectsChanged += OnObjectsChanged;
+        _toolVm          = toolVm;
+        _toolVm.PropertyChanged          += OnToolPropertyChanged;
+        _geometryService.ObjectsChanged  += OnObjectsChanged;
         Refresh();
     }
 
     // ── Internal refresh ─────────────────────────────────────────────────────
 
     private void OnObjectsChanged(object? sender, EventArgs e) => Refresh();
+
+    private void OnToolPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(ToolViewModel.HasDrawingInProgress)
+                           or nameof(ToolViewModel.ActiveTool)
+                           or nameof(ToolViewModel.DrawState))
+        {
+            UpdateDrawingState();
+        }
+    }
+
+    private void UpdateDrawingState()
+    {
+        HasDrawingInProgress = _toolVm.HasDrawingInProgress;
+        HasSelectionPanel    = HasSelection && !HasDrawingInProgress;
+        DrawingInstructionText = (_toolVm.ActiveTool, _toolVm.DrawState) switch
+        {
+            (ToolMode.Line,       DrawState.AnchorPlaced) => "Line in progress\nClick 2nd point",
+            (ToolMode.Circle,     DrawState.AnchorPlaced) => "Circle in progress\nClick radius point",
+            (ToolMode.Protractor, DrawState.AnchorPlaced) => "Protractor in progress\nClick 2nd point or line",
+            _ => string.Empty,
+        };
+    }
 
     private void Refresh()
     {
@@ -80,6 +119,7 @@ public sealed partial class RightRailViewModel : ObservableObject
         FlipScaleCommand.NotifyCanExecuteChanged();
         SetStyleClassicCommand.NotifyCanExecuteChanged();
         SetStyleFullCommand.NotifyCanExecuteChanged();
+        ClearPageCommand.NotifyCanExecuteChanged();
 
         // Update protractor style toggle state
         if (obj is ProtractorObject prot)
@@ -92,6 +132,20 @@ public sealed partial class RightRailViewModel : ObservableObject
             IsStyleClassic = true;
             IsStyleFull    = false;
         }
+
+        // Sync drawing state after selection changes
+        UpdateDrawingState();
+    }
+
+    // ── Clear page command ────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private void ClearPage()
+    {
+        var snapshot = _geometryService.Objects.ToList();
+        if (snapshot.Count == 0) return;  // no-op if page already empty
+        _geometryService.ExecuteCommand(new ClearPageCommand(snapshot));
+        // ExecuteCommand raises ObjectsChanged → auto-save triggers (D-10)
     }
 
     // ── Step selection ───────────────────────────────────────────────────────
