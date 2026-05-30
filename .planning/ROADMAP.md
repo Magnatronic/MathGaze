@@ -142,17 +142,20 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. Answer Layer | 3/3 | Complete   | 2026-05-27 |
 | 5. Angle Measurement | 1/1 | Complete | 2026-05-29 |
 | 6. PDF Export | 1/2 | In Progress|  |
-| 7. UI Improvements | 3/4 | In Progress|  |
+| 7. UI Improvements | 4/7 | In Progress (gap closure)|  |
 
 ### Phase 7: UI improvements
 
 **Goal:** Make the app genuinely comfortable for daily gaze use — resize all interactive buttons to the >=56x56px gaze floor, redesign tool rail to 84x84px icon-above-label, add dark mode via ResourceDictionary swapping, add mid-draw guidance card in right rail, add clear-page action, add object list panel for gaze-friendly selection, and enable first-click snapping.
 **Requirements**: TBD
 **Depends on:** Phase 6
-**Plans:** 3/4 plans executed
+**Plans:** 7 plans (4 original + 3 gap closure)
 
 Plans:
 - [x] 07-01-PLAN.md — Button sizing: TopBar all buttons 56x56px (height 72px); ScrollRail buttons 56x56px (rail 64px wide); ToolRail buttons 84x84px icon-above-label (rail 108px); DynamicResource brush refs in all templates
 - [x] 07-02-PLAN.md — Theme system: Light.xaml + Dark.xaml colour tokens; App.xaml restructured; SettingsViewModel; in-window settings panel; gear button wired; Properties.Settings persistence
 - [x] 07-03-PLAN.md — Right rail panels: DrawingGuidePanel (mid-draw hint + cancel); ClearPageCommand (undoable bulk remove); HasDrawingInProgress on ToolViewModel; three-panel switching in RightRail.xaml
-- [ ] 07-04-PLAN.md — Object list + first-click snap: ObjectListPanel (Select + no selection); ObservableCollection rebuilt on ObjectsChanged; row tap selects object; snap on first click for Line/Circle/Protractor two-point mode
+- [x] 07-04-PLAN.md — Object list + first-click snap: ObjectListPanel (Select + no selection); ObservableCollection rebuilt on ObjectsChanged; row tap selects object; snap on first click for Line/Circle/Protractor two-point mode
+- [ ] 07-05-PLAN.md — GAP CLOSURE (Wave 1): DynamicResource fix for ToolTileStyle/IconButtonStyle style-level setters (Gap 1); suppress native ScrollBar ellipse thumb in object list (Gap 2)
+- [ ] 07-06-PLAN.md — GAP CLOSURE (Wave 1): Brush consistency across all rail backgrounds (Gap 3); settings auto-close on tool activation (Gap 4); remove type chip from object list rows (Gap 6)
+- [ ] 07-07-PLAN.md — GAP CLOSURE (Wave 2): Widen right rail to 180px (Gap 5); scale up icons to 32x32 and fonts to 13pt (Gap 7); fix snap ring not rendering in Idle state (Gap 8)
