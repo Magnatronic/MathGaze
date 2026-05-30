@@ -142,3 +142,13 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. Answer Layer | 3/3 | Complete   | 2026-05-27 |
 | 5. Angle Measurement | 1/1 | Complete | 2026-05-29 |
 | 6. PDF Export | 1/2 | In Progress|  |
+
+### Phase 7: UI improvements
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 6
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 7 to break down)

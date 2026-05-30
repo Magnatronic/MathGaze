@@ -136,6 +136,7 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 6 added: PDF Export — save annotated exam paper with geometry overlay as PDF for printing and submission
+- Phase 7 added: UI improvements
 
 ### Pending Todos
 
