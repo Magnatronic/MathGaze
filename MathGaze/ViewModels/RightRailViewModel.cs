@@ -130,6 +130,7 @@ public sealed partial class RightRailViewModel : ObservableObject
         RotatePlus1Command.NotifyCanExecuteChanged();
         RotatePlus5Command.NotifyCanExecuteChanged();
         FlipScaleCommand.NotifyCanExecuteChanged();
+        FlipProtractorCommand.NotifyCanExecuteChanged();
         SetStyleClassicCommand.NotifyCanExecuteChanged();
         SetStyleFullCommand.NotifyCanExecuteChanged();
         ClearPageCommand.NotifyCanExecuteChanged();
@@ -288,6 +289,13 @@ public sealed partial class RightRailViewModel : ObservableObject
     {
         if (_geometryService.SelectedObject is ProtractorObject p)
             _geometryService.ExecuteCommand(new FlipProtractorCommand(p.Id));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanProtractor))]
+    private void FlipProtractor()
+    {
+        if (_geometryService.SelectedObject is ProtractorObject p)
+            _geometryService.ExecuteCommand(new RotateProtractorCommand(p.Id, 180.0));
     }
 
     [RelayCommand(CanExecute = nameof(CanProtractor))]

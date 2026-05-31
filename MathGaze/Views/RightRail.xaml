@@ -165,38 +165,43 @@
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,4"/>
 
-                        <!-- Rotate block: −5°, −1°, +1°, +5° — each 56x56px (gaze floor) -->
+                        <!-- Rotate block: −5°, −1°, +1°, +5° — fill rail width to match style buttons -->
                         <UniformGrid Rows="2" Columns="2" Margin="0,0,0,6">
-                            <Button Width="56" Height="56"
+                            <Button Height="56"
                                     Style="{StaticResource RailButtonStyle}"
                                     Command="{Binding RotateMinus5Command}"
                                     Content="&#x2212;5&#xB0;"
                                     ToolTip="Rotate left 5 degrees"/>
-                            <Button Width="56" Height="56"
+                            <Button Height="56"
                                     Style="{StaticResource RailButtonStyle}"
                                     Command="{Binding RotateMinus1Command}"
                                     Content="&#x2212;1&#xB0;"
                                     ToolTip="Rotate left 1 degree"/>
-                            <Button Width="56" Height="56"
+                            <Button Height="56"
                                     Style="{StaticResource RailButtonStyle}"
                                     Command="{Binding RotatePlus1Command}"
                                     Content="+1&#xB0;"
                                     ToolTip="Rotate right 1 degree"/>
-                            <Button Width="56" Height="56"
+                            <Button Height="56"
                                     Style="{StaticResource RailButtonStyle}"
                                     Command="{Binding RotatePlus5Command}"
                                     Content="+5&#xB0;"
                                     ToolTip="Rotate right 5 degrees"/>
                         </UniformGrid>
 
-                        <!-- Flip scale button — full width, 56px height -->
-                        <Button Height="56"
-                                HorizontalAlignment="Stretch"
-                                Style="{StaticResource RailButtonStyle}"
-                                Command="{Binding FlipScaleCommand}"
-                                Content="Flip scale"
-                                Margin="0,0,0,6"
-                                ToolTip="Toggle inner/outer scale (0–180 or 180–0)"/>
+                        <!-- Flip scale / Flip row — two half-width buttons matching style row -->
+                        <UniformGrid Rows="1" Columns="2" Margin="0,0,0,6">
+                            <Button Height="56"
+                                    Style="{StaticResource RailButtonStyle}"
+                                    Command="{Binding FlipScaleCommand}"
+                                    Content="Flip scale"
+                                    ToolTip="Toggle inner/outer scale (0–180 or 180–0)"/>
+                            <Button Height="56"
+                                    Style="{StaticResource RailButtonStyle}"
+                                    Command="{Binding FlipProtractorCommand}"
+                                    Content="Flip"
+                                    ToolTip="Flip protractor 180°"/>
+                        </UniformGrid>
 
                         <!-- Style toggle: Classic 180° / Full 360° — StepButtonStyle pattern with Tag="active" -->
                         <TextBlock Text="STYLE"
