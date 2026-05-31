@@ -54,7 +54,7 @@
                             Style="{StaticResource IconButtonStyle}"
                             ToolTip="Open PDF"
                             Command="{Binding OpenFileCommand}">
-                        <Viewbox Width="16" Height="16">
+                        <Viewbox Width="24" Height="24">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                       StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -68,7 +68,7 @@
                             ToolTip="Close PDF"
                             Command="{Binding CloseFileCommand}"
                             IsEnabled="{Binding IsPdfOpen}">
-                        <Viewbox Width="16" Height="16">
+                        <Viewbox Width="24" Height="24">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -90,7 +90,7 @@
                         Command="{Binding ExportPdfCommand}">
                     <!-- PDF + down-arrow icon: document outline with a downward arrow -->
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Viewbox Width="20" Height="20" Margin="0,0,0,2">
+                        <Viewbox Width="24" Height="24" Margin="0,0,0,2">
                             <Canvas Width="24" Height="24">
                                 <!-- Arrow down -->
                                 <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
@@ -111,7 +111,7 @@
                     VerticalAlignment="Center" Margin="10,0,0,0"
                     Command="{Binding SettingsVm.OpenSettingsCommand}"
                     ToolTip="Settings">
-                <Viewbox Width="18" Height="18">
+                <Viewbox Width="24" Height="24">
                     <Canvas Width="24" Height="24">
                         <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -131,7 +131,7 @@
                     <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                             BorderThickness="0" ToolTip="Previous page"
                             Command="{Binding PreviousPageCommand}">
-                        <Viewbox Width="16" Height="16">
+                        <Viewbox Width="24" Height="24">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -141,7 +141,7 @@
                     </Button>
                     <!-- Page counter -->
                     <TextBlock Text="{Binding PageLabel}"
-                               FontFamily="{StaticResource FontMono}" FontSize="12"
+                               FontFamily="{StaticResource FontMono}" FontSize="14"
                                Foreground="{DynamicResource BrushInk}" FontWeight="SemiBold"
                                VerticalAlignment="Center" Margin="4,0" MinWidth="52"
                                TextAlignment="Center"/>
@@ -149,7 +149,7 @@
                     <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                             BorderThickness="0" ToolTip="Next page"
                             Command="{Binding NextPageCommand}">
-                        <Viewbox Width="16" Height="16">
+                        <Viewbox Width="24" Height="24">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -169,7 +169,7 @@
                     <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                             BorderThickness="0" ToolTip="Zoom out"
                             Command="{Binding ZoomOutCommand}">
-                        <Viewbox Width="16" Height="16">
+                        <Viewbox Width="24" Height="24">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -179,7 +179,7 @@
                     </Button>
                     <!-- Zoom label -->
                     <TextBlock Text="{Binding ZoomLabel}"
-                               FontFamily="{StaticResource FontMono}" FontSize="11"
+                               FontFamily="{StaticResource FontMono}" FontSize="14"
                                Foreground="{DynamicResource BrushInk}" FontWeight="SemiBold"
                                VerticalAlignment="Center" MinWidth="42" TextAlignment="Center"
                                Margin="6,0"/>
@@ -187,7 +187,7 @@
                     <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                             BorderThickness="0" ToolTip="Zoom in"
                             Command="{Binding ZoomInCommand}">
-                        <Viewbox Width="16" Height="16">
+                        <Viewbox Width="24" Height="24">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -201,7 +201,7 @@
                     <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                             BorderThickness="0" ToolTip="Fit page"
                             Command="{Binding FitPageCommand}">
-                        <Viewbox Width="16" Height="16">
+                        <Viewbox Width="24" Height="24">
                             <Canvas Width="24" Height="24">
                                 <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"

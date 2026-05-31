@@ -18,7 +18,7 @@
                 <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                         BorderThickness="0" ToolTip="Page Up"
                         Command="{Binding ScrollPageUpCommand}">
-                    <Viewbox Width="16" Height="16">
+                    <Viewbox Width="24" Height="24">
                         <Canvas Width="24" Height="24">
                             <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -30,7 +30,7 @@
                 <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                         BorderThickness="0" ToolTip="Scroll Up"
                         Command="{Binding ScrollUpCommand}">
-                    <Viewbox Width="16" Height="16">
+                    <Viewbox Width="24" Height="24">
                         <Canvas Width="24" Height="24">
                             <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -42,15 +42,14 @@
         </Border>
 
         <!-- Middle: scroll position indicator -->
-        <Border Grid.Row="1" Background="{DynamicResource BrushSurface2}"
+        <Border Grid.Row="1" Background="Transparent"
                 BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1"
-                CornerRadius="999" Margin="4"
+                Margin="4"
                 x:Name="ScrollTrack"
                 SizeChanged="OnTrackSizeChanged">
             <Canvas x:Name="ThumbCanvas" ClipToBounds="True">
                 <Rectangle x:Name="ScrollThumb"
                            Fill="{StaticResource BrushAccent}" Opacity="0.85"
-                           RadiusX="999" RadiusY="999"
                            Width="10" Height="20"
                            Canvas.Left="0" Canvas.Top="0"/>
             </Canvas>
@@ -65,7 +64,7 @@
                 <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                         BorderThickness="0" ToolTip="Scroll Down"
                         Command="{Binding ScrollDownCommand}">
-                    <Viewbox Width="16" Height="16">
+                    <Viewbox Width="24" Height="24">
                         <Canvas Width="24" Height="24">
                             <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"
@@ -77,7 +76,7 @@
                 <Button Width="56" Height="56" Style="{StaticResource IconButtonStyle}"
                         BorderThickness="0" ToolTip="Page Down"
                         Command="{Binding ScrollPageDownCommand}">
-                    <Viewbox Width="16" Height="16">
+                    <Viewbox Width="24" Height="24">
                         <Canvas Width="24" Height="24">
                             <Path Stroke="{DynamicResource BrushInk2}" StrokeThickness="1.8"
                                   StrokeStartLineCap="Round" StrokeEndLineCap="Round"
