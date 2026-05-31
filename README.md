@@ -20,7 +20,7 @@ Built for students who use Grid 3 / Smartbox eye-gaze systems. All interaction i
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | WPF + .NET 9 |
+| Framework | WPF + .NET 10 |
 | 2D canvas | SkiaSharp 3.x (`SKElement`) |
 | PDF rendering | Docnet.Core (PDFium) |
 | MVVM | CommunityToolkit.Mvvm 8.x |
@@ -30,7 +30,7 @@ Built for students who use Grid 3 / Smartbox eye-gaze systems. All interaction i
 
 ### Prerequisites
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Windows 10 or 11
 
 ### Run in development
@@ -51,7 +51,7 @@ dotnet publish MathGaze/MathGaze.csproj ^
   -o publish/
 ```
 
-The output is a single `MathGaze.exe` in `publish/`. It bundles the .NET 9 runtime and all native dependencies — no install required on the target machine.
+The output is a single `MathGaze.exe` in `publish/`. It bundles the .NET 10 runtime and all native dependencies — no install required on the target machine.
 
 > **School machines:** The EXE runs without admin rights and without any pre-installed .NET or VC++ runtime. Copy it to a USB stick and launch directly.
 
