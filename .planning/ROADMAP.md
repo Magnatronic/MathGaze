@@ -156,6 +156,6 @@ Plans:
 - [x] 07-02-PLAN.md — Theme system: Light.xaml + Dark.xaml colour tokens; App.xaml restructured; SettingsViewModel; in-window settings panel; gear button wired; Properties.Settings persistence
 - [x] 07-03-PLAN.md — Right rail panels: DrawingGuidePanel (mid-draw hint + cancel); ClearPageCommand (undoable bulk remove); HasDrawingInProgress on ToolViewModel; three-panel switching in RightRail.xaml
 - [x] 07-04-PLAN.md — Object list + first-click snap: ObjectListPanel (Select + no selection); ObservableCollection rebuilt on ObjectsChanged; row tap selects object; snap on first click for Line/Circle/Protractor two-point mode
-- [ ] 07-05-PLAN.md — GAP CLOSURE (Wave 1): DynamicResource fix for ToolTileStyle/IconButtonStyle style-level setters (Gap 1); suppress native ScrollBar ellipse thumb in object list (Gap 2)
-- [ ] 07-06-PLAN.md — GAP CLOSURE (Wave 1): Brush consistency across all rail backgrounds (Gap 3); settings auto-close on tool activation (Gap 4); remove type chip from object list rows (Gap 6)
-- [ ] 07-07-PLAN.md — GAP CLOSURE (Wave 2): Widen right rail to 180px (Gap 5); scale up icons to 32x32 and fonts to 13pt (Gap 7); fix snap ring not rendering in Idle state (Gap 8)
+- [x] 07-05-PLAN.md — GAP CLOSURE (Wave 1): DynamicResource fix for ToolTileStyle/IconButtonStyle style-level setters (Gap 1); suppress native ScrollBar ellipse thumb in object list (Gap 2)
+- [x] 07-06-PLAN.md — GAP CLOSURE (Wave 1): Brush consistency across all rail backgrounds (Gap 3); settings auto-close on tool activation (Gap 4); remove type chip from object list rows (Gap 6)
+- [x] 07-07-PLAN.md — GAP CLOSURE (Wave 2): Widen right rail to 180px (Gap 5); scale up icons to 32x32 and fonts to 13pt (Gap 7); fix snap ring not rendering in Idle state (Gap 8)
