@@ -98,7 +98,13 @@ public partial class MainViewModel : ObservableObject
 
     public string ZoomLabel => $"{(int)Math.Round(ZoomFactor * 100)}%";
 
-    partial void OnZoomFactorChanged(double value) => OnPropertyChanged(nameof(ZoomLabel));
+    partial void OnZoomFactorChanged(double value)
+    {
+        OnPropertyChanged(nameof(ZoomLabel));
+        OnPropertyChanged(nameof(IsScrollable));
+        OnPropertyChanged(nameof(ScrollThumbTopRatio));
+        OnPropertyChanged(nameof(ScrollThumbSizeRatio));
+    }
 
     [RelayCommand]
     private void ZoomIn()
@@ -129,7 +135,24 @@ public partial class MainViewModel : ObservableObject
     {
         _isFitPageMode = false;         // user has taken manual control of zoom
         var prev = ZoomSteps.LastOrDefault(z => z < ZoomFactor - 0.001);
-        if (prev > 0) ZoomFactor = prev;
+        if (prev <= 0) return;
+
+        // Floor: never zoom below max(fit-page zoom, 50%) so the page stays usable.
+        double floorZoom = 0.50;
+        if (IsPdfOpen && _pdfCanvasVm is not null)
+        {
+            var (_, heightPt) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
+            double dpiScale = _pdfCanvasVm.DpiScale;
+            int canvasH = _pdfCanvasVm.CanvasHeightPx;
+            if (canvasH > 0 && heightPt > 0)
+            {
+                double fitZoom = canvasH / (heightPt * (96.0 / 72.0) * dpiScale);
+                floorZoom = Math.Max(floorZoom, fitZoom);
+            }
+        }
+
+        if (prev >= floorZoom - 0.001)
+            ZoomFactor = Math.Max(prev, floorZoom);
     }
 
     [RelayCommand]
@@ -251,7 +274,12 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private double _scrollOffsetY = 0;
 
-    partial void OnScrollOffsetYChanged(double value) => OnPropertyChanged(nameof(ScrollThumbTopRatio));
+    partial void OnScrollOffsetYChanged(double value)
+    {
+        OnPropertyChanged(nameof(ScrollThumbTopRatio));
+        OnPropertyChanged(nameof(ScrollThumbSizeRatio));
+        OnPropertyChanged(nameof(IsScrollable));
+    }
 
     private const double SmallScrollPx = 120.0;
 
@@ -295,6 +323,7 @@ public partial class MainViewModel : ObservableObject
         double maxScroll = Math.Max(0, pageHeightPx - canvasH);
         ScrollOffsetY = Math.Min(ScrollOffsetY, maxScroll);
         OnPropertyChanged(nameof(ScrollThumbTopRatio));
+        OnPropertyChanged(nameof(ScrollThumbSizeRatio));
     }
 
     /// <summary>
@@ -314,6 +343,42 @@ public partial class MainViewModel : ObservableObject
             double maxScroll = Math.Max(0, pageHeightPx - canvasH);
             if (maxScroll <= 0) return 0;
             return Math.Clamp(ScrollOffsetY / maxScroll, 0.0, 1.0);
+        }
+    }
+
+    /// <summary>
+    /// The thumb height as a ratio 0–1 of (canvasH / pageHeightPx).
+    /// Used by ScrollRail to size the proportional thumb.
+    /// Returns 1 when there is nothing to scroll (thumb fills track).
+    /// </summary>
+    public double ScrollThumbSizeRatio
+    {
+        get
+        {
+            if (!IsPdfOpen) return 1;
+            var (_, heightPt) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
+            double dpiScale = _pdfCanvasVm?.DpiScale ?? 1.0;
+            double pageHeightPx = heightPt * (ZoomFactor * dpiScale * 96.0 / 72.0);
+            double canvasH = _pdfCanvasVm?.CanvasHeightPx ?? 0;
+            if (pageHeightPx <= 0) return 1;
+            return Math.Clamp(canvasH / pageHeightPx, 0.0, 1.0);
+        }
+    }
+
+    /// <summary>
+    /// True when the page is taller than the canvas viewport — i.e. scrolling is possible.
+    /// Used by ScrollRail to hide the thumb indicator when nothing can be scrolled.
+    /// </summary>
+    public bool IsScrollable
+    {
+        get
+        {
+            if (!IsPdfOpen) return false;
+            var (_, heightPt) = _pdfService.GetPageDimensionsPt(CurrentPage - 1);
+            double dpiScale = _pdfCanvasVm?.DpiScale ?? 1.0;
+            double pageHeightPx = heightPt * (ZoomFactor * dpiScale * 96.0 / 72.0);
+            double canvasH = _pdfCanvasVm?.CanvasHeightPx ?? 0;
+            return pageHeightPx > canvasH + 1.0;  // +1 tolerates sub-pixel rounding
         }
     }
 

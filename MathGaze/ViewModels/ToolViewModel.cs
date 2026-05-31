@@ -47,9 +47,9 @@ public partial class ToolViewModel : ObservableObject
     // ── Tool activation commands (bound from ToolRail) ───────────────────────
 
     [RelayCommand] private void ActivateSelect()    { ResetDrawState(); ActiveTool = ToolMode.Select; }
-    [RelayCommand] private void ActivatePoint()     { ResetDrawState(); ActiveTool = ToolMode.Point;     StatusMessage = "Click to place a point"; }
-    [RelayCommand] private void ActivateLine()      { ResetDrawState(); ActiveTool = ToolMode.Line;      StatusMessage = "Click to place start point"; }
-    [RelayCommand] private void ActivateCircle()    { ResetDrawState(); ActiveTool = ToolMode.Circle;    StatusMessage = "Click to place centre"; }
+    [RelayCommand] private void ActivatePoint()     { ResetDrawState(); ActiveTool = ToolMode.Point;      StatusMessage = "Click to place a point"; }
+    [RelayCommand] private void ActivateLine()      { ResetDrawState(); ActiveTool = ToolMode.Line;       StatusMessage = "Click to place start point"; }
+    [RelayCommand] private void ActivateCircle()    { ResetDrawState(); ActiveTool = ToolMode.Circle;     StatusMessage = "Click to place centre"; }
     [RelayCommand] private void ActivateProtractor(){ ResetDrawState(); ActiveTool = ToolMode.Protractor; StatusMessage = "Click vertex (or a line)"; }
     [RelayCommand] private void ActivateText()      { ResetDrawState(); ActiveTool = ToolMode.Text;       StatusMessage = "Copy text, then click canvas"; }
 
@@ -60,6 +60,9 @@ public partial class ToolViewModel : ObservableObject
         DrawState     = DrawState.Idle;
         LastSnap      = null;
         StatusMessage = string.Empty;
+        // Bug 5 fix: switching tools always clears the current geometry selection so the
+        // right rail returns to the object-list view rather than keeping stale selection controls.
+        _geometryService.ClearSelection();
         GhostChanged?.Invoke(this, EventArgs.Empty);
     }
 
@@ -99,7 +102,10 @@ public partial class ToolViewModel : ObservableObject
             {
                 // First click — exact placement, no snap
                 var (xPt, yPt) = mapper.ScreenToPage(screenPx);
-                _geometryService.ExecuteCommand(new PlaceObjectCommand(new PointObject(xPt, yPt)));
+                var newPoint = new PointObject(xPt, yPt);
+                _geometryService.ExecuteCommand(new PlaceObjectCommand(newPoint));
+                // Bug 6 fix: auto-select the newly placed object
+                _geometryService.SetSelected(newPoint.Id);
                 StatusMessage = "Point placed";
                 break;
             }
@@ -126,9 +132,11 @@ public partial class ToolViewModel : ObservableObject
                 var (snappedPx, _) = snap.Snap(screenPx, _geometryService.Objects, mapper);
                 var (xPt, yPt) = mapper.ScreenToPage(snappedPx);
                 var anchor = AnchorPt!.Value;
-                _geometryService.ExecuteCommand(new PlaceObjectCommand(
-                    new LineObject(anchor.xPt, anchor.yPt, xPt, yPt)));
-                ResetDrawState();
+                var newLine = new LineObject(anchor.xPt, anchor.yPt, xPt, yPt);
+                _geometryService.ExecuteCommand(new PlaceObjectCommand(newLine));
+                ResetDrawState();   // clears selection via ClearSelection()
+                // Bug 6 fix: auto-select the newly placed line
+                _geometryService.SetSelected(newLine.Id);
                 StatusMessage = "Line placed";
                 break;
             }
@@ -154,9 +162,11 @@ public partial class ToolViewModel : ObservableObject
                 double dx = xPt - ctr.xPt, dy = yPt - ctr.yPt;
                 double radiusPt = Math.Sqrt(dx * dx + dy * dy);
                 if (radiusPt < 1.0) radiusPt = 1.0;
-                _geometryService.ExecuteCommand(new PlaceObjectCommand(
-                    new CircleObject(ctr.xPt, ctr.yPt, radiusPt)));
-                ResetDrawState();
+                var newCircle = new CircleObject(ctr.xPt, ctr.yPt, radiusPt);
+                _geometryService.ExecuteCommand(new PlaceObjectCommand(newCircle));
+                ResetDrawState();   // clears selection via ClearSelection()
+                // Bug 6 fix: auto-select the newly placed circle
+                _geometryService.SetSelected(newCircle.Id);
                 StatusMessage = "Circle placed";
                 break;
             }
@@ -213,8 +223,9 @@ public partial class ToolViewModel : ObservableObject
 
                         var sameLine = new ProtractorObject(centerXPt, centerYPt, sameLineAngle, AnchorLine.Id, AnchorLine.Id);
                         _geometryService.ExecuteCommand(new PlaceObjectCommand(sameLine));
+                        ResetDrawState();   // clears selection via ClearSelection()
+                        // Bug 6 fix: auto-select after ResetDrawState so selection is not wiped
                         _geometryService.SetSelected(sameLine.Id);
-                        ResetDrawState();
                         StatusMessage = "Protractor placed";
                         break;
                     }
@@ -280,8 +291,9 @@ public partial class ToolViewModel : ObservableObject
                         AnchorLine.Id, line2.Id);
 
                     _geometryService.ExecuteCommand(new PlaceObjectCommand(protractor));
+                    ResetDrawState();   // clears selection via ClearSelection()
+                    // Bug 6 fix: auto-select after ResetDrawState so selection is not wiped
                     _geometryService.SetSelected(protractor.Id);
-                    ResetDrawState();
                     StatusMessage = "Protractor placed";
                 }
                 else
@@ -299,8 +311,9 @@ public partial class ToolViewModel : ObservableObject
                         Guid.Empty, Guid.Empty);  // no source lines; suppresses Practice Mode readout
 
                     _geometryService.ExecuteCommand(new PlaceObjectCommand(protractor));
+                    ResetDrawState();   // clears selection via ClearSelection()
+                    // Bug 6 fix: auto-select after ResetDrawState so selection is not wiped
                     _geometryService.SetSelected(protractor.Id);
-                    ResetDrawState();
                     StatusMessage = "Protractor placed";
                 }
                 break;
@@ -324,8 +337,10 @@ public partial class ToolViewModel : ObservableObject
                     break;
                 }
                 var (xPt, yPt) = mapper.ScreenToPage(screenPx);
-                _geometryService.ExecuteCommand(
-                    new PlaceObjectCommand(new TextObject(clipText, xPt, yPt)));
+                var newText = new TextObject(clipText, xPt, yPt);
+                _geometryService.ExecuteCommand(new PlaceObjectCommand(newText));
+                // Bug 6 fix: auto-select the newly placed text object
+                _geometryService.SetSelected(newText.Id);
                 StatusMessage = "Text placed";
                 break;
             }

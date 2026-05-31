@@ -398,9 +398,20 @@ public sealed class GeometryLayerViewModel : IDisposable
         var oval = new SKRect(-radiusPx, -radiusPx, radiusPx, radiusPx);
         canvas.DrawArc(oval, startAngle, arcDeg, false, bodyPaint);
 
-        // 2. Baseline (for Classic180 only — the flat diameter line)
+        // 2. Baseline and arm lines (for Classic180 only — the flat diameter line)
+        // The full baseline from -radiusPx to +radiusPx is the primary arm.
+        // Additionally draw explicit arm lines from the center crosshair edge out to the arc
+        // at both 0° (right) and 180° (left) so the arm visually connects centre to scale arc.
         if (!isFull)
+        {
             canvas.DrawLine(-radiusPx, 0, radiusPx, 0, bodyPaint);
+        }
+        else
+        {
+            // Full 360°: draw a cross through centre as orientation reference arms
+            canvas.DrawLine(-radiusPx, 0, radiusPx, 0, bodyPaint);
+            canvas.DrawLine(0, -radiusPx, 0, radiusPx, bodyPaint);
+        }
 
         // 3. Scale tick marks at 1° increments
         for (int a = 0; a <= arcDeg; a++)

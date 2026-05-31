@@ -437,18 +437,31 @@ public sealed class PdfCanvasViewModel : ObservableObject, IDisposable
 
         canvas.Restore();
 
-        // In two-point mode: draw a dashed arm line from vertex to cursor to show baseline direction
+        // In two-point mode: draw a dashed arm line from vertex toward cursor, extended to the arc.
+        // Bug 3 fix: the arm must always reach the arc (length = radiusPx), regardless of how close
+        // to the center the cursor is. Compute the unit vector toward the cursor and scale by radiusPx.
         if (anchorLine is null && _toolVm.AnchorPt.HasValue)
         {
-            using var armLinePaint = new SKPaint
+            float dx = centerPx.X - ghostCenterPx.X;
+            float dy = centerPx.Y - ghostCenterPx.Y;
+            float dist = MathF.Sqrt(dx * dx + dy * dy);
+            if (dist > 2f)  // guard against degenerate cursor-on-center case
             {
-                Style       = SKPaintStyle.Stroke,
-                Color       = new SKColor(0x3B, 0x6F, 0xD4, 100), // cobalt at ~40% alpha
-                StrokeWidth = 1.5f * dps,
-                IsAntialias = true,
-                PathEffect  = SKPathEffect.CreateDash(new float[] { 6f, 4f }, 0f),
-            };
-            canvas.DrawLine(ghostCenterPx, centerPx, armLinePaint);
+                // Extend arm endpoint to arc boundary (radiusPx from center)
+                float armEndX = ghostCenterPx.X + (dx / dist) * radiusPx;
+                float armEndY = ghostCenterPx.Y + (dy / dist) * radiusPx;
+                var arcArmEnd = new SKPoint(armEndX, armEndY);
+
+                using var armLinePaint = new SKPaint
+                {
+                    Style       = SKPaintStyle.Stroke,
+                    Color       = new SKColor(0x3B, 0x6F, 0xD4, 100), // cobalt at ~40% alpha
+                    StrokeWidth = 1.5f * dps,
+                    IsAntialias = true,
+                    PathEffect  = SKPathEffect.CreateDash(new float[] { 6f, 4f }, 0f),
+                };
+                canvas.DrawLine(ghostCenterPx, arcArmEnd, armLinePaint);
+            }
         }
 
         // Center dot

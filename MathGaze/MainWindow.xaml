@@ -30,14 +30,15 @@
             <views:ToolRail Grid.Column="0" x:Name="ToolRailControl" Panel.ZIndex="2"/>
 
             <!-- Centre: canvas — DataContext is set in code-behind to PdfCanvasViewModel -->
-            <views:PdfCanvas Grid.Column="1" x:Name="PdfCanvasView"/>
+            <!-- Right margin reserves space for the 80px ScrollRail so it never overlaps page content -->
+            <views:PdfCanvas Grid.Column="1" x:Name="PdfCanvasView" Margin="0,0,80,0"/>
 
             <!-- ScrollRail overlaid on right edge of canvas, inside canvas column -->
             <views:ScrollRail Grid.Column="1"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Stretch"
                               DataContext="{Binding}"
-                              Margin="0,0,6,0"
+                              Margin="0,0,0,0"
                               Panel.ZIndex="2"/>
 
             <!-- Right rail -->
