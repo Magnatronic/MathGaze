@@ -68,4 +68,4 @@ MathGaze/
 
 ## Licence
 
-Private — built for a specific student. Not yet licensed for public distribution.
+MIT — see [LICENSE](LICENSE).
