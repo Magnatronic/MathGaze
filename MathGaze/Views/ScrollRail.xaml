@@ -43,7 +43,7 @@
 
         <!-- Middle: scroll position indicator -->
         <Border Grid.Row="1" Background="Transparent"
-                BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1"
+                BorderThickness="0"
                 Margin="4"
                 x:Name="ScrollTrack"
                 SizeChanged="OnTrackSizeChanged">

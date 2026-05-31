@@ -136,6 +136,7 @@ public partial class MainViewModel : ObservableObject
     private void FitPage()
     {
         ApplyFitPage();
+        ScrollOffsetY = 0;
         _isFitPageMode = true;          // entering fit-page mode
     }
 
@@ -227,14 +228,14 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanGoToPreviousPage))]
     private void PreviousPage()
     {
-        if (CurrentPage > 1) CurrentPage--;
+        if (CurrentPage > 1) { ScrollOffsetY = 0; CurrentPage--; }
     }
     private bool CanGoToPreviousPage() => IsPdfOpen && CurrentPage > 1;
 
     [RelayCommand(CanExecute = nameof(CanGoToNextPage))]
     private void NextPage()
     {
-        if (CurrentPage < TotalPages) CurrentPage++;
+        if (CurrentPage < TotalPages) { ScrollOffsetY = 0; CurrentPage++; }
     }
     private bool CanGoToNextPage() => IsPdfOpen && CurrentPage < TotalPages;
 

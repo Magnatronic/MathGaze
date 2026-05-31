@@ -44,17 +44,16 @@ public partial class ScrollRail : UserControl
         if (ScrollThumb is null || ThumbCanvas is null) return;
 
         double trackH = ThumbCanvas.ActualHeight;
+        double trackW = ThumbCanvas.ActualWidth;
         double thumbH = ScrollThumb.Height;
         double ratio  = _vm?.ScrollThumbTopRatio ?? 0.0;
+
+        ScrollThumb.Width = Math.Max(1, trackW);
 
         double maxTop = Math.Max(0, trackH - thumbH);
         double top    = Math.Clamp(ratio * maxTop, 0, maxTop);
 
-        // Centre the thumb horizontally in the canvas
-        double trackW = ThumbCanvas.ActualWidth;
-        double left   = Math.Max(0, (trackW - ScrollThumb.Width) / 2.0);
-
         System.Windows.Controls.Canvas.SetTop(ScrollThumb, top);
-        System.Windows.Controls.Canvas.SetLeft(ScrollThumb, left);
+        System.Windows.Controls.Canvas.SetLeft(ScrollThumb, 0);
     }
 }
