@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using MathGaze.Core;
 using MathGaze.Core.Commands;
 using MathGaze.Core.Geometry;
+using MathGaze.Properties;
 using MathGaze.Services;
 using SkiaSharp;
 
@@ -288,7 +289,8 @@ public partial class ToolViewModel : ObservableObject
                     var protractor = new ProtractorObject(
                         interPt.xPt, interPt.yPt,
                         baselineAngleDeg,
-                        AnchorLine.Id, line2.Id);
+                        AnchorLine.Id, line2.Id)
+                    { RadiusPt = UserPreferences.ProtractorSizeRadiusPt };
 
                     _geometryService.ExecuteCommand(new PlaceObjectCommand(protractor));
                     ResetDrawState();   // clears selection via ClearSelection()
@@ -308,7 +310,8 @@ public partial class ToolViewModel : ObservableObject
                     var protractor = new ProtractorObject(
                         AnchorPt.Value.xPt, AnchorPt.Value.yPt,
                         baselineAngleDeg,
-                        Guid.Empty, Guid.Empty);  // no source lines; suppresses Practice Mode readout
+                        Guid.Empty, Guid.Empty)  // no source lines; suppresses Practice Mode readout
+                    { RadiusPt = UserPreferences.ProtractorSizeRadiusPt };
 
                     _geometryService.ExecuteCommand(new PlaceObjectCommand(protractor));
                     ResetDrawState();   // clears selection via ClearSelection()

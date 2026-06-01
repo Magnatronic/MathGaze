@@ -14,11 +14,15 @@ public partial class SettingsViewModel : ObservableObject
 {
     [ObservableProperty] private bool _isDarkMode;
     [ObservableProperty] private bool _isSettingsPanelOpen;
+    [ObservableProperty] private bool _isProtractorSmall;
+    [ObservableProperty] private bool _isProtractorMedium;
+    [ObservableProperty] private bool _isProtractorLarge;
 
     public SettingsViewModel()
     {
         // Initialise from the persisted preference so the toggle shows the correct state
         _isDarkMode = UserPreferences.Theme == "Dark";
+        SyncProtractorSize(UserPreferences.ProtractorSize);
     }
 
     [RelayCommand]
@@ -39,5 +43,25 @@ public partial class SettingsViewModel : ObservableObject
         ((App)Application.Current).ApplyTheme(isDark);
         UserPreferences.Theme = theme;
         UserPreferences.Save();
+    }
+
+    /// <summary>
+    /// Called from Small/Medium/Large buttons in the settings panel.
+    /// Parameter: "Small" | "Medium" | "Large".
+    /// Affects protractors placed after this call; existing ones are unchanged.
+    /// </summary>
+    [RelayCommand]
+    private void SetProtractorSize(string size)
+    {
+        SyncProtractorSize(size);
+        UserPreferences.ProtractorSize = size;
+        UserPreferences.Save();
+    }
+
+    private void SyncProtractorSize(string size)
+    {
+        IsProtractorSmall  = size == "Small";
+        IsProtractorMedium = size == "Medium";
+        IsProtractorLarge  = size == "Large";
     }
 }

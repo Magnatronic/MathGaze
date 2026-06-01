@@ -113,6 +113,62 @@
                         </UniformGrid>
                     </StackPanel>
 
+                    <!-- Protractor size section -->
+                    <StackPanel DockPanel.Dock="Top" Margin="0,12,0,0">
+                        <TextBlock Text="PROTRACTOR SIZE"
+                                   FontSize="9" FontWeight="Bold"
+                                   Foreground="{DynamicResource BrushInk3}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,8"/>
+                        <UniformGrid Rows="1" Columns="3" Margin="0,0,0,6">
+                            <Button Height="56"
+                                    Command="{Binding SettingsVm.SetProtractorSizeCommand}"
+                                    CommandParameter="Small"
+                                    Content="Small"
+                                    ToolTip="Small protractor — fits tight angles">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SettingsVm.IsProtractorSmall}" Value="True">
+                                                <Setter Property="Tag" Value="active"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Height="56"
+                                    Command="{Binding SettingsVm.SetProtractorSizeCommand}"
+                                    CommandParameter="Medium"
+                                    Content="Medium"
+                                    ToolTip="Medium protractor — default size">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SettingsVm.IsProtractorMedium}" Value="True">
+                                                <Setter Property="Tag" Value="active"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Height="56"
+                                    Command="{Binding SettingsVm.SetProtractorSizeCommand}"
+                                    CommandParameter="Large"
+                                    Content="Large"
+                                    ToolTip="Large protractor — for wide angles">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource StepButtonStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SettingsVm.IsProtractorLarge}" Value="True">
+                                                <Setter Property="Tag" Value="active"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </UniformGrid>
+                    </StackPanel>
+
                 </DockPanel>
             </Border>
         </Grid>

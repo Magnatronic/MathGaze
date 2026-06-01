@@ -35,6 +35,9 @@
             </StackPanel>
 
             <!-- ── MAIN CONTENT ──────────────────────────────────────────────── -->
+            <!-- ScrollViewer: Grid 3 sends scroll-wheel/keyboard events; hidden bar is correct for gaze -->
+            <ScrollViewer VerticalScrollBarVisibility="Hidden"
+                          HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="8,14,8,0">
 
                 <!-- ── DRAWING GUIDE PANEL (shown when HasDrawingInProgress = true) ── -->
@@ -342,6 +345,7 @@
                 </StackPanel>
 
             </StackPanel>
+            </ScrollViewer>
         </DockPanel>
     </Border>
 </UserControl>

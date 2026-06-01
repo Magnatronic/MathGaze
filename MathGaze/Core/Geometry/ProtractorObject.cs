@@ -45,6 +45,12 @@ public sealed class ProtractorObject : GeometryObject
     /// <summary>Classic180 = semicircle (default); Full360 = full circle. Per D-05.</summary>
     public ProtractorStyle Style { get; set; } = ProtractorStyle.Classic180;
 
+    /// <summary>
+    /// Radius in PDF points for this protractor instance. Defaults to DefaultRadiusPt so
+    /// existing saved sessions deserialise correctly. Set at placement time from UserPreferences.
+    /// </summary>
+    public double RadiusPt { get; set; } = DefaultRadiusPt;
+
     // ── Source line references (for angle readout) ──────────────────────────
     /// <summary>
     /// GUID of the first line clicked (defines the baseline direction).
@@ -93,7 +99,7 @@ public sealed class ProtractorObject : GeometryObject
     {
         var centerScreen = mapper.PageToScreen(CenterXPt, CenterYPt);
         // Derive screen radius using a proxy offset in PDF-point space (same as CircleObject pattern)
-        var edgeScreen = mapper.PageToScreen(CenterXPt + DefaultRadiusPt, CenterYPt);
+        var edgeScreen = mapper.PageToScreen(CenterXPt + RadiusPt, CenterYPt);
         float radiusPx = edgeScreen.X - centerScreen.X;
         float dist     = SKPoint.Distance(screenPx, centerScreen);
         // Center zone hit (for nudge/drag selection)

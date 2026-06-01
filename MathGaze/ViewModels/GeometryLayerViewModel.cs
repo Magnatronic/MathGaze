@@ -373,7 +373,7 @@ public sealed class GeometryLayerViewModel : IDisposable
 
         // Derive screen radius via proxy-point offset (CoordinateMapper.Scale is private)
         // Same pattern as CircleObject and ProtractorObject.HitTest
-        var edgePx  = mapper.PageToScreen(obj.CenterXPt + ProtractorObject.DefaultRadiusPt, obj.CenterYPt);
+        var edgePx  = mapper.PageToScreen(obj.CenterXPt + obj.RadiusPt, obj.CenterYPt);
         float radiusPx = edgePx.X - centerPx.X;
         if (radiusPx < 10f) return;  // too small to render meaningfully
 

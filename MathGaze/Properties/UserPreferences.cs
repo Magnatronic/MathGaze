@@ -27,6 +27,20 @@ public static class UserPreferences
         set => _data.Theme = value;
     }
 
+    public static string ProtractorSize
+    {
+        get => _data.ProtractorSize;
+        set => _data.ProtractorSize = value;
+    }
+
+    /// <summary>Maps ProtractorSize preference to a radius in PDF points.</summary>
+    public static double ProtractorSizeRadiusPt => ProtractorSize switch
+    {
+        "Small" => 80.0,
+        "Large" => 200.0,
+        _       => 144.0,  // "Medium" and legacy default
+    };
+
     public static void Save()
     {
         try
@@ -59,6 +73,7 @@ public static class UserPreferences
 
     private sealed class PrefsData
     {
-        public string Theme { get; set; } = "Light";
+        public string Theme          { get; set; } = "Light";
+        public string ProtractorSize { get; set; } = "Medium";
     }
 }
